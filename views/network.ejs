@@ -1,0 +1,104 @@
+        <div class="right_col" id="pagecode_<%=page_Code%>" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>College Network<span id="network_total" class="small"></span></h3>
+                <p id="search_total">Showing...</p>
+              </div>
+              <div class="title_right">
+                <div class="col-md-6 col-sm-12 col-xs-12 form-group pull-right top_search">
+                  <div class="input-group">
+                    <div class="selectWrapper">
+                      <select class="selectBox">
+                      <option value="fullname">Full Name</option>
+                      <option value="email">Email</option>
+                      <option>Administrator</option>
+                      <option>Faculty</option>
+                      <option>Alumni</option>
+                      <option>Student</option>
+                      <option>Student</option>
+                    </select>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Search for...">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button">Go!</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="x_panel">
+                  <div class="x_content">
+
+                    <div class="row" id="dsata-container">
+
+                      <div id="letter_filter" class="col-md-12 col-sm-12 col-xs-12 text-center">
+                        <ul class="pagination pagination-split">
+                          <% var alpha = new Array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
+                          alpha.forEach(function(val,index) { 
+                            if (typeof alphabet != 'undefined' && alphabet == val) { %>
+                              <li class="selected"><a href="/network/list/"><%=val%></a></li>
+                            <% } else { %>
+                              <li><a href="/network/list/<%=val%>"><%=val%></a></li>
+                            <% }  
+                          }) %>
+                        </ul>
+                      </div>
+
+                    </div>
+                      <div class="clearfix"></div>
+                    <div class="row" id="data-container">
+                      <div></div><div></div>
+
+                      <!--<div class="col-md-4 col-sm-4 col-xs-12 profile_details">
+                        <div class="well profile_view">
+                          <div class="col-sm-12">
+                            <h4 class="brief"><i>Digital Strategist</i></h4>
+                            <div class="left col-xs-7">
+                              <h2>1 Nicole Pearson</h2>
+                              <p><strong>About: </strong> Web Designer / UX / Graphic Artist / Coffee Lover </p>
+                              <ul class="list-unstyled">
+                                <li><i class="fa fa-building"></i> Address: </li>
+                                <li><i class="fa fa-phone"></i> Phone #: </li>
+                              </ul>
+                            </div>
+                            <div class="right col-xs-5 text-center">
+                              <img src="assets/build/images/img.jpg" alt="" onerror="this.src='assets/build/images/user.jpg'"class="img-circle img-responsive">
+                            </div>
+                          </div>
+                          <div class="col-xs-12 bottom text-center">
+                            <div class="col-xs-12 col-sm-6 emphasis">
+                              <p class="ratings">
+                                <a>4.0</a>
+                                <a href="#"><span class="fa fa-star"></span></a>
+                                <a href="#"><span class="fa fa-star"></span></a>
+                                <a href="#"><span class="fa fa-star"></span></a>
+                                <a href="#"><span class="fa fa-star"></span></a>
+                                <a href="#"><span class="fa fa-star-o"></span></a>
+                              </p>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 emphasis">
+                              <button type="button" class="btn btn-success btn-xs"> <i class="fa fa-user">
+                                </i> <i class="fa fa-comments-o"></i> </button>
+                              <button type="button" class="btn btn-primary btn-xs">
+                                <i class="fa fa-user"> </i> View Profile
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>  -->
+
+
+                    </div>
+                    <input type="hidden" id="alphabet" value="<%=alphabet%>">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>

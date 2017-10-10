@@ -1,0 +1,39 @@
+<% 
+  if (typeof page_Code === 'undefined'){
+    page_Code = "dashboard";
+    console.log(page_Code);
+  }  
+  if (typeof page_Title === 'undefined'){
+    var page_Title = "Dashboard";
+    console.log(page_Title);
+  } 
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<% include partials/header.ejs %>
+
+  <body class="nav-md">
+
+    <div class="container body">
+      <div class="main_container">
+
+        <!-- Left navigation -->
+        <% include partials/leftnav.ejs %>
+
+        <!-- top navigation -->
+        <% include partials/topnav.ejs %>
+
+        <!-- page content -->
+        <%- include(page_Code+'.ejs') %>
+
+        <!-- footer content -->
+        <% include partials/footer.ejs %>
+
+      </div>
+    </div>
+
+    <% include partials/includes.ejs %>
+
+  </body>
+</html>
