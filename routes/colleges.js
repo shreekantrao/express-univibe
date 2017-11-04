@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
-// var colleges = require('../controllers/colleges');
+var colleges = require('../controllers/colleges');
+
+// ############################ College list page ######################################
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -9,22 +11,47 @@ router.get('/', function(req, res, next) {
 });
 router.get('/list', function(req, res, next) {
 	// console.log("alphabet = "+req.params.alphabet);
-	res.render('page', {"page_Code":"colleges","page_Title":"College Network"});
+	let notify = '';
+	if(req.session.notify){
+		notify = req.session.notify;
+		delete req.session.notify;
+	}
+	// res.send(notify);
+	res.render('page', {"page_Code":"colleges","page_Title":"College Network","notify":notify});
 });
 
-// --- this is Ajax call with only page no --- //
-// router.get('/page/:page_no', function(req, res, next) {
-// 	// console.log('router userslist');
-// 	network.userslist(req, res, next);
-// });
+// ############################ College list page ######################################
 
-// --- this is Ajax call with alphabet,--- //
-// router.get('/page/:page_no/:alphabet', function(req, res, next) {
-// 	// console.log('router userslist');
-// 	network.userslist(req, res, next);
-// });
+router.get('/page/:page_no', function(req, res, next) {
+	// console.log('router userslist');
+	colleges.getCollegeList(req, res, next);
+});
 
-// ############################ Profile ######################################
+// ############################ College add ######################################
+
+// --- College add page --- //
+router.get('/add', function(req, res) {
+	//network.profileData(req, res);
+	let notify = '';
+	if(req.session.notify){
+		notify = req.session.notify;
+		delete req.session.notify;
+	}
+	res.render('page', {"page_Code":"college-add","page_Title":"Add new College","notify":notify});
+});
+
+// --- College add acction--- //
+router.post('/addnew', function(req, res, next) {
+	colleges.createNewCollege(req, res, next);
+	// console.log("data for slug = "+JSON.stringify(data));
+	// res.render('page', {"page_Code":"college-add","page_Title":"Add new College"});
+});
+
+router.post('/checkcollegename', function(req, res, next) {
+	console.log("data for slug");
+	colleges.checkCollegeNameExists(req, res, next);
+});
+// ############################ College detail ######################################
 
 // --- College detail page --- //
 router.get('/:collegename/', function(req, res) {
@@ -33,12 +60,16 @@ router.get('/:collegename/', function(req, res) {
 	res.render('page', {"page_Code":"college-details","page_Title":"Profile"});
 });
 
-// --- College detail page --- //
-router.get('/:collegename/edit', function(req, res) {
-	//network.profileData(req, res);
-	// console.log("data for slug = "+JSON.stringify(data));
-	// res.end("hello");
-	res.render('page', {"page_Code":"college-edit","page_Title":"Profile"});
+// ############################ College edit ######################################
+
+// --- College edit page --- //
+router.get('/:collegename/edit', function(req, res, next) {
+	colleges.getCollegeData(req, res, next);
+	// res.render('page', {"page_Code":"college-edit","page_Title":"Profile"});
 });
 
+// --- College edit action --- //
+router.post('/edit', function(req, res, next) {
+	colleges.saveCollegeData(req, res, next);
+});
 module.exports = router;

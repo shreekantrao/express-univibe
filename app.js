@@ -3,6 +3,7 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var bodyParser = require('body-parser');
 var lessMiddleware = require('less-middleware');
 
@@ -45,6 +46,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({secret: "7u8i9o0p", resave: true, saveUninitialized: true}));
 app.use(lessMiddleware(path.join(__dirname, 'public')));
 
 app.use("/static",express.static(__dirname + "public"));

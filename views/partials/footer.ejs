@@ -1,6 +1,13 @@
-        <footer>
-          <div class="pull-right">
-            Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
-          </div>
-          <div class="clearfix"></div>
-        </footer>
+<% if( typeof notify !== "undefined" ) { %>
+<script type='text/javascript'>
+  var notivalue = <%- JSON.stringify(notify) %>; //dont forget to place the PHP code block inside the quotation 
+  // console.log(notivalue)
+</script>
+<% } %>
+<footer>
+  <div class="pull-right">
+    Gentelella - Bootstrap Admin Template by
+    <a href="https://colorlib.com">Colorlib</a>
+  </div>
+  <div class="clearfix"></div>
+</footer>
