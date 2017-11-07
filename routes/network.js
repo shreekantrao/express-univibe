@@ -24,6 +24,14 @@ router.get('/page/:page_no/:alphabet', function(req, res, next) {
 	network.userslist(req, res, next);
 });
 
+// ############################ CSV download #################################
+
+// --- this is Ajax call with alphabet,--- //
+router.get('/export2csv', function(req, res, next) {
+	// console.log('router userslist');
+	network.export2CSV(req, res, next);
+});
+
 // ############################ Profile ######################################
 
 // --- Profile page --- //
@@ -34,4 +42,9 @@ router.get('/profile/:slug?', function(req, res) {
 	// res.render('page', {"page_Code":"profile","page_Title":"Profile", "data":data});
 });
 
+// --- Add new Profile page --- //
+router.get('/add', function(req, res) {
+	res.render('page', {"page_Code":"profile_add","page_Title":"Add New Profile"});
+	// network.profileAdd(req, res);
+});
 module.exports = router;

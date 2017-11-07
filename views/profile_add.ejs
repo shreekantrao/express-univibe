@@ -1,0 +1,492 @@
+<!-- page content -->
+<div class="right_col" id="pagecode_<%=page_Code%>" role="main">
+  <div class="">
+    <div class="page-title">
+      <div class="title_left">
+        <h3>Add new Profile</h3>
+      </div>
+
+      <div class="title_right">
+        <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search for...">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button">Go!</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+          <div class="x_title">
+            <h2>User Report
+              <small>Activity report</small>
+            </h2>
+            <ul class="nav navbar-right panel_toolbox">
+              <!-- <li>
+                <a class="collapse-link">
+                  <i class="fa fa-chevron-up"></i>
+                </a>
+              </li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                  <i class="fa fa-wrench"></i>
+                </a>
+              </li> -->
+              <li>
+                <a href="/network/list">
+                  <i class="fa fa-close"></i>
+                </a>
+              </li>
+            </ul>
+            <div class="clearfix"></div>
+          </div>
+          <div class="x_content">
+            <div class="col-md-2 col-sm-2 col-xs-12 profile_left">
+              <!-- Profile details -->
+              <div class="profile_img">
+                <div id="crop-avatar">
+                  <!-- Current avatar -->
+                  <img onerror="this.src='/assets/build/images/user.jpg'" class="img-responsive avatar-view" src="/assets/build/images/img.jpg"
+                    alt="Avatar" title="Change the avatar">
+                </div>
+              </div>
+
+
+            </div>
+            <div class="col-md-10 col-sm-10 col-xs-12">
+
+
+              <!-- User form -->
+              <div class="x_panel">
+                <div class="x_title">
+                  <h2>Profile basic
+                    <!-- <small>different form elements</small> -->
+                  </h2>
+                  <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                  <br />
+                  <form class="form-horizontal form-label-left" method="post">
+
+                    <!-- Full name -->
+                    <div class="item form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Full name
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-2 col-sm-2 col-xs-12">
+                        <select class="form-control" id="salutation" value="">
+                          <option disabled>Salutation</option>
+                          <option value="Mr">Mr</option>
+                          <option value="Mrs">Mrs</option>
+                          <option value="Miss">Miss</option>
+                          <option value="Dr">Dr</option>
+                        </select>
+                      </div>
+                      <div class="col-md-5 col-sm-5 col-xs-12">
+                        <input type="text" class="form-control" placeholder="Full name" id="fullname" value="">
+                      </div>
+                    </div>
+
+                    <!-- email -->
+                    <div class="item form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Email
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input type="email" id="email" value="" required="required" class="form-control" placeholder="Email">
+                      </div>
+                      <!-- <div class="col-md-1 col-sm-1 col-xs-12">
+                        <% if( true ) { %>
+                          <i class="fa fa-check-circle-o email-verified" aria-hidden="true"></i>
+                          <% } else { %>
+                            <i class="fa fa-times-circle-o email-not-verified" aria-hidden="true"></i>
+                            <% } %>
+                      </div> -->
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="item form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Phone
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input type="tel" id="ph_number" name="ph_number" required="required" data-validate-length-range="8,20" class="form-control">
+                        <input type="hidden" id="ph_country" name="ph_country" class="form-control">
+                        <input type="hidden" id="temp_number" value="">
+                      </div>
+                      <!-- <div class="col-md-1 col-sm-1 col-xs-12">
+                        <% if( true ) { %>
+                          <i class="fa fa-check-circle-o email-verified" aria-hidden="true"></i>
+                          <% } else { %>
+                            <i class="fa fa-times-circle-o email-not-verified" aria-hidden="true"></i>
+                            <% } %>
+                      </div> -->
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Date of Birth
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class='input-group date' id='myDatepicker_dob' data-date="" data-date-format="dd-mmm-yyyy">
+                          <input type='text' class="form-control" readonly="readonly" id="dob" value="">
+                          <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Profile pic -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Profile picture
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input type='text' class="form-control" id="profile_picture" value="" />
+                      </div>
+                    </div>
+
+                    <h2>College
+                      <!-- <small>different form elements</small> -->
+                    </h2>
+                    <div class="ln_solid"></div>
+
+                    <!-- Batch -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Batch
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <select class="form-control" id="batch" value="">
+                          <option value="1999">1999</option>
+                          <option value="2000">2000</option>
+                          <option value="2001">2001</option>
+                          <option value="2002">2002</option>
+                          <option value="2003">2003</option>
+                          <option value="2004">2004</option>
+                          <option value="2005">2005</option>
+                          <option value="2006">2006</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Course -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Course
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <select class="form-control" id="course" value="">
+                          <option value="BSC">BSC</option>
+                          <option value="MSC">MSC</option>
+                          <option value="BBA">BBA</option>
+                          <option value="MBA">MBA</option>
+                          <option value="BScIT">BScIT</option>
+                          <option value="CA">CA</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Memship ID -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Membership ID</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input id="membership_id" value="" type="text" class="form-control" placeholder="Membership ID">
+                      </div>
+                    </div>
+
+                    <!-- Hostel -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Hostel</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input id="hostel" value="" type="text" class="form-control" placeholder="Hostel">
+                      </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Location
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label" style="font-weight: normal;">
+                          Pune
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Lat & Long -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Lat & Long</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label" style="font-weight: normal;">
+                          latnlong
+                        </label>
+                      </div>
+                    </div>
+
+                    <h2>Personal
+                      <!-- <small>different form elements</small> -->
+                    </h2>
+                    <div class="ln_solid"></div>
+
+                    <!-- Profile line -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Profile line</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input id="profile_line" value="" type="text" class="form-control" placeholder="Doctor at AIMS">
+                      </div>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Summary</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <textarea id="summary" value="" class="form-control" rows="3" placeholder="Summary"></textarea>
+                      </div>
+                    </div>
+
+                    <!-- Aspiration -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Aspiration</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <textarea id="aspiration" value="" class="form-control" rows="3" placeholder="Aspiration"></textarea>
+                      </div>
+                    </div>
+
+                    <!-- Date of Marriage -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Date of Marriage</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class='input-group date' id='myDatepicker2'>
+                          <input type='text' value="" class="form-control" />
+                          <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Gender</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="radio">
+                          <% if(true) { %>
+                            <label>
+                              <input type="radio" class="flat" name="gender"> Male </label>
+                            <% } else if(false) { %>
+                              <label>
+                                <input type="radio" class="flat" name="gender"> Female </label>
+                              <% } else { %>
+                                <label>
+                                  <input type="radio" class="flat" name="gender"> Other </label>
+                                <% } %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <h2>Password
+                      <!-- <small>different form elements</small> -->
+                    </h2>
+                    <div class="ln_solid"></div>
+
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">New Password</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input id="password" type="password" class="form-control" placeholder="New Password">
+                      </div>
+                    </div>
+
+                    <!-- Re type Password -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Re-type</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input id="repassword" type="password" class="form-control" placeholder="Re-type Password">
+                      </div>
+                    </div>
+
+                    <h2>Extra
+                      <!-- <small>different form elements</small> -->
+                    </h2>
+                    <div class="ln_solid"></div>
+
+                    <!-- User Status -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">User Status</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <select class="form-control" id="user_status">
+                          <option>Pending</option>
+                          <option>Approved</option>
+                          <option>Rejected</option>
+                          <option>Suspend</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- User type -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">User Type</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <select class="form-control" id="user_type">
+                          <option>Student</option>
+                          <option>Alumni</option>
+                          <option>Faculty</option>
+                          <option>Alcom</option>
+                          <option>College Admin</option>
+                          <option>Administrator</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- User From -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">User From</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <select class="form-control" disabled="disabled">
+                          <option>Registration</option>
+                          <option>Admin</option>
+                          <option>Import</option>
+                          <option>Facebook</option>
+                          <option>Linkedin</option>
+                          <option>Google</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Registered on -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Registered on</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label" style="font-weight: normal;">
+                          Date
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Approved on -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Approved on</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label" style="font-weight: normal;">
+                          Date
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Approved by -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Approved by</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label" style="font-weight: normal;">
+                          date
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Last updated -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Last updated</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label" style="font-weight: normal;">
+                          date
+                        </label>
+                      </div>
+                    </div>
+
+                    <h2>Other
+                      <!-- <small>different form elements</small> -->
+                    </h2>
+                    <div class="ln_solid"></div>
+
+                    <!-- Entrepreneur -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Entrepreneur</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                        <input id="entrepreneur" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                      </div>
+                    </div>
+
+                    <!-- Public profile -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Public Profile</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                        <input id="public_profile" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                      </div>
+                    </div>
+
+                    <!-- Donation status -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Donation Status</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                        <input id="donation_status" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                      </div>
+                    </div>
+
+                    <!-- Renouwned Alumni -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Renowned_Alumni</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                        <input id="renowned_alumni" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                      </div>
+                    </div>
+
+                    <!-- Mentorship -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Mentorship</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                        <input id="mentorship" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                      </div>
+                    </div>
+
+                    <!-- DND email -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Email notification - (DND)</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label" style="font-weight: normal;">Yes</label>
+                      </div>
+                    </div>
+
+                    <!-- DND SMS -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">SMS notification - (DND)</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label" style="font-weight: normal;">No</label>
+                      </div>
+                    </div>
+
+                    <!-- DND Notification -->
+                    <div class="form-group">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">SMS notification - (DND)</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label" style="font-weight: normal;">No</label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <div class="col-md-7 col-sm-7 col-xs-12 col-md-offset-3">
+                        <button type="button" class="btn btn-primary">Cancel</button>
+                        <button type="reset" class="btn btn-primary">Reset</button>
+                        <button type="submit" class="btn btn-success">Submit</button>
+                      </div>
+                    </div>
+
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /page content -->

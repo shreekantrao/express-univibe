@@ -5845,7 +5845,7 @@ function simpleTemplating(data) {
 				'<div class="col-xs-12 col-sm-6 emphasis">' +
 				'<button type="button" class="btn btn-success btn-xs"> <i class="fa fa-user">' +
 				'</i> <i class="fa fa-comments-o"></i> </button>' +
-				'<a href="/network/profile/' + item.profile_slug + '" class="btn btn-primary btn-xs" role="button">' +
+				'<a href="/network/profile/' + item.slug + '" class="btn btn-primary btn-xs" role="button">' +
 				'<i class="fa fa-user"> </i> View Profile' +
 				'</a>' +
 				'</div>' +

@@ -26,7 +26,7 @@ const CollegesSchema = mongoose.Schema({
     progress_bar_color: { type: String, default: '#ce0f18' }
   },
 
-  establishment_year: { type: Number, default: 2000 },
+  establishment_year: { type: Number, default: 1950 },
   theme_id: { type: Number, default: 1 },
   import_csv_default_email: { type: String },
   instamojo: {
