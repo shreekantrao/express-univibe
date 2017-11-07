@@ -57,7 +57,6 @@ app.use("/assets",express.static(__dirname + "/views"));
 // }));
 
 
-
 //authentication middleware
 app.all('*', login_controller.userAuth);
 
