@@ -1,61 +1,101 @@
-        <div class="right_col" id="pagecode_<%=page_Code%>" role="main">
-          <div class="">
-            <div class="page-title">
-              <div class="title_left">
-                <h3>College Network<span id="network_total" class="small"></span></h3>
-                <p id="search_total">Showing...</p>
-              </div>
-              <div class="title_right">
-                <div class="col-md-6 col-sm-12 col-xs-12 form-group pull-right top_search">
-                  <div class="input-group">
-                    <div class="selectWrapper">
-                      <select class="selectBox">
-                      <option value="fullname">Full Name</option>
-                      <option value="email">Email</option>
-                      <option>Administrator</option>
-                      <option>Faculty</option>
-                      <option>Alumni</option>
-                      <option>Student</option>
-                      <option>Student</option>
-                    </select>
-                    </div>
-                    <input type="text" class="form-control" placeholder="Search for...">
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" type="button">Go!</button>
-                    </span>
-                  </div>
-                </div>
-              </div>
+<div class="right_col" id="pagecode_<%=page_Code%>" role="main">
+  <div class="">
+    <div class="page-title">
+      <div class="title_left">
+        <h3>College Network
+          <span id="network_total" class="small"></span>
+        </h3>
+        <p id="search_total">Showing...</p>
+      </div>
+      <div class="title_right">
+        <div class="col-md-6 col-sm-12 col-xs-12 form-group pull-right top_search">
+          <div class="input-group">
+            <div class="selectWrapper">
+              <select class="selectBox">
+                <option value="fullname">Full Name</option>
+                <option value="email">Email</option>
+                <option>Administrator</option>
+                <option>Faculty</option>
+                <option>Alumni</option>
+                <option>Student</option>
+                <option>Student</option>
+              </select>
             </div>
+            <input type="text" class="form-control" placeholder="Search for...">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button">Go!</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <div class="clearfix"></div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="x_panel">
+
+          <div class="x_title">
+            <h2>Network
+              <small>Sessions</small>
+            </h2>
+            <ul class="nav navbar-right panel_toolbox">
+              <li><a href="/network/add"><i class="fa fa-user-plus"></i></a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                  <i class="fa fa-tasks"></i>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="/network/export2csv"><i class="fa fa-download"></i> - Download CSV</a>
+                    </li>
+                    <li><a href="#"><i class="fa fa-upload"></i> - Upload CSV</a>
+                    </li>
+                  </ul>
+              </li>
+              <li>
+                <a href="/colleges/list">
+                  <i class="fa fa-close"></i>
+                </a>
+              </li>
+            </ul>
             <div class="clearfix"></div>
+          </div>
 
-            <div class="row">
-              <div class="col-md-12">
-                <div class="x_panel">
-                  <div class="x_content">
 
-                    <div class="row" id="dsata-container">
 
-                      <div id="letter_filter" class="col-md-12 col-sm-12 col-xs-12 text-center">
-                        <ul class="pagination pagination-split">
-                          <% var alpha = new Array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
+          <div class="x_content">
+
+            <div class="row" id="dsata-container">
+
+              <div id="letter_filter" class="col-md-12 col-sm-12 col-xs-12 text-center">
+                <ul class="pagination pagination-split">
+                  <% var alpha = new Array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
                           alpha.forEach(function(val,index) { 
                             if (typeof alphabet != 'undefined' && alphabet == val) { %>
-                              <li class="selected"><a href="/network/list/"><%=val%></a></li>
-                            <% } else { %>
-                              <li><a href="/network/list/<%=val%>"><%=val%></a></li>
-                            <% }  
+                    <li class="selected">
+                      <a href="/network/list/">
+                        <%=val%>
+                      </a>
+                    </li>
+                    <% } else { %>
+                      <li>
+                        <a href="/network/list/<%=val%>">
+                          <%=val%>
+                        </a>
+                      </li>
+                      <% }  
                           }) %>
-                        </ul>
-                      </div>
+                </ul>
+              </div>
 
-                    </div>
-                      <div class="clearfix"></div>
-                    <div class="row" id="data-container">
-                      <div></div><div></div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row" id="data-container">
+              <div></div>
+              <div></div>
 
-                      <!--<div class="col-md-4 col-sm-4 col-xs-12 profile_details">
+              <!--<div class="col-md-4 col-sm-4 col-xs-12 profile_details">
                         <div class="well profile_view">
                           <div class="col-sm-12">
                             <h4 class="brief"><i>Digital Strategist</i></h4>
@@ -94,11 +134,12 @@
                       </div>  -->
 
 
-                    </div>
-                    <input type="hidden" id="alphabet" value="<%=alphabet%>">
-                  </div>
-                </div>
-              </div>
             </div>
+            <input type="hidden" id="alphabet" value="<%=alphabet%>">
           </div>
+
         </div>
+      </div>
+    </div>
+  </div>
+</div>

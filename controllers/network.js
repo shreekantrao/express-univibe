@@ -1,5 +1,5 @@
-var network = require('../models/network');
-
+const network = require('../models/network');
+const csv = require('csv-express')
 module.exports = {
 
     userslist : async (req, res, next) => {
@@ -40,6 +40,14 @@ module.exports = {
             }
             res.json(data);
         } catch(e) {
+            next(e);
+        }
+    },
+
+    export2CSV : (req, res, next) => {
+        try{
+            return network.export2CSV(req, res);
+        } catch(e){
             next(e);
         }
     },
