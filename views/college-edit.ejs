@@ -1,5 +1,5 @@
-page content -->
-<div class="right_col" role="main">
+<!-- page content -->
+<div class="right_col" id="pagecode_<%=page_Code%>" role="main">
   <div class="">
     <div class="page-title">
       <div class="title_left">
@@ -11,8 +11,8 @@ page content -->
           <div class="input-group">
             <input type="text" class="form-control" placeholder="Search for...">
             <span class="input-group-btn">
-                      <button class="btn btn-default" type="button">Go!</button>
-                  </span>
+              <button class="btn btn-default" type="button">Go!</button>
+            </span>
           </div>
         </div>
       </div>
@@ -24,406 +24,468 @@ page content -->
       <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="x_panel">
           <div class="x_title">
-            <h2>College Wizards <small>Sessions</small></h2>
+            <h2>College Wizards
+              <small>Sessions</small>
+            </h2>
             <ul class="nav navbar-right panel_toolbox">
-              <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-              </li>
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-              </li>
-              <li><a class="close-link"><i class="fa fa-close"></i></a>
-              </li>
+              <!-- <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li> -->
+              <li><a href="#"><i class="fa fa-wrench"></i></a></li>
+              <li><a href="/colleges/list"><i class="fa fa-close"></i></a></li>
             </ul>
             <div class="clearfix"></div>
           </div>
           <div class="x_content">
 
+
+            <!-- Smart Wizard -->
+            <!-- <h2>Example: Vertical Style</h2> -->
             <!-- Tabs -->
-            <div id="wizard_verticle" class="form_wizard wizard_verticle">
-              <ul class="list-unstyled wizard_steps">
-                <li>
-                  <a href="#step-11">
-                    <span class="step_no">1</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#step-22">
-                    <span class="step_no">2</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#step-33">
-                    <span class="step_no">3</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#step-44">
-                    <span class="step_no">4</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#step-55">
-                    <span class="step_no">5</span>
-                  </a>
-                </li>
-              </ul>
+            <form method="post" action="/colleges/editone" novalidate>
+              <div id="wizard_college_edit" class="form_wizard wizard_verticle">
+                <ul class="list-unstyled wizard_steps">
+                  <li>
+                    <a href="#step-11">
+                      <span class="step_no">1</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#step-22">
+                      <span class="step_no">2</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#step-33">
+                      <span class="step_no">3</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#step-44">
+                      <span class="step_no">4</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#step-55">
+                      <span class="step_no">5</span>
+                    </a>
+                  </li>
+                </ul>
 
-              <div id="step-11">
-                <h2 class="StepTitle">Step 1</h2>
-                <form class="form-horizontal form-label-left">
 
-                  <span class="section">Basic details</span>
+                <div id="step-11">
+                  <h2 class="StepTitle">Step 1</h2>
 
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="first-name">College Name <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="name" required="required" class="form-control col-md-7 col-xs-12">
+                  <div class="form-horizontal form-label-left">
+                    <span class="section">Basic details</span>
+
+                    <!-- name -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="name">College Name
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="name" name="name" value="<%-data.name%>" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe college" data-validate-length-range="3,15" readonly="readonly">
+                      </div>
+                    </div>
+                    <!-- slug -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="slug">Default URL</label>
+                      <div class="col-md-3 col-sm-3">
+                        <input type="text" id="slug" name="slug" value="<%-data.slug%>" class="form-control col-md-7 col-xs-12" placeholder="univibe-college" required="required" readonly="readonly" >
+                      </div>
+                      <label class="control-label col-md-2 col-sm-2" style="text-align: left;">.univibe.com</label>
+                    </div>
+                    <!-- domain -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="domain">Domain</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="url" id="domain" name="domain" value="<%-data.domain%>" class="form-control col-md-7 col-xs-12" placeholder="univibealumni.com" data-validation="url">
+                      </div>
+                    </div>
+                    <!-- long_name -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3" for="long_name">College Long Name
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input id="long_name" name="long_name" value="<%-data.long_name%>" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni Assosiation"
+                          type="text" data-validate-length-range="5,25" data-validate-words="2">
+                      </div>
+                    </div>
+                    <!-- short_name -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3" for="short_name">College Short Name
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input id="short_name" name="short_name" value="<%-data.short_name%>" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni"
+                          type="text" data-validate-length-range="5,15">
+                      </div>
+                    </div>
+                    <!-- establishment_year -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3" for="establishment_year">Establishment Year
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input id="establishment_year" required="required" value="<%-data.establishment_year%>" class="form-control col-md-7 col-xs-12" type="number" data-validate-minmax="1900,2020">
+                      </div>
+                    </div>
+                    <!-- registered_date -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3">Created date</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input readonly="readonly" value="<%-new Date(data.registered_date).toLocaleDateString()%>" class="form-control col-md-7 col-xs-12" type="text">
+                      </div>
+                    </div>
+                    <!-- last_updated -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3">Last Edited</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input readonly="readonly" value="<%-new Date(data.last_updated).toLocaleDateString()%>" class="form-control col-md-7 col-xs-12" type="text">
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div id="step-22">
+                  <h2 class="StepTitle">Step 2</h2>
+                  <div class="form-horizontal form-label-left">
+                    <span class="section">Themes settings</span>
+
+                    <!-- favicon -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="first-name">Favicon
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="file" id="Favicon" name="favicon" value="<%-data.favicon%>" required="required" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+                    <!-- Logo large -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="last-name">Logo large
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="file" id="logo_l" name="logo_l" value="<%-data.logo_l%>" required="required" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+                    <!-- Logo small -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="last-name">Logo small
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="file" id="logo_s" name="logo_s" value="<%-data.logo_s%>" required="required" class="form-control col-md-7 col-xs-12" >
+                      </div>
+                    </div>
+                    <!-- footer_text -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Footer text</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input id="footer_text" name="footer_text" value="<%-data.footer_text%>" class="form-control col-md-7 col-xs-12" type="text" required="required">
+                      </div>
+                    </div>
+                    <!-- button_color -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3">Button color</label>
+                      <div class="col-md-5 col-sm-5">
+                        <div class="input-group college_color">
+                          <input type="text" id="button_color" name="button_color" value="<%-data.theme_color.button_color%>" class="form-control" required="required">
+                          <span class="input-group-addon">
+                            <i></i>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- navigation_color -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Navigation color</label>
+                      <div class="col-md-5 col-sm-5">
+                        <div class="input-group college_color">
+                          <input type="text" id="navigation_color" name="navigation_color" value="<%-data.theme_color.navigation_color%>" class="form-control" required="required">
+                          <span class="input-group-addon">
+                            <i></i>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- link_color -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Link color</label>
+                      <div class="col-md-5 col-sm-5">
+                        <div class="input-group college_color">
+                          <input type="text" id="link_color" name="link_color" value="<%-data.theme_color.link_color%>" class="form-control" required="required">
+                          <span class="input-group-addon">
+                            <i></i>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- tab_color -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Tab color</label>
+                      <div class="col-md-5 col-sm-5">
+                        <div class="input-group college_color">
+                          <input type="text" id="tab_color" name="tab_color" value="<%-data.theme_color.tab_color%>" class="form-control" required="required">
+                          <span class="input-group-addon">
+                            <i></i>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- progress_bar_color -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Progress color</label>
+                      <div class="col-md-5 col-sm-5">
+                        <div class="input-group demo2">
+                          <input type="text" id="progress_bar_color" name="progress_bar_color" value="<%-data.theme_color.progress_bar_color%>" class="form-control" required="required">
+                          <span class="input-group-addon">
+                            <i></i>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- theme_id -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3">Theme selection
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input id="theme_id" name="theme_id" class="date-picker form-control col-md-7 col-xs-12" type="text">
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div id="step-33">
+                  <h2 class="StepTitle">Step 3</h2>
+                  <div class="form-horizontal form-label-left">
+                    <span class="section">Home page</span>
+
+                    <!-- banner_1 -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="first-name">Banner 1
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="file" id="banner_1" name="banner_1" value="<%-data.banner_1%>" required="required" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+                    <!-- text_1 -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="last-name">Text
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="text_1" name="text_1" value="<%-data.text_1%>" required="required" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+                    <!-- banner_2 -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Banner 2</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input id="banner_2" name="banner_2" value="<%-data.banner_2%>" class="form-control col-md-7 col-xs-12" type="text">
+                      </div>
+                    </div>
+                    <!-- text_2 -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Text</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input id="text_2" name="text_2" value="<%-data.text_2%>" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
+                      </div>
+                    </div>
+                    <!-- banner_3 -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Banner 3</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input id="banner_3" name="banner_3" value="<%-data.banner_3%>" class="form-control col-md-7 col-xs-12" type="text">
+                      </div>
+                    </div>
+                    <!-- text_3 -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Text</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="text_3" name="text_3" value="<%-data.text_3%>" class="form-control col-md-7 col-xs-12" type="text">
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="last-name">URL <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="url" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                <div id="step-44">
+                  <h2 class="StepTitle">Step 4</h2>
+                  <div class="form-horizontal form-label-left">
+
+                    <span class="section">Email Ids</span>
+                    <!-- contact_email -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="first-name">Contact email
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="contact_email" name="contact_email" value="<%-data.contact_email%>" required="required" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+                    <!-- complaint_email -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="last-name">Complaint email
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="complaint_email" name="complaint_email" value="<%-data.complaint_email%>" required="required" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+                    <!-- report_abuse_email -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Report Abuse email
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="report_abuse_email" name="report_abuse_email" value="<%-data.report_abuse_email%>" required="required" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+                    <!-- sending_email -->
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Sending email id
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="sending_email" name="sending_email" value="<%-data.sending_email%>" required="required" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <!-- </form> -->
+                  </div>
+                </div> 
+
+                <div id="step-55">
+                  <h2 class="StepTitle">Step 5</h2>
+                  <div class="form-horizontal form-label-left">
+                    <span class="section">Payment & Social</span>
+                    <!-- international_insta_mojo_token -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="first-name">International Insta Mojo Token
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="international_insta_mojo_token" name="international_insta_mojo_token" value="<%-data.international_insta_mojo_token%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3" for="last-name">International Insta Mojo key
+                        <span class="required">*</span>
+                      </label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="international_insta_mojo_key" name="international_insta_mojo_key" value="<%-data.international_insta_mojo_key%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">International Insta Mojo salt</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="international_insta_mojo_salt" name="international_insta_mojo_salt" value="<%-data.international_insta_mojo_salt%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Domestic Insta Mojo Token</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="domestic_insta_mojo_token" name="domestic_insta_mojo_token" value="<%-data.domestic_insta_mojo_token%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Domestic Insta Mojo key</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="domestic_insta_mojo_key" name="domestic_insta_mojo_key" value="<%-data.domestic_insta_mojo_key%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Domestic Insta Mojo salt</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="domestic_insta_mojo_salt" name="domestic_insta_mojo_salt" value="<%-data.domestic_insta_mojo_salt%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Facebook client id</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="facebook_client_id" name="facebook_client_id" value="<%-data.facebook_client_id%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Facebook secret key</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="facebook_client_key" name="facebook_client_key" value="<%-data.facebook_client_key%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Linkedin client id</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="linkedin_client_id" name="linkedin_client_id" value="<%-data.linkedin_client_id%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Linkedin secret key</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="linkedin_client_key" name="linkedin_client_key" value="<%-data.linkedin_client_key%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Twitter URL</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="twitter_url" name="twitter_url" value="<%-data.twitter_url%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Twitter Data widget Id</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="twitter_data_widget_id" name="twitter_data_widget_id" value="<%-data.twitter_data_widget_id%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Facebook href</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="facebook_href" name="facebook_href" value="<%-data.facebook_href%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Google Analytics</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="google_analytics" name="google_analytics" value="<%-data.google_analytics%>" class="form-control col-md-7 col-xs-12">
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Firebase Server Key</label>
+                      <div class="col-md-5 col-sm-5">
+                        <input type="text" id="firebase_server_key" name="firebase_server_key" value="<%-data.firebase_server_key%>" class="form-control col-md-7 col-xs-12">
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Full Name <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="long_name" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
 
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Short Name <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="short_name" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Establishment Year <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="establishment_year" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3">Created date</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input readonly="readonly" class="form-control col-md-7 col-xs-12" type="text">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3">Last Edited</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input readonly="readonly" class="form-control col-md-7 col-xs-12" type="text">
-                    </div>
-                  </div>
-
-                </form>
               </div>
-              
-              <div id="step-22">
-                <h2 class="StepTitle">Step 2</h2>
-                <form class="form-horizontal form-label-left">
+            </form>
 
-                  <span class="section">Themes settings</span>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="first-name">Favicon <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="Favicon" required="required" class="form-control col-md-7 col-xs-12">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="last-name">Logo <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="logo" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Footer text</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="footer_text" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3">Button color</label>
-                    <div class="col-md-6 col-xs-12">
-                      <div class="input-group demo2">
-                        <input type="text" value="#e01ab5" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Navigation color</label>
-                    <div class="col-md-6 col-xs-12">
-                      <div class="input-group demo2">
-                        <input type="text" value="#e01ab5" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Link color</label>
-                    <div class="col-md-6 col-xs-12">
-                      <div class="input-group demo2">
-                        <input type="text" value="#e01ab5" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Tab color</label>
-                    <div class="col-md-6 col-xs-12">
-                      <div class="input-group demo2">
-                        <input type="text" value="#e01ab5" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Progress color</label>
-                    <div class="col-md-6 col-xs-12">
-                      <div class="input-group demo2">
-                        <input type="text" value="#e01ab5" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3">Theme selection <span class="required">*</span>
-                    </label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="birthday2" class="date-picker form-control col-md-7 col-xs-12" required="required" type="text">
-                    </div>
-                  </div>
-
-                </form>
-              </div>
-              
-              <div id="step-33">
-                <h2 class="StepTitle">Step 3 </h2>
-                <form class="form-horizontal form-label-left">
-
-                  <span class="section">Home page</span>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="first-name">Banner 1<span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="first-name2" required="required" class="form-control col-md-7 col-xs-12">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="last-name">Text<span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="last-name2" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Banner 2</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Text</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Banner 3</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Text</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-
-
-                </form>
-              </div>
-
-              <div id="step-44">
-                <h2 class="StepTitle">Step 4</h2>
-                <form class="form-horizontal form-label-left">
-
-                  <span class="section">Payment & Social</span>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="first-name">International Insta Mojo Token<span class="required">*</span>
-                    </label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="first-name2" required="required" class="form-control col-md-7 col-xs-12">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="last-name">International Insta Mojo key<span class="required">*</span>
-                    </label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="last-name2" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">International Insta Mojo salt</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Domestic Insta Mojo Token</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Domestic Insta Mojo key</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Domestic Insta Mojo salt</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Facebook client id</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Facebook secret key</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Linkedin client id</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>                  
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Linkedin secret key</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Twitter URL</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Twitter Data widget Id</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Facebook href</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Google Analytics</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Firebase Server Key</label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-              <div id="step-55">
-                <h2 class="StepTitle">Step 5</h2>
-                <form class="form-horizontal form-label-left">
-
-                  <span class="section">Email Ids</span>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="first-name">Contact email <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="first-name2" required="required" class="form-control col-md-7 col-xs-12">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3" for="last-name">Complaint email <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input type="text" id="last-name2" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Report Abuse email<span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="middle-name" class="control-label col-md-3 col-sm-3">Sending email id<span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6">
-                      <input id="middle-name2" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">
-                    </div>
-                  </div>
-
-                </form>
-              </div>              
-            </div>
             <!-- End SmartWizard Content -->
+
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-<!-- /page content
+<!-- /page content -->
