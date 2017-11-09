@@ -5445,8 +5445,13 @@ $(document).ready(function () {
 
 	if ($("#pagecode_network").exists())
 		init_networkPagination();
+	
+	if ($("#pagecode_profile_add").exists())
+		init_validator();	
+	
 	if ($("#pagecode_colleges").exists())
 		init_collegeTablePagination();
+
 	if ($("#pagecode_college-add").exists()){
 		init_SmartWizard_add();
 		init_validator();	
@@ -5915,13 +5920,84 @@ if ($("#pagecode_profile").exists()) {
 		utilsScript: "/assets/vendors/intl-tel-input/build/js/utils.js",
 		customPlaceholder: function (selectedCountryPlaceholder, selectedCountryData) {
 			$("#ph_number").inputmask(selectedCountryPlaceholder.replace(/[0-9]/g, "9"));
-			$("#ph_country").val('+' + $("#ph_number").intlTelInput("getSelectedCountryData").dialCode);
-			$("#ph_number").intlTelInput("setNumber", $("#temp_number").val());
-			$("#temp_number").val('');
+			$("#ph_country").val('+' + selectedCountryData.dialCode);
+			// $("#ph_number").intlTelInput("setNumber", $("#temp_number").val());
+			// $("#temp_number").val('');
 		}
 	});
 }
 
+if ($("#pagecode_profile_add").exists()) {
+
+	// --- Phone country pick --- //
+	$("#ph_number").intlTelInput({
+		// allowDropdown: false,
+		// autoHideDialCode: false,
+		// autoPlaceholder: "off",
+		// dropdownContainer: "body",
+		// excludeCountries: ["us"],
+		// formatOnDisplay: false,
+		geoIpLookup: function (callback) {
+			$.get("http://ipinfo.io", function () {}, "jsonp").always(function (resp) {
+				var countryCode = (resp && resp.country) ? resp.country : "";
+				callback(countryCode);
+			});
+		},
+		hiddenInput: "full_number",
+		initialCountry: "auto",
+		nationalMode: false,
+		// onlyCountries: ['us', 'gb', 'ch', 'ca', 'do'],
+		// placeholderNumberType: "MOBILE",
+		preferredCountries: ['in', 'cn', 'jp'],
+		separateDialCode: true,
+		utilsScript: "/assets/vendors/intl-tel-input/build/js/utils.js",
+		customPlaceholder: function (selectedCountryPlaceholder, selectedCountryData) {
+			$("#ph_number").inputmask(selectedCountryPlaceholder.replace(/[0-9]/g, "9"));
+			$("#ph_country").val('+' + selectedCountryData.dialCode);
+			// $("#ph_number").intlTelInput("setNumber", $("#temp_number").val());
+			// $("#temp_number").val('');
+		}
+	});
+
+	
+	$("#emailid").on('blur', function(){
+		// validator.checkField.call(validator, e.target
+
+		$.ajax({
+			url: "/network/checkemailavailable/",
+			type: "POST",
+			data: {email: $("#emailid").val()},
+			beforeSend: function () {
+				// show loading
+				$("#emailid").addClass('checkingTextbox');
+				// validator = new FormValidator();
+				// validator.settings.classes.bad = 'error';
+			},
+			success: function (data) {
+				if(data){
+					$("#email").val($("#emailid").val());
+				}else{
+					$("#email_check_div").addClass('bad');
+				}
+				$("#emailid").removeClass('checkingTextbox');
+			},
+			error: function () {
+				$("#email").val('');
+				$("#emailid").removeClass('checkingTextbox');
+			}
+		});	
+	});
+
+	// --- DOB calender --- //
+	$('#myDatepicker_dob, #myDatepicker_dom').datetimepicker({
+		ignoreReadonly: true,
+		allowInputToggle: true,
+		format: "DD-MMM-YYYY"
+	});
+	$('#myDatepicker_dob').data("DateTimePicker").maxDate("31-12-2000");
+	$('#myDatepicker_dob').data("DateTimePicker").minDate("01-01-1900");
+	
+}
 // ############### College Detail page #################
 /* SMART WIZARD ADD */
 function init_SmartWizard_add() {

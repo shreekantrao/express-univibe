@@ -72,13 +72,11 @@ const UserSchema = mongoose.Schema({
     default: false
   },
   location: {
-    type: String,
-    required: true
-  },
-  latnlong: {
-    type: String,
-    required: true
-  },
+    address: { type: String, required: true },
+    city: { type: String, default: '' },
+    state: { type: String, default: '' },
+    country: { type: String, default: '' },
+    latnlong: { type: String, default: '' }},
   dob: {
     type: Date,
     required: true
@@ -344,7 +342,7 @@ const UserSchema = mongoose.Schema({
 //   }
 // };
 
-const User = module.exports = mongoose.model('User', UserSchema);
+const User = module.exports = mongoose.model('users', UserSchema);
 
 module.exports.getUserById = function (id, callback) {
   User.findById(id, callback);
@@ -393,7 +391,7 @@ module.exports.getUserList = (pageSize, skip, sortby, orderby, query) => {
 }
 
 module.exports.export2CSV = (req, res) => {
-  var User = mongoose.model('Users', UserSchema);
+  // var User = mongoose.model('Users', UserSchema);
 
   const query = User.find();
 
@@ -414,8 +412,8 @@ module.exports.export2CSV = (req, res) => {
       Ph_code:                      '\''+doc.ph_country,
       Ph_number:                    '\''+doc.ph_number,
       Is_ph_verified:               (doc.is_phone_verified)?'Yes':'No',
-      Location:                     doc.location,
-      Latnlong:                     doc.latnlong,
+      Location:                     doc.location.address+', '+doc.location.city+', '+doc.location.state+', '+doc.location.country,
+
       DOB:                          (doc.dob)?new Date(doc.dob).toLocaleDateString():'',
       Batch:                        doc.batch,
       Course:                       doc.course,
@@ -476,6 +474,22 @@ module.exports.export2CSV = (req, res) => {
   query.cursor().pipe(csvStream).pipe(res);
 }
 
+module.exports.checkemailavailable = (email) => {
+  const query = {};
+  query["email"] = email;
+  // query["_id"] = 1;
+  
+  // 'profile_slug': slug
+  return Promise.all([
+    User.count(query)
+    .then(data => ({
+      data: data
+    }))
+  ]).then(result => result.reduce((acc, curr) =>
+    Object.assign(acc, curr), {}));
+  // return true;
+}
+  
 module.exports.deleteUserById = (req) => {
   id = req.query.userID;
   User.findByIdAndRemove(id, function (err, res) {
@@ -487,6 +501,22 @@ module.exports.deleteUserById = (req) => {
     }
     console.log("Deleted successfully.");
   });
+}
+
+module.exports.profileAdd = (profileData) => {
+  // console.log('profileData',profileData);
+  let data = new User(profileData);
+  // return data.save()
+  //   .then(item => ({ msg: "Profile saved to database" }))
+  //   .catch(err => ({ msg: "Unable to save to database" }));
+  // await data.save(function(err) {
+  //   if(err){console.error(err); throw err;}
+  //   // console.log('data',data._id)
+  //   return data._id;
+  // });
+  return data.save()
+  .then(item => ({ msg: "item saved to database", status: true }))
+  .catch(err => ({ msg: "unable to save to database", status: false }));
 }
 
 module.exports.addUser = function (newUser, callback) {
