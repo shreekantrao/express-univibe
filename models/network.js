@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const bcrypt = require('bcryptjs');
-const config = require('../config/database');
+// const config = require('../config/keys');
 const fastCsv = require('fast-csv');
 // User Schema
 const UserSchema = mongoose.Schema({
@@ -331,7 +331,12 @@ const UserSchema = mongoose.Schema({
       type: String,
       default: ''
     }
-  }]
+  }],
+
+  social_ids: { 
+    google: { type: String, default: '' },
+    facebook: { type: String, default: '' },
+    linkedin: { type: String, default: '' }}
 });
 
 // UserSchema.options.toJSON = {
