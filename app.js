@@ -1,39 +1,46 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var bodyParser = require('body-parser');
-var lessMiddleware = require('less-middleware');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieSession = require('cookie-session');
+const passport = require('passport');
+const bodyParser = require('body-parser');
+// const lessMiddleware = require('less-middleware');
+const mongoose = require('mongoose');
+const keys = require('./config/keys');
 
-var mongoose = require('mongoose');
-var config = require('./config/database');
 
-var login_controller = require('./controllers/login');
-var login = require('./routes/login');
-var dashboard = require('./routes/dashboard');
-// var users = require('./routes/users');
-var network = require('./routes/network');
-var colleges = require('./routes/colleges');
+const passportSetup = require('./config/passport-setup');
+const authRoutes = require('./routes/auth');
+const dashboard = require('./routes/dashboard');
+const network = require('./routes/network');
+const colleges = require('./routes/colleges');
 
-var app = express();
+const app = express();
 
-// Connect To Database
-// mongoose.connect(config.database);
-mongoose.connect(config.database, {
+// set up session cookies
+app.use(cookieSession({
+  maxAge: 3 * 60 * 60 * 1000,
+  keys: [keys.session.cookieKey]
+}));
+
+// initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+/*********** Connect To Database *********/
+// mongoose.connect(keys.database);
+mongoose.connect(keys.mongodb.database, {
   useMongoClient: true,
   /* other options */
 });
-
 // On Connection
 mongoose.connection.on('connected', () => {
-  console.log('Connected to database '+config.database);
+  console.log('Connected to database ' + keys.mongodb.database);
 });
-
 // On Error
 mongoose.connection.on('error', (err) => {
-  console.log('Database error: '+err);
+  console.log('Database error: ' + err);
 });
 
 // view engine setup
@@ -44,13 +51,16 @@ app.set('view engine', 'ejs');
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(session({secret: "7u8i9o0p", resave: true, saveUninitialized: true}));
-app.use(lessMiddleware(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+// app.use(cookieParser());
 
-app.use("/static",express.static(__dirname + "public"));
-app.use("/assets",express.static(__dirname + "/views"));
+// less parser
+// app.use(lessMiddleware(path.join(__dirname, 'public')));
+
+app.use("/static", express.static(__dirname + "/public"));
+app.use("/assets", express.static(__dirname + "/views"));
 
 // app.use(express.static(path.join(__dirname, 'public'), {
 // 	maxAge: 86400000,
@@ -60,30 +70,44 @@ app.use("/assets",express.static(__dirname + "/views"));
 
 
 //authentication middleware
-app.all('*', login_controller.userAuth);
+// const login_controller = require('./controllers/login');
+// app.all('*', login_controller.userAuth);
 
+function IsAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    // next(new Error(401));
+    console.log('Isauthenticated function')    
+    res.redirect('/auth/login');
+  }
+}
 
 // Index Route
-app.use('/login', login);
-app.use('/dashboard', dashboard);
+app.use('/auth', authRoutes);
+app.use('/dashboard', IsAuthenticated, dashboard);
 // app.use('/users', users);
-app.use('/network', network);
-app.use('/colleges', colleges);
+app.use('/network', IsAuthenticated, network);
+app.use('/colleges', IsAuthenticated, colleges);
 
 // Default redirected to Dashboard
-//app.get('/*', (req, res) => {  return res.redirect(301, '/dashboard');	});
+// app.get('/', (req, res) => {  return res.redirect(301, '/auth/login');	});
+app.get('/', (req, res) => {
+  if (req.isAuthenticated()) res.redirect('/dashboard');
+  else res.redirect('/auth/login');
+});
 
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+app.use(function (req, res, next) {
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

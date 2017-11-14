@@ -72,15 +72,15 @@
                 </div>
                 <div class="x_content">
                   <br />
-                  <form class="form-horizontal form-label-left" method="post">
+                  <form class="form-horizontal form-label-left" method="post" action="/network/add" novalidate>
 
                     <!-- Full name -->
-                    <div class="item form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Full name
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-2 col-sm-2 col-xs-12">
-                        <select class="form-control" id="salutation" value="">
+                        <select class="form-control" id="salutation" name="salutation" value="" required="required">
                           <option disabled>Salutation</option>
                           <option value="Mr">Mr</option>
                           <option value="Mrs">Mrs</option>
@@ -89,17 +89,19 @@
                         </select>
                       </div>
                       <div class="col-md-5 col-sm-5 col-xs-12">
-                        <input type="text" class="form-control" placeholder="Full name" id="fullname" value="">
+                        <input type="text" class="form-control" placeholder="Full name" id="fullname" name="fullname" value="" required="required">
                       </div>
                     </div>
-
-                    <!-- email -->
-                    <div class="item form-group">
+                    
+                      <!-- email -->
+                    <div class="form-group field" id="email_check_div">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Email
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <input type="email" id="email" value="" required="required" class="form-control" placeholder="Email">
+                        <input type="email" id="emailid" class="form-control" placeholder="Email" data-validate-linked='email'>
+                        <input type="hidden" id="email"   class="form-control" name="email" required="required" data-validate-linked='email'>
+                        <input type="hidden" name="is_email_verified" value="0">
                       </div>
                       <!-- <div class="col-md-1 col-sm-1 col-xs-12">
                         <% if( true ) { %>
@@ -111,14 +113,14 @@
                     </div>
 
                     <!-- Phone -->
-                    <div class="item form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Phone
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <input type="tel" id="ph_number" name="ph_number" required="required" data-validate-length-range="8,20" class="form-control">
                         <input type="hidden" id="ph_country" name="ph_country" class="form-control">
-                        <input type="hidden" id="temp_number" value="">
+                        <input type="hidden" name="is_phone_verified" value="0">
                       </div>
                       <!-- <div class="col-md-1 col-sm-1 col-xs-12">
                         <% if( true ) { %>
@@ -136,7 +138,7 @@
                       </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <div class='input-group date' id='myDatepicker_dob' data-date="" data-date-format="dd-mmm-yyyy">
-                          <input type='text' class="form-control" readonly="readonly" id="dob" value="">
+                          <input type='text' class="form-control" readonly="readonly" id="dob" name="dob" value="">
                           <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                           </span>
@@ -145,14 +147,14 @@
                     </div>
 
                     <!-- Profile pic -->
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Profile picture
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <input type='text' class="form-control" id="profile_picture" value="" />
                       </div>
-                    </div>
+                    </div> -->
 
                     <h2>College
                       <!-- <small>different form elements</small> -->
@@ -160,12 +162,13 @@
                     <div class="ln_solid"></div>
 
                     <!-- Batch -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Batch
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <select class="form-control" id="batch" value="">
+                        <select class="form-control" id="batch" name="batch" value="" required="required">
+                          <option value="">Select your Batch</option>
                           <option value="1999">1999</option>
                           <option value="2000">2000</option>
                           <option value="2001">2001</option>
@@ -179,12 +182,13 @@
                     </div>
 
                     <!-- Course -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Course
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <select class="form-control" id="course" value="">
+                        <select class="form-control" id="course" name="course" value="" required="required">
+                          <option value="">Select your Course</option>
                           <option value="BSC">BSC</option>
                           <option value="MSC">MSC</option>
                           <option value="BBA">BBA</option>
@@ -196,40 +200,56 @@
                     </div>
 
                     <!-- Memship ID -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Membership ID</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <input id="membership_id" value="" type="text" class="form-control" placeholder="Membership ID">
+                        <input id="membership_id" name="membership_id" value="" type="text" class="form-control" placeholder="Membership ID">
                       </div>
                     </div>
 
                     <!-- Hostel -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Hostel</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <input id="hostel" value="" type="text" class="form-control" placeholder="Hostel">
+                        <input id="hostel" name="hostel" value="" type="text" class="form-control" placeholder="Hostel">
                       </div>
                     </div>
 
                     <!-- Location -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Location
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <label class="control-label" style="font-weight: normal;">
-                          Pune
-                        </label>
+                        <input id="address" name="address" value="" type="text" class="form-control" required="required" placeholder="Address">
                       </div>
                     </div>
-
+                    <!-- city -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">City</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input id="city" name="city" value="" type="text" readonly="readonly" class="form-control" placeholder="City">
+                      </div>
+                    </div>
+                    <!-- state -->
+                    <div class="form-group field">
+                        <label class="control-label col-md-2 col-sm-2 col-xs-12">City</label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                          <input id="state" name="state" value="" type="text" readonly="readonly" class="form-control" placeholder="State">
+                        </div>
+                      </div>
+                    <!-- country -->
+                    <div class="form-group field">
+                        <label class="control-label col-md-2 col-sm-2 col-xs-12">City</label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                          <input id="country" name="country" value="" type="text" readonly="readonly" class="form-control" placeholder="Country">
+                        </div>
+                      </div>
                     <!-- Lat & Long -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Lat & Long</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <label class="control-label" style="font-weight: normal;">
-                          latnlong
-                        </label>
+                        <input id="latnlong" name="latnlong" value="" type="text" readonly="readonly" class="form-control" placeholder="Lat n Long">
                       </div>
                     </div>
 
@@ -239,35 +259,35 @@
                     <div class="ln_solid"></div>
 
                     <!-- Profile line -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Profile line</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <input id="profile_line" value="" type="text" class="form-control" placeholder="Doctor at AIMS">
+                        <input id="profile_line" name="profile_line" value="" type="text" class="form-control" placeholder="Doctor at AIMS">
                       </div>
                     </div>
 
                     <!-- Summary -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Summary</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <textarea id="summary" value="" class="form-control" rows="3" placeholder="Summary"></textarea>
+                        <textarea id="summary" name="summary" value="" class="form-control" rows="3" placeholder="Summary"></textarea>
                       </div>
                     </div>
 
                     <!-- Aspiration -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Aspiration</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <textarea id="aspiration" value="" class="form-control" rows="3" placeholder="Aspiration"></textarea>
+                        <textarea id="aspirations" name="aspirations" value="" class="form-control" rows="3" placeholder="Aspiration"></textarea>
                       </div>
                     </div>
 
                     <!-- Date of Marriage -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Date of Marriage</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class='input-group date' id='myDatepicker2'>
-                          <input type='text' value="" class="form-control" />
+                        <div class='input-group date' id='myDatepicker_dom'>
+                          <input type='text' id="dom" name="dom" value="" readonly="readonly" class="form-control" />
                           <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                           </span>
@@ -276,20 +296,18 @@
                     </div>
 
                     <!-- Gender -->
-                    <div class="form-group">
-                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Gender</label>
+                    <div class="form-group field">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Gender
+                          <span class="required">*</span>
+                        </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <div class="radio">
-                          <% if(true) { %>
                             <label>
-                              <input type="radio" class="flat" name="gender"> Male </label>
-                            <% } else if(false) { %>
-                              <label>
-                                <input type="radio" class="flat" name="gender"> Female </label>
-                              <% } else { %>
+                                <input type="radio" class="flat" name="gender" value="1" checked="checked"> Male </label>
                                 <label>
-                                  <input type="radio" class="flat" name="gender"> Other </label>
-                                <% } %>
+                                  <input type="radio" class="flat" name="gender" value="2"> Female </label>
+                                  <label>
+                                    <input type="radio" class="flat" name="gender" value="3"> Other </label>
                         </div>
                       </div>
                     </div>
@@ -298,19 +316,20 @@
                       <!-- <small>different form elements</small> -->
                     </h2>
                     <div class="ln_solid"></div>
-
-                    <div class="form-group">
-                      <label class="control-label col-md-2 col-sm-2 col-xs-12">New Password</label>
+                    
+                    <!-- Password -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Password<span class="required">*</span></label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <input id="password" type="password" class="form-control" placeholder="New Password">
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Password" data-validate-length="6,20" required='required'>
                       </div>
                     </div>
 
                     <!-- Re type Password -->
-                    <div class="form-group">
-                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Re-type</label>
+                    <div class="form-group field">
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Re-type<span class="required">*</span></label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <input id="repassword" type="password" class="form-control" placeholder="Re-type Password">
+                        <input id="repassword" type="password" class="form-control" placeholder="Re-type Password" data-validate-linked='password' required='required'>
                       </div>
                     </div>
 
@@ -319,51 +338,44 @@
                     </h2>
                     <div class="ln_solid"></div>
 
-                    <!-- User Status -->
-                    <div class="form-group">
+                    <!-- User Status //1=pending, 2=approved, 3=rejected, 4=suspend -->
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">User Status</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <select class="form-control" id="user_status">
-                          <option>Pending</option>
-                          <option>Approved</option>
-                          <option>Rejected</option>
-                          <option>Suspend</option>
+                        <select class="form-control" id="user_status" name="user_status"> 
+                          <option value="1">Pending</option>
+                          <option selected value="2">Approved</option>
+                          <option value="3">Rejected</option>
+                          <option value="4">Suspend</option>
                         </select>
                       </div>
                     </div>
 
-                    <!-- User type -->
-                    <div class="form-group">
+                    <!-- User type //1=Student,  2=Alumni, 3=Faculty, 4=alcom, 5=collegeAdmin, 6=Administrator -->
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">User Type</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <select class="form-control" id="user_type">
-                          <option>Student</option>
-                          <option>Alumni</option>
-                          <option>Faculty</option>
-                          <option>Alcom</option>
-                          <option>College Admin</option>
-                          <option>Administrator</option>
+                        <select class="form-control" id="user_type" name="user_type">
+                          <option selected value="1">Student</option>
+                          <option value="2">Alumni</option>
+                          <option value="3">Faculty</option>
+                          <option value="4">Alcom</option>
+                          <option value="5">College Admin</option>
+                          <!-- <option value="6">Administrator</option> -->
                         </select>
                       </div>
                     </div>
 
-                    <!-- User From -->
-                    <div class="form-group">
-                      <label class="control-label col-md-2 col-sm-2 col-xs-12">User From</label>
-                      <div class="col-md-7 col-sm-7 col-xs-12">
-                        <select class="form-control" disabled="disabled">
-                          <option>Registration</option>
-                          <option>Admin</option>
-                          <option>Import</option>
-                          <option>Facebook</option>
-                          <option>Linkedin</option>
-                          <option>Google</option>
-                        </select>
-                      </div>
-                    </div>
+                    <!-- User From //1=registration, 2=admin, 3=import, 4=facebook, 5=linkedin, 6=google -->
+                    <!-- <div class="form-group field"> -->
+                      <!-- <label class="control-label col-md-2 col-sm-2 col-xs-12">User From</label> -->
+                      <!-- <div class="col-md-7 col-sm-7 col-xs-12"> -->
+                        <input type="hidden" name="user_from" value="2">
+                      <!-- </div> -->
+                    <!-- </div> -->
 
                     <!-- Registered on -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Registered on</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <label class="control-label" style="font-weight: normal;">
@@ -373,7 +385,7 @@
                     </div>
 
                     <!-- Approved on -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Approved on</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <label class="control-label" style="font-weight: normal;">
@@ -383,7 +395,7 @@
                     </div>
 
                     <!-- Approved by -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Approved by</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <label class="control-label" style="font-weight: normal;">
@@ -393,7 +405,7 @@
                     </div>
 
                     <!-- Last updated -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Last updated</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <label class="control-label" style="font-weight: normal;">
@@ -408,71 +420,72 @@
                     <div class="ln_solid"></div>
 
                     <!-- Entrepreneur -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Entrepreneur</label>
                       <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
-                        <input id="entrepreneur" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                        <input id="entrepreneur" name="entrepreneur" type="checkbox" class="js-switch" placeholder="Entrepreneur">
                       </div>
                     </div>
 
                     <!-- Public profile -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Public Profile</label>
                       <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
-                        <input id="public_profile" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                        <input id="public_profile" name="public_profile" type="checkbox" checked class="js-switch" placeholder="Public Profile">
                       </div>
                     </div>
 
                     <!-- Donation status -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Donation Status</label>
                       <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
-                        <input id="donation_status" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                        <input id="donation_status" name="donation_status" type="checkbox" class="js-switch" checked placeholder="Temparary Password">
                       </div>
                     </div>
 
                     <!-- Renouwned Alumni -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Renowned_Alumni</label>
                       <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
-                        <input id="renowned_alumni" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                        <input id="renowned_alumni" name="renowned_alumni" type="checkbox" class="js-switch" placeholder="Temparary Password">
                       </div>
                     </div>
 
                     <!-- Mentorship -->
-                    <div class="form-group">
+                    <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Mentorship</label>
                       <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
-                        <input id="mentorship" type="checkbox" class="js-switch" placeholder="Temparary Password">
+                        <input id="mentorship" name="mentorship" type="checkbox" class="js-switch" placeholder="Temparary Password">
                       </div>
                     </div>
 
                     <!-- DND email -->
-                    <div class="form-group">
+                    <!-- <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Email notification - (DND)</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <label class="control-label" style="font-weight: normal;">Yes</label>
                       </div>
-                    </div>
+                    </div> -->
 
                     <!-- DND SMS -->
-                    <div class="form-group">
+                    <!-- <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">SMS notification - (DND)</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <label class="control-label" style="font-weight: normal;">No</label>
                       </div>
-                    </div>
+                    </div> -->
 
                     <!-- DND Notification -->
-                    <div class="form-group">
+                    <!-- <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">SMS notification - (DND)</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <label class="control-label" style="font-weight: normal;">No</label>
                       </div>
-                    </div>
-
-                    <div class="form-group">
-                      <div class="col-md-7 col-sm-7 col-xs-12 col-md-offset-3">
+                    </div> -->
+                    <div class="ln_solid"></div>
+                    
+                    <div class="form-group field">
+                      <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-6">
                         <button type="button" class="btn btn-primary">Cancel</button>
                         <button type="reset" class="btn btn-primary">Reset</button>
                         <button type="submit" class="btn btn-success">Submit</button>
