@@ -53,7 +53,8 @@ const CollegesSchema = mongoose.Schema({
     image: { type: String, default: '/assets/build/images/banner.jpg' },
     text: { type: String, default: 'Univibe Network' },
     active: { type: Boolean, default: true }
-  }]
+  }],
+  status: { type: Number, default: 0 }    //0=unpublished, 1=published, 2=suspended
 
 });
 
