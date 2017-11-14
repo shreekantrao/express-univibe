@@ -6134,7 +6134,7 @@ function eachCollegeRow(data, page_no) {
 		$.each(data.rows, function (index, item) {
 			//html += '<li>'+index+' - '+ item.email +'</li>';
 			html += '<tr>' +
-				'<td>#</td>' +
+				'<td><i class="fa '+(item.status===1)?'fa-play':(item.status===2)?'fa-stop':'fa-pause' +'"></i></td>' +
 				'<td><img src="'+item.logo_s+'" class="avatar" alt="Avatar" style="height: 54px;width: 54px;"></td>' +
 				'<td>' +
 					'<a>'+item.name+'</a>' +
@@ -6164,7 +6164,7 @@ function eachCollegeRow(data, page_no) {
 					'<small>57% Complete</small>' +
 				'</td>' +
 				'<td>' +
-					'<button type="button" class="btn btn-success btn-xs">Success</button>' +
+					'<button type="button" class="btn btn-success btn-xs">Publish</button>' +
 				'</td>' +
 				'<td>' +
 					'<a href="/colleges/'+item.slug+'" class="btn btn-primary btn-xs" title="View"><i class="fa fa-eye"></i></a>' +
