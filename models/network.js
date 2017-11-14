@@ -511,17 +511,42 @@ module.exports.deleteUserById = (req) => {
 module.exports.profileAdd = (profileData) => {
   // console.log('profileData',profileData);
   let data = new User(profileData);
-  // return data.save()
-  //   .then(item => ({ msg: "Profile saved to database" }))
-  //   .catch(err => ({ msg: "Unable to save to database" }));
-  // await data.save(function(err) {
-  //   if(err){console.error(err); throw err;}
-  //   // console.log('data',data._id)
-  //   return data._id;
-  // });
-  return data.save()
+
+  let getSalt = ()=> {
+    return new Promise( (resolve, reject)=>{
+      bcrypt.genSalt(10, (err, salt) => {
+          if (err){ reject(err); }
+          resolve(salt);
+      })
+    })
+  }
+
+  let getHash = (salt)=> {
+    return new Promise( (resolve, reject)=>{
+      bcrypt.hash(data.password, salt, (err, hash) => {
+        if (err){ reject(err); }
+        resolve(hash);
+      });
+    })
+  }
+  return getSalt().then( (salt)=>{
+    return getHash(salt);
+  }).then( (hash)=>{
+    data.password = hash;
+    // console.log('call save here', data.password);
+    return data.save();
+  })
   .then(item => ({ msg: "item saved to database", status: true }))
   .catch(err => ({ msg: "unable to save to database", status: false }));
+
+  process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+    // application specific logging, throwing an error, or other logic here
+  });
+
+  // return data.save()
+  // .then(item => ({ msg: "item saved to database", status: true }))
+  // .catch(err => ({ msg: "unable to save to database", status: false }));
 }
 
 module.exports.addUser = function (newUser, callback) {

@@ -155,7 +155,8 @@ module.exports = {
                 return res.redirect('/network/add');
             }
         } catch (e) {
-            next(e);
+            // next(e);
+            throw e;
         }
     },
 }    
