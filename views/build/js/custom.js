@@ -6210,7 +6210,9 @@ function eachCollegeRow(data, page_no) {
 		$.each(data.rows, function (index, item) {
 			//html += '<li>'+index+' - '+ item.email +'</li>';
 			html += '<tr>' +
-				'<td><i class="fa '+(item.status===1)?'fa-play':(item.status===2)?'fa-stop':'fa-pause' +'"></i></td>' +
+				'<td>';
+			html += (item.status===1)?'<i class="fa fa-play" title="Published"></i>':(item.status===2)?'<i class="fa fa-stop" title="Suspend"></i>':'<i class="fa fa-pause" title="Unpublished"></i>'
+			html += '</td>' +
 				'<td><img src="'+item.logo_s+'" class="avatar" alt="Avatar" style="height: 54px;width: 54px;"></td>' +
 				'<td>' +
 					'<a>'+item.name+'</a>' +
@@ -6245,7 +6247,7 @@ function eachCollegeRow(data, page_no) {
 				'<td>' +
 					'<a href="/colleges/'+item.slug+'" class="btn btn-primary btn-xs" title="View"><i class="fa fa-eye"></i></a>' +
 					'<a href="/colleges/'+item.slug+'/edit" class="btn btn-info btn-xs" title="Edit"><i class="fa fa-pencil"></i></a>' +
-					'<a href="#" class="btn btn-danger btn-xs" title="Delete"><i class="fa fa-trash-o"></i></a>' +
+					'<a data-popup-open="'+item.name+'|'+item.slug+'" href="#" class="btn btn-danger btn-xs" title="Delete"><i class="fa fa-trash-o"></i></a>' +
 				'</td>' +
 			'</tr>';
 		});
@@ -6261,4 +6263,44 @@ function eachCollegeRow(data, page_no) {
 	}
 	// html += '</ul>';
 	return html;
+}
+
+if ($("#pagecode_colleges").exists()){
+
+	// $(function() {
+		//----- OPEN
+		$(document).on("click", '[data-popup-open]', function(e) { 
+		// $('[data-popup-open]').on('click', function(e)  {
+			var targeted_popup_val = jQuery(this).attr('data-popup-open');
+			// console.log(targeted_popup_val);
+			targeted_popup_val = targeted_popup_val.split('|');
+			$('[data-popup="popup_college_delete"] h2').html('Are you sure want to delete <strong>'+targeted_popup_val[0]+'</strong> ?');
+			// $('[data-popup="' + targeted_popup_class + '"]').fadeIn(350);
+			$('[data-popup="popup_college_delete"] input').keyup(function () {
+				// console.log(this.value);
+				if(this.value === targeted_popup_val[0]){
+					$('[data-popup="popup_college_delete"] a').removeClass('disabled');
+					$('[data-popup="popup_college_delete"] a').attr('href','/colleges/delete/'+targeted_popup_val[1]);
+				}else{
+					if(!$('[data-popup="popup_college_delete"] a').hasClass('disabled'))
+					$('[data-popup="popup_college_delete"] a').addClass('disabled');
+					$('[data-popup="popup_college_delete"] a').attr('href','#');					
+				}
+			});
+			$('[data-popup="popup_college_delete"]').fadeIn(350);
+	 
+			e.preventDefault();
+		});
+	 
+		//----- CLOSE
+		$(document).on("click", '[data-popup-close]', function(e) { 
+		// $('[data-popup-close]').on('click', function(e)  {
+			var targeted_popup_class = jQuery(this).attr('data-popup-close');
+			// $('[data-popup="' + targeted_popup_class + '"]').fadeOut(350);
+			$('[data-popup="popup_college_delete"]').fadeOut(350);
+	 
+			e.preventDefault();
+		});
+	// });
+
 }
