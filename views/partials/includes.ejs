@@ -1,5 +1,5 @@
-
 <% if(page_Code == "users") { %>
+    <!-- <%-page_Code%> -->
     <!-- jQuery -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->
@@ -25,6 +25,7 @@
     <!--script src="/assets/vendors/bootstrap/dist/js/bootstrap-confirmation.js"></script-->
     <script src="/assets/vendors/bootstrap/dist/js/bootstrap-confirmation.min.js"></script>
 <% } else if(page_Code == "network") { %>
+    <!-- <%-page_Code%> -->
     <!-- jQuery -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->
@@ -45,6 +46,7 @@
     <!--script src="/assets/vendors/pagination-js/pagination.js"></script-->
     <!-- <script src="/assets/vendors/pagination-js/pagination.min.js"></script> -->
 <% } else if(page_Code == "profile") { %>
+    <!-- <%-page_Code%> -->
     <!-- jQuery -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->
@@ -74,6 +76,7 @@
     <!-- jquery.inputmask -->
     <script src="/assets/vendors/jquery.inputmask/dist/min/jquery.inputmask.bundle.min.js"></script>
 <% } else if(page_Code == "profile_add") { %>
+    <!-- <%-page_Code%> -->
     <!-- jQuery -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->
@@ -102,8 +105,8 @@
     <script src="/assets/vendors/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
     <!-- jquery.inputmask -->
     <script src="/assets/vendors/jquery.inputmask/dist/min/jquery.inputmask.bundle.min.js"></script>
-<% } else if(page_Code == "colleges") { %>
-
+<% } else if(page_Code == "colleges" || page_Code == "companies" || page_Code == "industries" || page_Code == "cities" || page_Code == "courses") { %>
+    <!-- <%-page_Code%> -->
     <!-- jQuery -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->
@@ -114,9 +117,13 @@
     <script src="/assets/vendors/nprogress/nprogress.js"></script>
     <!-- bootstrap-progressbar -->
     <script src="/assets/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
+    <!-- validator -->
+    <script src="/assets/vendors/validator/validator.js"></script>
+    <!-- Switchery -->
+    <script src="/assets/vendors/switchery/dist/switchery.min.js"></script>
 
 <% } else if(page_Code == "college-details") { %>
-
+    <!-- <%-page_Code%> -->
     <!-- jQuery -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->
@@ -131,7 +138,7 @@
     <script src="/assets/vendors/echarts/dist/echarts.min.js"></script>
 
 <% } else if(page_Code == "college-add" || page_Code == "college-edit") { %>
-
+    <!-- <%-page_Code%> -->
     <!-- jQuery -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->
@@ -148,6 +155,7 @@
     <script src="/assets/vendors/validator/validator.js"></script>
     
 <% } else { %>
+    <!-- <%-page_Code%> -->
     <!-- jQuery -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->

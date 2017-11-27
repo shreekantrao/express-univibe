@@ -5326,3 +5326,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
     background:rgba(0,0,0,1);
     text-decoration:none;
 }
+
+.unpublished{
+    opacity: 0.2;
+}

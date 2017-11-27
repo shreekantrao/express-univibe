@@ -15,6 +15,10 @@ const authRoutes = require('./routes/auth');
 const dashboard = require('./routes/dashboard');
 const network = require('./routes/network');
 const colleges = require('./routes/colleges');
+const companies = require('./routes/companies');
+const industries = require('./routes/industries');
+const cities = require('./routes/cities');
+const courses = require('./routes/courses');
 
 const app = express();
 
@@ -89,6 +93,10 @@ app.use('/dashboard', IsAuthenticated, dashboard);
 // app.use('/users', users);
 app.use('/network', IsAuthenticated, network);
 app.use('/colleges', IsAuthenticated, colleges);
+app.use('/companies', IsAuthenticated, companies);
+app.use('/industries', IsAuthenticated, industries);
+app.use('/cities', IsAuthenticated, cities);
+app.use('/courses', IsAuthenticated, courses);
 
 // Default redirected to Dashboard
 // app.get('/', (req, res) => {  return res.redirect(301, '/auth/login');	});

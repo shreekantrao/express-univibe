@@ -1791,8 +1791,10 @@ function init_ColorPicker() {
 	// });
 
 	// $('.demo-auto').colorpicker();
-	
-	$('.college_color').colorpicker({ format: 'hex' });
+
+	$('.college_color').colorpicker({
+		format: 'hex'
+	});
 
 
 };
@@ -5425,7 +5427,7 @@ $(document).ready(function () {
 	init_daterangepicker();
 	init_daterangepicker_right();
 	init_daterangepicker_single_call();
-	init_daterangepicker_reservation(); 
+	init_daterangepicker_reservation();
 
 	init_EasyPieChart();
 	init_charts();
@@ -5445,24 +5447,38 @@ $(document).ready(function () {
 
 	if ($("#pagecode_network").exists())
 		init_networkPagination();
-	
+
 	if ($("#pagecode_profile_add").exists())
-		init_validator();	
-	
+		init_validator();
+
 	if ($("#pagecode_colleges").exists())
 		init_collegeTablePagination();
 
-	if ($("#pagecode_college-add").exists()){
+	if ($("#pagecode_college-add").exists()) {
 		init_SmartWizard_add();
-		init_validator();	
+		init_validator();
 	}
-	if ($("#pagecode_college-edit").exists()){
+	if ($("#pagecode_college-edit").exists()) {
 		init_SmartWizard_edit();
 		init_ColorPicker();
-		init_validator();	
-	}	
+		init_validator();
+	}
 
+	if ($("#pagecode_companies").exists()) {
+		init_companiesTablePagination();
+		init_validator();
+	}
+	if ($("#pagecode_industries").exists()) {
+		init_industriesTablePagination();
+		init_validator();
+	}
+	if ($("#pagecode_cities").exists()) {
+		init_citiesTablePagination();
+		init_validator();
+	}	
 });
+// This will be used to store pagination data
+const pagination_data = [];
 
 // ############### Bootstrap table js #################
 
@@ -5959,14 +5975,16 @@ if ($("#pagecode_profile_add").exists()) {
 		}
 	});
 
-	
-	$("#emailid").on('blur', function(){
+
+	$("#emailid").on('blur', function () {
 		// validator.checkField.call(validator, e.target
 
 		$.ajax({
 			url: "/network/checkemailavailable/",
 			type: "POST",
-			data: {email: $("#emailid").val()},
+			data: {
+				email: $("#emailid").val()
+			},
 			beforeSend: function () {
 				// show loading
 				$("#emailid").addClass('checkingTextbox');
@@ -5974,9 +5992,9 @@ if ($("#pagecode_profile_add").exists()) {
 				// validator.settings.classes.bad = 'error';
 			},
 			success: function (data) {
-				if(data){
+				if (data) {
 					$("#email").val($("#emailid").val());
-				}else{
+				} else {
 					$("#email_check_div").addClass('bad');
 				}
 				$("#emailid").removeClass('checkingTextbox');
@@ -5985,7 +6003,7 @@ if ($("#pagecode_profile_add").exists()) {
 				$("#email").val('');
 				$("#emailid").removeClass('checkingTextbox');
 			}
-		});	
+		});
 	});
 
 	// --- DOB calender --- //
@@ -5996,7 +6014,7 @@ if ($("#pagecode_profile_add").exists()) {
 	});
 	$('#myDatepicker_dob').data("DateTimePicker").maxDate("31-12-2000");
 	$('#myDatepicker_dob').data("DateTimePicker").minDate("01-01-1900");
-	
+
 }
 // ############### College Detail page #################
 /* SMART WIZARD ADD */
@@ -6052,7 +6070,10 @@ if ($("#pagecode_college-add").exists()) {
 			$.ajax({
 				url: "/colleges/checkcollegename/", // + convertToSlug(this.value),
 				type: "POST",
-				data: {'name': this.value, 'slug':convertToSlug(this.value)},
+				data: {
+					'name': this.value,
+					'slug': convertToSlug(this.value)
+				},
 				beforeSend: function () {
 					// show loading
 					$("#name").addClass('checkingTextbox');
@@ -6063,13 +6084,13 @@ if ($("#pagecode_college-add").exists()) {
 					// check data and show msg
 					$("#name").removeClass('checkingTextbox');
 					console.log(data.count);
-					if(data.name > 0 && data.slug > 0)
+					if (data.name > 0 && data.slug > 0)
 						$("#slug").val('');
 				},
 				error: function () {
 					// plz try later
 				}
-			});			
+			});
 		});
 
 }
@@ -6088,21 +6109,21 @@ function init_validator() {
 
 	// initialize the validator
 	var validator = new FormValidator(),
-	$form = $('form');
+		$form = $('form');
 
-	document.forms[0].addEventListener('blur', function(e){
+	document.forms[0].addEventListener('blur', function (e) {
 		validator.checkField.call(validator, e.target)
 	}, true);
 
-	document.forms[0].addEventListener('input', function(e){
+	document.forms[0].addEventListener('input', function (e) {
 		validator.checkField.call(validator, e.target);
 	}, true);
 
-	document.forms[0].addEventListener('change', function(e){
+	document.forms[0].addEventListener('change', function (e) {
 		validator.checkField.call(validator, e.target)
 	}, true);
 
-	document.forms[0].onsubmit = function(e){
+	document.forms[0].onsubmit = function (e) {
 		var submit = true,
 			validatorResult = validator.checkAll(this);
 
@@ -6151,10 +6172,10 @@ function init_collegeTablePagination() {
 	var refreshIntervalId = null;
 	let page_no = 1;
 	collegeTablePagination(page_no, refreshIntervalId);
-	console.log('out if refreshIntervalId',refreshIntervalId);	
+	console.log('out if refreshIntervalId', refreshIntervalId);
 
-	if(refreshIntervalId === null){
-		console.log('in if refreshIntervalId',refreshIntervalId);		
+	if (refreshIntervalId === null) {
+		console.log('in if refreshIntervalId', refreshIntervalId);
 		refreshIntervalId = setInterval(function () {
 			page_no++;
 			collegeTablePagination(page_no, refreshIntervalId);
@@ -6169,35 +6190,35 @@ function init_collegeTablePagination() {
 }
 
 function collegeTablePagination(page_no, refreshIntervalId) {
-	console.log('refreshIntervalId 1',refreshIntervalId);	
-	if( refreshIntervalId === null || refreshIntervalId != false )
-	$.ajax({
-		url: "/colleges/page/" + page_no,
-		type: "GET",
-		beforeSend: function () {
-			if (page_no == 1)
-				$("#data-container").remove('profile_details');
-			$("#overlay").html("Loading more...");
-			$("#overlay").show();
-		},
-		success: function (data) {
-			$("#dummyrow").hide();
-			// $("#network_total").html(' - Total '+data.total);
-			// $("#search_total").html('Showing '+data.searched_total);
-			$("#collegeTableBody").append(eachCollegeRow(data, page_no));
-			if (data.total <= data.pageSize || data.rows.length < data.pageSize){
-				console.log('refreshIntervalId 2',refreshIntervalId);
+	console.log('refreshIntervalId 1', refreshIntervalId);
+	if (refreshIntervalId === null || refreshIntervalId != false)
+		$.ajax({
+			url: "/colleges/page/" + page_no,
+			type: "GET",
+			beforeSend: function () {
+				if (page_no == 1)
+					$("#data-container").remove('profile_details');
+				$("#overlay").html("Loading more...");
+				$("#overlay").show();
+			},
+			success: function (data) {
+				$("#dummyrow").hide();
+				// $("#network_total").html(' - Total '+data.total);
+				// $("#search_total").html('Showing '+data.searched_total);
+				$("#collegeTableBody").append(eachCollegeRow(data, page_no));
+				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
+					console.log('refreshIntervalId 2', refreshIntervalId);
+					clearInterval(refreshIntervalId);
+					// console.log('refreshIntervalId 3',refreshIntervalId);				
+					refreshIntervalId = false;
+					// console.log('refreshIntervalId 4',refreshIntervalId);				
+				} //else{refreshIntervalId = true;}
+			},
+			error: function () {
+				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
 				clearInterval(refreshIntervalId);
-				// console.log('refreshIntervalId 3',refreshIntervalId);				
-				refreshIntervalId = false;
-				// console.log('refreshIntervalId 4',refreshIntervalId);				
-			}//else{refreshIntervalId = true;}
-		},
-		error: function () {
-			$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
-			clearInterval(refreshIntervalId);
-		}
-	});
+			}
+		});
 }
 
 function eachCollegeRow(data, page_no) {
@@ -6211,45 +6232,45 @@ function eachCollegeRow(data, page_no) {
 			//html += '<li>'+index+' - '+ item.email +'</li>';
 			html += '<tr>' +
 				'<td>';
-			html += (item.status===1)?'<i class="fa fa-play" title="Published"></i>':(item.status===2)?'<i class="fa fa-stop" title="Suspend"></i>':'<i class="fa fa-pause" title="Unpublished"></i>'
+			html += (item.status === 0) ? '<i class="fa fa-cogs" title="Processing"></i>' : (item.status === 1) ? '<i class="fa fa-pause" title="Unpublished"></i>' : (item.status === 2) ? '<i class="fa fa-play" title="Published"></i>' : '<i class="fa fa-stop" title="Suspend"></i>'
 			html += '</td>' +
-				'<td><img src="'+item.logo_s+'" class="avatar" alt="Avatar" style="height: 54px;width: 54px;"></td>' +
+				'<td><img src="' + item.logo_s + '" class="avatar" alt="Avatar" style="height: 54px;width: 54px;"></td>' +
 				'<td>' +
-					'<a>'+item.name+'</a>' +
-					'<br /><small>Created '+new Date(item.registered_date).toLocaleDateString()+'</small>' +
-					'<br /><small>Updated '+new Date(item.last_updated).toLocaleDateString()+'</small>' +
+				'<a>' + item.name + '</a>' +
+				'<br /><small>Created ' + new Date(item.registered_date).toLocaleDateString() + '</small>' +
+				'<br /><small>Updated ' + new Date(item.last_updated).toLocaleDateString() + '</small>' +
 				'</td>' +
 				'<td>' +
-					'<ul class="list-inline">' +
-						'<li>' +
-							'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
-						'</li>' +
-						'<li>' +
-							'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
-						'</li>' +
-						'<li>' +
-							'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
-						'</li>' +
-						'<li>' +
-							'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
-						'</li>' +
-					'</ul>' +
+				'<ul class="list-inline">' +
+				'<li>' +
+				'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
+				'</li>' +
+				'<li>' +
+				'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
+				'</li>' +
+				'<li>' +
+				'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
+				'</li>' +
+				'<li>' +
+				'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
+				'</li>' +
+				'</ul>' +
 				'</td>' +
 				'<td class="project_progress">' +
-					'<div class="progress progress_sm">' +
-						'<div class="progress-bar bg-green" role="progressbar" data-transitiongoal="57"></div>' +
-					'</div>' +
-					'<small>57% Complete</small>' +
+				'<div class="progress progress_sm">' +
+				'<div class="progress-bar bg-green" role="progressbar" data-transitiongoal="57"></div>' +
+				'</div>' +
+				'<small>57% Complete</small>' +
 				'</td>' +
 				'<td>' +
-					'<button type="button" class="btn btn-success btn-xs">Publish</button>' +
+				'<button type="button" class="btn btn-success btn-xs">Publish</button>' +
 				'</td>' +
 				'<td>' +
-					'<a href="/colleges/'+item.slug+'" class="btn btn-primary btn-xs" title="View"><i class="fa fa-eye"></i></a>' +
-					'<a href="/colleges/'+item.slug+'/edit" class="btn btn-info btn-xs" title="Edit"><i class="fa fa-pencil"></i></a>' +
-					'<a data-popup-open="'+item.name+'|'+item.slug+'" href="#" class="btn btn-danger btn-xs" title="Delete"><i class="fa fa-trash-o"></i></a>' +
+				'<a href="/colleges/' + item.slug + '" class="btn btn-primary btn-xs" title="View"><i class="fa fa-eye"></i></a>' +
+				'<a href="/colleges/' + item.slug + '/edit" class="btn btn-info btn-xs" title="Edit"><i class="fa fa-pencil"></i></a>' +
+				'<a data-popup-open="' + item.name + '|' + item.slug + '" href="#" class="btn btn-danger btn-xs" title="Delete"><i class="fa fa-trash-o"></i></a>' +
 				'</td>' +
-			'</tr>';
+				'</tr>';
 		});
 		if (page_no == 10)
 			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
@@ -6265,42 +6286,861 @@ function eachCollegeRow(data, page_no) {
 	return html;
 }
 
-if ($("#pagecode_colleges").exists()){
+if ($("#pagecode_colleges").exists()) {
 
 	// $(function() {
-		//----- OPEN
-		$(document).on("click", '[data-popup-open]', function(e) { 
+	//----- OPEN
+	$(document).on("click", '[data-popup-open]', function (e) {
 		// $('[data-popup-open]').on('click', function(e)  {
-			var targeted_popup_val = jQuery(this).attr('data-popup-open');
-			// console.log(targeted_popup_val);
-			targeted_popup_val = targeted_popup_val.split('|');
-			$('[data-popup="popup_college_delete"] h2').html('Are you sure want to delete <strong>'+targeted_popup_val[0]+'</strong> ?');
-			// $('[data-popup="' + targeted_popup_class + '"]').fadeIn(350);
-			$('[data-popup="popup_college_delete"] input').keyup(function () {
-				// console.log(this.value);
-				if(this.value === targeted_popup_val[0]){
-					$('[data-popup="popup_college_delete"] a').removeClass('disabled');
-					$('[data-popup="popup_college_delete"] a').attr('href','/colleges/delete/'+targeted_popup_val[1]);
-				}else{
-					if(!$('[data-popup="popup_college_delete"] a').hasClass('disabled'))
+		var targeted_popup_val = jQuery(this).attr('data-popup-open');
+		// console.log(targeted_popup_val);
+		targeted_popup_val = targeted_popup_val.split('|');
+		$('[data-popup="popup_college_delete"] h2').html('Are you sure want to delete <strong>' + targeted_popup_val[0] + '</strong> ?');
+		// $('[data-popup="' + targeted_popup_class + '"]').fadeIn(350);
+		$('[data-popup="popup_college_delete"] input').keyup(function () {
+			// console.log(this.value);
+			if (this.value === targeted_popup_val[0]) {
+				$('[data-popup="popup_college_delete"] a').removeClass('disabled');
+				$('[data-popup="popup_college_delete"] a').attr('href', '/colleges/delete/' + targeted_popup_val[1]);
+			} else {
+				if (!$('[data-popup="popup_college_delete"] a').hasClass('disabled'))
 					$('[data-popup="popup_college_delete"] a').addClass('disabled');
-					$('[data-popup="popup_college_delete"] a').attr('href','#');					
-				}
-			});
-			$('[data-popup="popup_college_delete"]').fadeIn(350);
-	 
-			e.preventDefault();
+				$('[data-popup="popup_college_delete"] a').attr('href', '#');
+			}
 		});
-	 
-		//----- CLOSE
-		$(document).on("click", '[data-popup-close]', function(e) { 
+		$('[data-popup="popup_college_delete"]').fadeIn(350);
+
+		e.preventDefault();
+	});
+
+	//----- CLOSE
+	$(document).on("click", '[data-popup-close]', function (e) {
 		// $('[data-popup-close]').on('click', function(e)  {
-			var targeted_popup_class = jQuery(this).attr('data-popup-close');
-			// $('[data-popup="' + targeted_popup_class + '"]').fadeOut(350);
-			$('[data-popup="popup_college_delete"]').fadeOut(350);
-	 
-			e.preventDefault();
-		});
+		var targeted_popup_class = jQuery(this).attr('data-popup-close');
+		// $('[data-popup="' + targeted_popup_class + '"]').fadeOut(350);
+		$('[data-popup="popup_college_delete"]').fadeOut(350);
+
+		e.preventDefault();
+	});
 	// });
 
+}
+
+// ############### Companies Pagination js #################
+
+function init_companiesTablePagination() {
+	var refreshIntervalId = null;
+	let page_no = 1;
+	companiesTablePagination(page_no, refreshIntervalId);
+	console.log('out if refreshIntervalId', refreshIntervalId);
+
+	if (refreshIntervalId === null) {
+		console.log('in if refreshIntervalId', refreshIntervalId);
+		refreshIntervalId = setInterval(function () {
+			page_no++;
+			companiesTablePagination(page_no, refreshIntervalId);
+			//$("#overlay").hide();
+			if (page_no >= 10) { // change this to 10 page
+				console.log(page_no);
+				clearInterval(refreshIntervalId);
+			}
+		}, 1000);
+	}
+
+}
+
+function companiesTablePagination(page_no, refreshIntervalId) {
+	console.log('refreshIntervalId 1', refreshIntervalId);
+	if (refreshIntervalId === null || refreshIntervalId != false)
+		$.ajax({
+			url: "/companies/page/" + page_no,
+			type: "GET",
+			beforeSend: function () {
+				// if (page_no == 1)
+				// 	$("#data-container").remove('profile_details');
+				// $("#overlay").html("Loading more...");
+				// $("#overlay").show();
+			},
+			success: function (data) {
+				// $("#dummyrow").hide();
+				// $("#network_total").html(' - Total '+data.total);
+				// $("#search_total").html('Showing '+data.searched_total);
+				$("#data-container").append(eachCompanyRow(data, page_no));
+
+				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
+					console.log('refreshIntervalId 2', refreshIntervalId);
+					clearInterval(refreshIntervalId);
+					// console.log('refreshIntervalId 3',refreshIntervalId);				
+					refreshIntervalId = false;
+					// console.log('refreshIntervalId 4',refreshIntervalId);				
+				} //else{refreshIntervalId = true;}
+			},
+			error: function () {
+				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
+				clearInterval(refreshIntervalId);
+			}
+		});
+}
+
+function eachCompanyRow(data, page_no) {
+	var html = '';
+	// console.log('total',data.total);
+	// console.log('row size',data.rows.length);
+	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+	{
+		//alert("data hei");
+		$.each(data.rows, function (index, item) {
+			//html += '<li>'+index+' - '+ item.email +'</li>';
+			console.log(item);
+			html += '<div class="col-md-55">' +
+				'<div class="thumbnail">' +
+				'<div class="image view view-first">' +
+				'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" src="' + item.image + '" alt="' + item.name + '" />' +
+				'<div class="mask">' +
+				'<p>Total connections - ' + item.connections_total + '</p>' +
+				'<div class="tools tools-bottom">' +
+				'<a href="#" data-popup-edit="' + item._id + '"><i class="fa fa-pencil"></i></a>' +
+				'<a href="#"><i class="fa fa-trash"></i></a>' +
+				'</div></div></div>' +
+				'<div class="caption">' +
+				'<p>' + item.name + '</p>' +
+				'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
+				'</div></div></div>';
+			let key = item._id;
+			pagination_data[key] = item;
+			//   console.log(pagination_data);			  
+		});
+		if (page_no == 10)
+			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
+	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
+		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no companies.</td></tr>';
+		console.log('No data found');
+	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
+		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
+		console.log('Thats all');
+		clearInterval(refreshIntervalId);
+	}
+	// html += '</ul>';
+	return html;
+}
+
+if ($("#pagecode_companies").exists()) {
+
+	//----- OPEN popup to add
+	$(document).on("click", '[data-popup-open]', function (e) {
+		$('[data-popup="popup_companies_add"]').fadeIn(350);
+		e.preventDefault();
+	});
+	//----- Open popup to edit
+	$(document).on("click", '[data-popup-edit]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-edit');
+		$(this).parent().closest('.col-md-55').addClass('beingedit');
+		$('[data-popup="popup_companies_add"] form #company_id').val(pagination_data[targeted_val]._id);
+		$('[data-popup="popup_companies_add"] form #name').val(pagination_data[targeted_val].name);
+		$('[data-popup="popup_companies_add"] form #slug').val(pagination_data[targeted_val].slug);
+		$('[data-popup="popup_companies_add"] form #description').val(pagination_data[targeted_val].description);
+		$('[data-popup="popup_companies_add"] #company_status').prop("checked", pagination_data[targeted_val].status);
+		$('[data-popup="popup_companies_add"] #company_status').attr("checked");
+
+		$('[data-popup="popup_companies_add"]').fadeIn(350);
+		e.preventDefault();
+	});
+
+	//----- CLOSE popup
+	$(document).on("click", '[data-popup-close]', function (e) {
+		$('[data-popup="popup_companies_add"]').fadeOut(350);
+		$('.col-md-55').removeClass('beingedit');
+		$('[data-popup="popup_companies_add"] form')[0].reset();
+		$('#company_status').prop("checked", true);
+		e.preventDefault();
+	});
+
+	// check for duplicate
+	$("#name")
+		.keyup(function () {
+			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			$('#company-submit').prop('disabled', true);
+		})
+		.blur(function () {
+			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			// $('[data-popup="popup_companies_add"] buttton[type=submit]').addClass('disabled');
+			$.ajax({
+				url: "/companies/checkcompanyname/", // + convertToSlug(this.value),
+				type: "POST",
+				data: {
+					'name': this.value.trim(),
+					'slug': convertToSlug(this.value),
+					'_id': $("#company_id").val()
+				},
+				beforeSend: function () {
+					// show loading
+					$("#name").addClass('checkingTextbox');
+					$('#company-submit').prop('disabled', true);
+				},
+				success: function (data) {
+					// check data and show msg
+					$("#name").removeClass('checkingTextbox');
+					if (data.name > 0 || data.slug > 0) {
+						$("#slug").val('');
+						$('#name').parents('div.form-group').addClass('bad');
+						$('#name').parents('div.form-group').append('<div class="alert">Company exists.</div>');
+					}
+					$('#company-submit').prop('disabled', false);
+				},
+				error: function () {
+					// plz try later
+				}
+			});
+		});
+
+	// ----- Submit
+	$(document).on("click", '#company-submit', function (err) {
+		// collecting data from form
+		let form = $('[data-popup="popup_companies_add"] form')[0];
+		let status = $('#company_status').is(":checked");
+		let url = "/companies/addnew";
+		let data = {
+			'name': form.name.value.trim(),
+			'description': form.description.value,
+			'slug': form.slug.value,
+			'image': '',
+			'status': status
+		};
+		// If ID exists post it for Edit.
+		if (form.company_id.value) {
+			data._id = form.company_id.value;
+			url = "/companies/savecompany"
+		}
+		// console.log('ajax', data);
+
+		$.ajax({
+			url: url,
+			type: "POST",
+			data: data,
+			beforeSend: function () {
+				// show loading on button
+			},
+			success: function (data) {
+				// hide loading 
+				// console.log('data after save', pagination_data);
+				// console.log('data after id', data.data._id);
+				$('[data-popup="popup_companies_add"] form')[0].reset();
+				$('[data-popup="popup_companies_add"]').fadeOut(350, function () {
+					// $('#data-container > div:nth-child(1)').after("<div>great things</div>");
+					// to save
+					if (!form.company_id.value) {
+						// --- add value to master array
+						// pagination_data[data.data._id]._id = data.data._id;
+						let key = data.data._id
+						pagination_data[key] = data.data;
+				
+						// pagination_data[data.data._id].slug = data.data.slug;
+						// pagination_data[data.data._id].description = data.data.description;
+						// pagination_data[data.data._id].status = data.data.status;
+						// pagination_data[data.data._id].image = data.data.image;
+
+						$('#data-container').children(':eq(0)').after('' +
+							'<div class="col-md-55" style="display:none">' +
+							'<div class="thumbnail">' +
+							'<div class="image view view-first">' +
+							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+							'<div class="mask">' +
+							'<p>Total connections - ' + data.data.connections_total + '</p>' +
+							'<div class="tools tools-bottom">' +
+							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
+							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'</div></div></div>' +
+							'<div class="caption">' +
+							'<p>' + data.data.name + '</p>' +
+							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+							'</div></div></div>');
+						$('#data-container').children(':eq(1)').show("puff");
+					} else {
+						// ---- to edit
+						// --- update value to master array
+						// pagination_data[data.data._id]._id = data.data._id;
+						pagination_data[data.data._id].name = data.data.name;
+						pagination_data[data.data._id].slug = data.data.slug;
+						pagination_data[data.data._id].description = data.data.description;
+						pagination_data[data.data._id].status = data.data.status;
+						pagination_data[data.data._id].image = data.data.image;
+						
+						$('.beingedit').html('' +
+							'<div class="thumbnail">' +
+							'<div class="image view view-first">' +
+							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+							'<div class="mask">' +
+							'<p>Total connections - ' + data.data.connections_total + '</p>' +
+							'<div class="tools tools-bottom">' +
+							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
+							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'</div></div></div>' +
+							'<div class="caption">' +
+							'<p>' + data.data.name + '</p>' +
+							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+							'</div></div></div>');
+						// $('.beingedit').prop('style','display:none');
+						// $('.beingedit').show("highlight");
+						$('.beingedit .thumbnail')
+						.animate({backgroundColor: "rgb( 20, 20, 20 )"},()=>{
+							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
+						});
+						$('.col-md-55').removeClass('beingedit');
+					}
+				});
+			},
+			error: function () {
+				$("#dummyrow").html('Unable to save.');
+				err.preventDefault();
+			}
+		});
+
+		err.preventDefault();
+	});
+}
+
+// ############### Industries Pagination js #################
+
+function init_industriesTablePagination() {
+	var refreshIntervalId = null;
+	let page_no = 1;
+	industriesTablePagination(page_no, refreshIntervalId);
+	console.log('out if refreshIntervalId', refreshIntervalId);
+
+	if (refreshIntervalId === null) {
+		console.log('in if refreshIntervalId', refreshIntervalId);
+		refreshIntervalId = setInterval(function () {
+			page_no++;
+			industriesTablePagination(page_no, refreshIntervalId);
+			//$("#overlay").hide();
+			if (page_no >= 10) { // change this to 10 page
+				console.log(page_no);
+				clearInterval(refreshIntervalId);
+			}
+		}, 1000);
+	}
+
+}
+
+function industriesTablePagination(page_no, refreshIntervalId) {
+	console.log('refreshIntervalId 1', refreshIntervalId);
+	if (refreshIntervalId === null || refreshIntervalId != false)
+		$.ajax({
+			url: "/industries/page/" + page_no,
+			type: "GET",
+			beforeSend: function () {
+				// if (page_no == 1)
+				// 	$("#data-container").remove('profile_details');
+				// $("#overlay").html("Loading more...");
+				// $("#overlay").show();
+			},
+			success: function (data) {
+				// $("#dummyrow").hide();
+				// $("#network_total").html(' - Total '+data.total);
+				// $("#search_total").html('Showing '+data.searched_total);
+				$("#data-container").append(eachIndustryRow(data, page_no));
+
+				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
+					console.log('refreshIntervalId 2', refreshIntervalId);
+					clearInterval(refreshIntervalId);
+					// console.log('refreshIntervalId 3',refreshIntervalId);				
+					refreshIntervalId = false;
+					// console.log('refreshIntervalId 4',refreshIntervalId);				
+				} //else{refreshIntervalId = true;}
+			},
+			error: function () {
+				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
+				clearInterval(refreshIntervalId);
+			}
+		});
+}
+
+function eachIndustryRow(data, page_no) {
+	var html = '';
+	// console.log('total',data.total);
+	// console.log('row size',data.rows.length);
+	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+	{
+		//alert("data hei");
+		$.each(data.rows, function (index, item) {
+			//html += '<li>'+index+' - '+ item.email +'</li>';
+			console.log(item);
+			html += '<div class="col-md-55">' +
+				'<div class="thumbnail">' +
+				'<div class="image view view-first">' +
+				'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" src="' + item.image + '" alt="' + item.name + '" />' +
+				'<div class="mask">' +
+				'<p>Total connections - ' + item.connections_total + '</p>' +
+				'<div class="tools tools-bottom">' +
+				'<a href="#" data-popup-edit="' + item._id + '"><i class="fa fa-pencil"></i></a>' +
+				'<a href="#"><i class="fa fa-trash"></i></a>' +
+				'</div></div></div>' +
+				'<div class="caption">' +
+				'<p>' + item.name + '</p>' +
+				'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
+				'</div></div></div>';
+			let key = item._id;
+			pagination_data[key] = item;
+			//   console.log(pagination_data);			  
+		});
+		if (page_no == 10)
+			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
+	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
+		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no industries.</td></tr>';
+		console.log('No data found');
+	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
+		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
+		console.log('Thats all');
+		clearInterval(refreshIntervalId);
+	}
+	// html += '</ul>';
+	return html;
+}
+
+if ($("#pagecode_industries").exists()) {
+
+	//----- OPEN popup to add
+	$(document).on("click", '[data-popup-open]', function (e) {
+		$('[data-popup="popup_industries_add"]').fadeIn(350);
+		e.preventDefault();
+	});
+	//----- Open popup to edit
+	$(document).on("click", '[data-popup-edit]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-edit');
+		$(this).parent().closest('.col-md-55').addClass('beingedit');
+		$('[data-popup="popup_industries_add"] form #industry_id').val(pagination_data[targeted_val]._id);
+		$('[data-popup="popup_industries_add"] form #name').val(pagination_data[targeted_val].name);
+		$('[data-popup="popup_industries_add"] form #slug').val(pagination_data[targeted_val].slug);
+		$('[data-popup="popup_industries_add"] form #description').val(pagination_data[targeted_val].description);
+		$('[data-popup="popup_industries_add"] #industry_status').prop("checked", pagination_data[targeted_val].status);
+		$('[data-popup="popup_industries_add"] #industry_status').attr("checked");
+
+		$('[data-popup="popup_industries_add"]').fadeIn(350);
+		e.preventDefault();
+	});
+
+	//----- CLOSE popup
+	$(document).on("click", '[data-popup-close]', function (e) {
+		$('[data-popup="popup_industries_add"]').fadeOut(350);
+		$('.col-md-55').removeClass('beingedit');
+		$('[data-popup="popup_industries_add"] form')[0].reset();
+		$('#industry_status').prop("checked", true);
+		e.preventDefault();
+	});
+
+	// check for duplicate
+	$("#name")
+		.keyup(function () {
+			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			$('#industry-submit').prop('disabled', true);
+		})
+		.blur(function () {
+			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			// $('[data-popup="popup_industries_add"] buttton[type=submit]').addClass('disabled');
+			$.ajax({
+				url: "/industries/checkindustryname/", // + convertToSlug(this.value),
+				type: "POST",
+				data: {
+					'name': this.value.trim(),
+					'slug': convertToSlug(this.value),
+					'_id': $("#industry_id").val()
+				},
+				beforeSend: function () {
+					// show loading
+					$("#name").addClass('checkingTextbox');
+					$('#industry-submit').prop('disabled', true);
+				},
+				success: function (data) {
+					// check data and show msg
+					$("#name").removeClass('checkingTextbox');
+					if (data.name > 0 || data.slug > 0) {
+						$("#slug").val('');
+						$('#name').parents('div.form-group').addClass('bad');
+						$('#name').parents('div.form-group').append('<div class="alert">Industry exists.</div>');
+					}
+					$('#industry-submit').prop('disabled', false);
+				},
+				error: function () {
+					// plz try later
+				}
+			});
+		});
+
+	// ----- Submit
+	$(document).on("click", '#industry-submit', function (err) {
+		// collecting data from form
+		let form = $('[data-popup="popup_industries_add"] form')[0];
+		let status = $('#industry_status').is(":checked");
+		let url = "/industries/addnew";
+		let data = {
+			'name': form.name.value.trim(),
+			'description': form.description.value,
+			'slug': form.slug.value,
+			'image': '',
+			'status': status
+		};
+		// If ID exists post it for Edit.
+		if (form.industry_id.value) {
+			data._id = form.industry_id.value;
+			url = "/industries/saveindustry"
+		}
+		// console.log('ajax', data);
+
+		$.ajax({
+			url: url,
+			type: "POST",
+			data: data,
+			beforeSend: function () {
+				// show loading on button
+			},
+			success: function (data) {
+				// hide loading 
+				// console.log('data after save', pagination_data);
+				// console.log('data after id', data.data._id);
+				$('[data-popup="popup_industries_add"] form')[0].reset();
+				$('[data-popup="popup_industries_add"]').fadeOut(350, function () {
+					// $('#data-container > div:nth-child(1)').after("<div>great things</div>");
+					// to save
+					if (!form.industry_id.value) {
+						// --- add value to master array
+						// pagination_data[data.data._id]._id = data.data._id;
+						let key = data.data._id
+						pagination_data[key] = data.data;
+				
+						// pagination_data[data.data._id].slug = data.data.slug;
+						// pagination_data[data.data._id].description = data.data.description;
+						// pagination_data[data.data._id].status = data.data.status;
+						// pagination_data[data.data._id].image = data.data.image;
+
+						$('#data-container').children(':eq(0)').after('' +
+							'<div class="col-md-55" style="display:none">' +
+							'<div class="thumbnail">' +
+							'<div class="image view view-first">' +
+							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+							'<div class="mask">' +
+							'<p>Total connections - ' + data.data.connections_total + '</p>' +
+							'<div class="tools tools-bottom">' +
+							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
+							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'</div></div></div>' +
+							'<div class="caption">' +
+							'<p>' + data.data.name + '</p>' +
+							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+							'</div></div></div>');
+						$('#data-container').children(':eq(1)').show("puff");
+					} else {
+						// ---- to edit
+						// --- update value to master array
+						// pagination_data[data.data._id]._id = data.data._id;
+						pagination_data[data.data._id].name = data.data.name;
+						pagination_data[data.data._id].slug = data.data.slug;
+						pagination_data[data.data._id].description = data.data.description;
+						pagination_data[data.data._id].status = data.data.status;
+						pagination_data[data.data._id].image = data.data.image;
+						
+						$('.beingedit').html('' +
+							'<div class="thumbnail">' +
+							'<div class="image view view-first">' +
+							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+							'<div class="mask">' +
+							'<p>Total connections - ' + data.data.connections_total + '</p>' +
+							'<div class="tools tools-bottom">' +
+							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
+							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'</div></div></div>' +
+							'<div class="caption">' +
+							'<p>' + data.data.name + '</p>' +
+							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+							'</div></div></div>');
+						// $('.beingedit').prop('style','display:none');
+						// $('.beingedit').show("highlight");
+						$('.beingedit .thumbnail')
+						.animate({backgroundColor: "rgb( 20, 20, 20 )"},()=>{
+							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
+						});
+						$('.col-md-55').removeClass('beingedit');
+					}
+				});
+			},
+			error: function () {
+				$("#dummyrow").html('Unable to save.');
+				err.preventDefault();
+			}
+		});
+
+		err.preventDefault();
+	});
+}
+
+// ############### Cities Pagination js #################
+
+function init_citiesTablePagination() {
+	var refreshIntervalId = null;
+	let page_no = 1;
+	citiesTablePagination(page_no, refreshIntervalId);
+	console.log('out if refreshIntervalId', refreshIntervalId);
+
+	if (refreshIntervalId === null) {
+		console.log('in if refreshIntervalId', refreshIntervalId);
+		refreshIntervalId = setInterval(function () {
+			page_no++;
+			citiesTablePagination(page_no, refreshIntervalId);
+			//$("#overlay").hide();
+			if (page_no >= 10) { // change this to 10 page
+				console.log(page_no);
+				clearInterval(refreshIntervalId);
+			}
+		}, 1000);
+	}
+
+}
+
+function citiesTablePagination(page_no, refreshIntervalId) {
+	console.log('refreshIntervalId 1', refreshIntervalId);
+	if (refreshIntervalId === null || refreshIntervalId != false)
+		$.ajax({
+			url: "/cities/page/" + page_no,
+			type: "GET",
+			beforeSend: function () {
+				// if (page_no == 1)
+				// 	$("#data-container").remove('profile_details');
+				// $("#overlay").html("Loading more...");
+				// $("#overlay").show();
+			},
+			success: function (data) {
+				// $("#dummyrow").hide();
+				// $("#network_total").html(' - Total '+data.total);
+				// $("#search_total").html('Showing '+data.searched_total);
+				$("#data-container").append(eachCityRow(data, page_no));
+
+				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
+					console.log('refreshIntervalId 2', refreshIntervalId);
+					clearInterval(refreshIntervalId);
+					// console.log('refreshIntervalId 3',refreshIntervalId);				
+					refreshIntervalId = false;
+					// console.log('refreshIntervalId 4',refreshIntervalId);				
+				} //else{refreshIntervalId = true;}
+			},
+			error: function () {
+				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
+				clearInterval(refreshIntervalId);
+			}
+		});
+}
+
+function eachCityRow(data, page_no) {
+	var html = '';
+	// console.log('total',data.total);
+	// console.log('row size',data.rows.length);
+	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+	{
+		//alert("data hei");
+		$.each(data.rows, function (index, item) {
+			//html += '<li>'+index+' - '+ item.email +'</li>';
+			console.log(item);
+			html += '<div class="col-md-55">' +
+				'<div class="thumbnail">' +
+				'<div class="image view view-first">' +
+				'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" src="' + item.image + '" alt="' + item.name + '" />' +
+				'<div class="mask">' +
+				'<p>Total connections - ' + item.connections_total + '</p>' +
+				'<div class="tools tools-bottom">' +
+				'<a href="#" data-popup-edit="' + item._id + '"><i class="fa fa-pencil"></i></a>' +
+				'<a href="#"><i class="fa fa-trash"></i></a>' +
+				'</div></div></div>' +
+				'<div class="caption">' +
+				'<p>' + item.name + '</p>' +
+				'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
+				'</div></div></div>';
+			let key = item._id;
+			pagination_data[key] = item;
+			//   console.log(pagination_data);			  
+		});
+		if (page_no == 10)
+			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
+	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
+		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no cities.</td></tr>';
+		console.log('No data found');
+	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
+		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
+		console.log('Thats all');
+		clearInterval(refreshIntervalId);
+	}
+	// html += '</ul>';
+	return html;
+}
+
+if ($("#pagecode_cities").exists()) {
+
+	//----- OPEN popup to add
+	$(document).on("click", '[data-popup-open]', function (e) {
+		$('[data-popup="popup_cities_add"]').fadeIn(350);
+		e.preventDefault();
+	});
+	//----- Open popup to edit
+	$(document).on("click", '[data-popup-edit]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-edit');
+		$(this).parent().closest('.col-md-55').addClass('beingedit');
+		$('[data-popup="popup_cities_add"] form #city_id').val(pagination_data[targeted_val]._id);
+		$('[data-popup="popup_cities_add"] form #name').val(pagination_data[targeted_val].name);
+		$('[data-popup="popup_cities_add"] form #slug').val(pagination_data[targeted_val].slug);
+		$('[data-popup="popup_cities_add"] form #description').val(pagination_data[targeted_val].description);
+		$('[data-popup="popup_cities_add"] #city_status').prop("checked", pagination_data[targeted_val].status);
+		$('[data-popup="popup_cities_add"] #city_status').attr("checked");
+
+		$('[data-popup="popup_cities_add"]').fadeIn(350);
+		e.preventDefault();
+	});
+
+	//----- CLOSE popup
+	$(document).on("click", '[data-popup-close]', function (e) {
+		$('[data-popup="popup_cities_add"]').fadeOut(350);
+		$('.col-md-55').removeClass('beingedit');
+		$('[data-popup="popup_cities_add"] form')[0].reset();
+		$('#city_status').prop("checked", true);
+		e.preventDefault();
+	});
+
+	// check for duplicate
+	$("#name")
+		.keyup(function () {
+			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			$('#city-submit').prop('disabled', true);
+		})
+		.blur(function () {
+			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			// $('[data-popup="popup_cities_add"] buttton[type=submit]').addClass('disabled');
+			$.ajax({
+				url: "/cities/checkcityname/", // + convertToSlug(this.value),
+				type: "POST",
+				data: {
+					'name': this.value.trim(),
+					'slug': convertToSlug(this.value),
+					'_id': $("#city_id").val()
+				},
+				beforeSend: function () {
+					// show loading
+					$("#name").addClass('checkingTextbox');
+					$('#city-submit').prop('disabled', true);
+				},
+				success: function (data) {
+					// check data and show msg
+					$("#name").removeClass('checkingTextbox');
+					if (data.name > 0 || data.slug > 0) {
+						$("#slug").val('');
+						$('#name').parents('div.form-group').addClass('bad');
+						$('#name').parents('div.form-group').append('<div class="alert">City exists.</div>');
+					}
+					$('#city-submit').prop('disabled', false);
+				},
+				error: function () {
+					// plz try later
+				}
+			});
+		});
+
+	// ----- Submit
+	$(document).on("click", '#city-submit', function (err) {
+		// collecting data from form
+		let form = $('[data-popup="popup_cities_add"] form')[0];
+		let status = $('#city_status').is(":checked");
+		let url = "/cities/addnew";
+		let data = {
+			'name': form.name.value.trim(),
+			'description': form.description.value,
+			'slug': form.slug.value,
+			'image': '',
+			'status': status
+		};
+		// If ID exists post it for Edit.
+		if (form.city_id.value) {
+			data._id = form.city_id.value;
+			url = "/cities/savecity"
+		}
+		// console.log('ajax', data);
+
+		$.ajax({
+			url: url,
+			type: "POST",
+			data: data,
+			beforeSend: function () {
+				// show loading on button
+			},
+			success: function (data) {
+				// hide loading 
+				// console.log('data after save', pagination_data);
+				// console.log('data after id', data.data._id);
+				$('[data-popup="popup_cities_add"] form')[0].reset();
+				$('[data-popup="popup_cities_add"]').fadeOut(350, function () {
+					// $('#data-container > div:nth-child(1)').after("<div>great things</div>");
+					// to save
+					if (!form.city_id.value) {
+						// --- add value to master array
+						// pagination_data[data.data._id]._id = data.data._id;
+						let key = data.data._id
+						pagination_data[key] = data.data;
+				
+						// pagination_data[data.data._id].slug = data.data.slug;
+						// pagination_data[data.data._id].description = data.data.description;
+						// pagination_data[data.data._id].status = data.data.status;
+						// pagination_data[data.data._id].image = data.data.image;
+
+						$('#data-container').children(':eq(0)').after('' +
+							'<div class="col-md-55" style="display:none">' +
+							'<div class="thumbnail">' +
+							'<div class="image view view-first">' +
+							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+							'<div class="mask">' +
+							'<p>Total connections - ' + data.data.connections_total + '</p>' +
+							'<div class="tools tools-bottom">' +
+							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
+							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'</div></div></div>' +
+							'<div class="caption">' +
+							'<p>' + data.data.name + '</p>' +
+							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+							'</div></div></div>');
+						$('#data-container').children(':eq(1)').show("puff");
+					} else {
+						// ---- to edit
+						// --- update value to master array
+						// pagination_data[data.data._id]._id = data.data._id;
+						pagination_data[data.data._id].name = data.data.name;
+						pagination_data[data.data._id].slug = data.data.slug;
+						pagination_data[data.data._id].description = data.data.description;
+						pagination_data[data.data._id].status = data.data.status;
+						pagination_data[data.data._id].image = data.data.image;
+						
+						$('.beingedit').html('' +
+							'<div class="thumbnail">' +
+							'<div class="image view view-first">' +
+							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+							'<div class="mask">' +
+							'<p>Total connections - ' + data.data.connections_total + '</p>' +
+							'<div class="tools tools-bottom">' +
+							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
+							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'</div></div></div>' +
+							'<div class="caption">' +
+							'<p>' + data.data.name + '</p>' +
+							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+							'</div></div></div>');
+						// $('.beingedit').prop('style','display:none');
+						// $('.beingedit').show("highlight");
+						$('.beingedit .thumbnail')
+						.animate({backgroundColor: "rgb( 20, 20, 20 )"},()=>{
+							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
+						});
+						$('.col-md-55').removeClass('beingedit');
+					}
+				});
+			},
+			error: function () {
+				$("#dummyrow").html('Unable to save.');
+				err.preventDefault();
+			}
+		});
+
+		err.preventDefault();
+	});
 }
