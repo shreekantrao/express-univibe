@@ -52,6 +52,14 @@ module.exports = {
         }
     },
 
+    importCSV : (req, res, next) => {
+        try{
+            return network.importCSV(req, res);
+        } catch(e){
+            next(e);
+        }
+    },
+
     checkemailavailable : async (req, res, next) => {
         try{
             let check = await network.checkemailavailable(req.body.email);

@@ -1,0 +1,149 @@
+<!-- page content -->
+<div class="right_col" id="pagecode_<%=page_Code%>" role="main">
+  <div class="">
+    <div class="page-title">
+      <div class="title_left">
+        <h3>Cities Master
+          <small> </small>
+        </h3>
+      </div>
+
+      <div class="title_right">
+        <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search for...">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button">Go!</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="x_panel">
+          <div class="x_title">
+            <h2>College Cities
+              <small> master </small>
+            </h2>
+            <ul class="nav navbar-right panel_toolbox">
+              <li>
+                <a data-popup-open="add">
+                  <i class="fa fa-plus"></i>
+                </a>
+              </li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                  <i class="fa fa-wrench"></i>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                  <li>
+                    <a href="#">Settings 1</a>
+                  </li>
+                  <li>
+                    <a href="#">Settings 2</a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="/dashboard">
+                  <i class="fa fa-close"></i>
+                </a>
+              </li>
+            </ul>
+            <div class="clearfix"></div>
+          </div>
+          <div class="x_content">
+
+            <div class="row" id="data-container">
+
+              <div class="col-md-55">
+                <div class="thumbnail">
+                  <!-- <div class="image view view-first"> -->
+                  <a data-popup-open="add">
+                    <img style="width: 100%; display: block;" src="/assets/build/images/add-company.png" alt="image" />
+                  </a>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- start Popup box Create -->
+            <div class="popup" data-popup="popup_cities_add">
+              <div class="popup-inner">
+                <h2>Add new city.</h2>
+                <p>Donec in volutpat nisi. In quam lectus, aliquet rhoncus cursus a, congue et arcu.</p>
+
+                <div class="col-md-3 col-sm-3 col-xs-12">
+                  <!-- Profile details -->
+                  <div class="profile_img">
+                    <div id="crop-avatar">
+                      <!-- Current avatar -->
+                      <img onerror="this.src='/assets/build/images/city.jpg'" class="img-responsive avatar-view" src="/assets/build/images/city.jpg"
+                        alt="Avatar" title="Change the avatar">
+                    </div>
+                  </div>
+                  <div style="padding-top: 15px;">
+                    <label class="control-label col-md-8 col-sm-8 col-xs-12">Publish</label>
+                    <div class="col-md-4 col-sm-4 col-xs-12">
+                      <input id="city_status" name="city_status" type="checkbox" checked class="js-switch">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-9 col-sm-9 col-xs-12">
+
+                  <!-- User form -->
+                  <div class="x_panel">
+                    <div class="x_content">
+                      <br />
+                      <form class="form-horizontal form-label-left" method="post" action="" novalidate>
+
+                        <!-- Profile line -->
+                        <div class="form-group field">
+                          <!-- <label class="control-label col-md-2 col-sm-2 col-xs-12">Profile line</label> -->
+                          <div class="col-md-7 col-sm-7 col-xs-12">
+                            <input id="name" value="" type="text" class="form-control" placeholder="City name" data-validate-length-range="3,15" required="required">
+                            <input id="city_id" value="" type="hidden" >
+                            <input id="slug" value="" type="hidden" data-validate-length-range="3,15" required="required">
+                          </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="form-group field">
+                          <!-- <label class="control-label col-md-2 col-sm-2 col-xs-12">Summary</label> -->
+                          <div class="col-md-7 col-sm-7 col-xs-12">
+                            <textarea id="description" value="" class="form-control" rows="3" placeholder="Description"></textarea>
+                          </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group field">
+                          <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-4">
+                            <!-- <button type="button" class="btn btn-primary">Cancel</button> -->
+                            <button type="reset" class="btn btn-primary">Reset</button>
+                            <button id="city-submit" type="button" class="btn btn-success">Submit</button>
+                          </div>
+                        </div>
+
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <span class="popup-close" data-popup-close="popup" href="#">
+                  <i class="fa fa-times" aria-hidden="true"></i>
+                </span>
+              </div>
+            </div>
+            <!-- end Popup box -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /page content -->

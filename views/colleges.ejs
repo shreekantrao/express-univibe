@@ -3,7 +3,9 @@
   <div class="">
     <div class="page-title">
       <div class="title_left">
-        <h3>Projects <small>Listing design</small></h3>
+        <h3>Projects
+          <small>Listing design</small>
+        </h3>
       </div>
 
       <div class="title_right">
@@ -26,10 +28,21 @@
           <div class="x_title">
             <h2>Projects</h2>
             <ul class="nav navbar-right panel_toolbox">
-              <li><a><i class="fa fa-wrench"></i></a></li>
-              <li class="dropdown"><a href="/colleges/add" role="button"><i class="fa fa-plus"></i></a></li>
+              <li>
+                <a>
+                  <i class="fa fa-wrench"></i>
+                </a>
+              </li>
+              <li class="dropdown">
+                <a href="/colleges/add" role="button">
+                  <i class="fa fa-plus"></i>
+                </a>
+              </li>
               <!-- <li><a class="close-link"><i class="fa fa-close"></i></a> -->
-              <li><a href="/dashboard"><i class="fa fa-close"></i></a>
+              <li>
+                <a href="/dashboard">
+                  <i class="fa fa-close"></i>
+                </a>
               </li>
             </ul>
             <div class="clearfix"></div>
@@ -52,7 +65,9 @@
                 </tr>
               </thead>
               <tbody id="collegeTableBody">
-                  <tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Loading rows...</td></tr>
+                <tr id="dummyrow">
+                  <td colspan="6" style="text-align: center; padding: 20px;">Loading rows...</td>
+                </tr>
                 <!-- <tr>
                   <td>#</td>
                   <td>
@@ -95,6 +110,25 @@
             </table>
             <!-- end project list -->
 
+            <!-- start Popup box -->
+            <div class="popup" data-popup="popup_college_delete">
+              <div class="popup-inner">
+                <h2>Are you sure want to delete?</h2>
+                <p>Donec in volutpat nisi. In quam lectus, aliquet rhoncus cursus a, congue et arcu. Vestibulum tincidunt neque
+                  id nisi pulvinar aliquam. Nulla luctus luctus ipsum at ultricies. Nullam nec velit dui. Nullam sem eros,
+                  pulvinar sed pellentesque ac, feugiat et turpis. Donec gravida ipsum cursus massa malesuada tincidunt.
+                  Nullam finibus nunc mauris, quis semper neque ultrices in. Ut ac risus eget eros imperdiet posuere nec
+                  eu lectus.</p>
+                <!-- <p><a data-popup-close="popup" href="#">Close</a></p> -->
+                <!-- <button type="button" class="btn btn-danger">Danger</button> -->
+                <div class="pop_form" >
+                    <input  class="form-control" type="text" id="college_name" placeholder="College name">
+                    <a href="#" class="btn btn-danger disabled">Delete</a>
+                </div>
+                <span class="popup-close" data-popup-close="popup" href="#"><i class="fa fa-times" aria-hidden="true"></i></span>
+              </div>
+            </div>
+            <!-- end Popup box -->
           </div>
         </div>
       </div>

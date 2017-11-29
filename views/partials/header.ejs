@@ -9,7 +9,7 @@
 
     <title><%=page_Title%></title>
 
-
+<!-- <%-page_Code%> -->
 <% if(page_Code == "users") { %>
     <!-- Bootstrap -->
     <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -88,7 +88,7 @@
     <link href="/assets/vendors/intl-tel-input/build/css/intlTelInput.css" rel="stylesheet">
     <!-- <link href="/assets/vendors/intl-tel-input/build/css/demo.css" rel="stylesheet"> -->
     
-<% } else if(page_Code == "colleges") { %>
+<% } else if(page_Code == "colleges" || page_Code == "companies" || page_Code == "industries" || page_Code == "cities" || page_Code == "courses") { %>
 
     <!-- Bootstrap -->
     <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -98,9 +98,10 @@
     <link href="/assets/vendors/nprogress/nprogress.css" rel="stylesheet">
     <!-- iCheck -->
     <link href="/assets/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+    <!-- Switchery -->
+    <link href="/assets/vendors/switchery/dist/switchery.min.css" rel="stylesheet">
 
-<% } else if(page_Code == "college-add" || page_Code == "college-edit") { %>    
-
+<% } else if(page_Code == "college-add" || page_Code == "college-edit" ) { %>    
     <!-- Bootstrap -->
     <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -111,7 +112,7 @@
     <link href="/assets/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
     <!-- Bootstrap Colorpicker -->
     <link href="/assets/vendors/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
-    <![endif]-->
+
 <% } else { %>
     <!-- Bootstrap -->
     <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
