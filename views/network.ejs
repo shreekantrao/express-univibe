@@ -68,6 +68,12 @@
 
             <div class="row" id="dsata-container">
 
+                <form action="/network/importcsv" method="POST" encType="multipart/form-data">
+                  <input type="text" name="filename" />
+                  <input type="file" name="file" accept="*.csv" />
+                  <input type="submit" value="Upload Authors" />
+              </form>
+
               <div id="letter_filter" class="col-md-12 col-sm-12 col-xs-12 text-center">
                 <ul class="pagination pagination-split">
                   <% var alpha = new Array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');

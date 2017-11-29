@@ -26,10 +26,16 @@ router.get('/page/:page_no/:alphabet', function(req, res, next) {
 
 // ############################ CSV download #################################
 
-// --- this is Ajax call with alphabet,--- //
+// --- call to download CSV --- //
 router.get('/export2csv', function(req, res, next) {
 	// console.log('router userslist');
 	network.export2CSV(req, res, next);
+});
+
+// --- call to import CSV --- //
+router.post('/importcsv', function(req, res, next) {
+	// console.log('router userslist');
+	network.importCSV(req, res, next);
 });
 
 // ############################ Profile ######################################

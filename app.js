@@ -7,6 +7,7 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 // const lessMiddleware = require('less-middleware');
 const mongoose = require('mongoose');
+const fileUpload = require('express-fileupload');
 const keys = require('./config/keys');
 
 
@@ -59,6 +60,9 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 // app.use(cookieParser());
+
+// except file upload
+app.use(fileUpload());
 
 // less parser
 // app.use(lessMiddleware(path.join(__dirname, 'public')));
