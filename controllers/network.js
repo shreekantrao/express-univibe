@@ -53,8 +53,21 @@ module.exports = {
     },
 
     importCSV : (req, res, next) => {
+        // console.log(req);
         try{
-            return network.importCSV(req, res);
+            if (!req.files)
+                return res.json({msg: 'No files were uploaded.'});
+            let userFile = req.files.csvfile;
+            let filename = 'user_csv_' + new Date().getTime() +'.csv';
+             // Use the mv() method to place the file somewhere on your server
+             userFile.mv(__dirname + '/../public/csv/'+filename, function(err) {
+               if (err){
+                   console.log(err);
+                   return res.json({ msg: err });
+               }
+                //  res.json({ msg: 'File uploaded.' });
+                 return network.importCSV(filename, res);
+             });
         } catch(e){
             next(e);
         }

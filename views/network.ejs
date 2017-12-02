@@ -10,7 +10,7 @@
       <div class="title_right">
         <div class="col-md-6 col-sm-12 col-xs-12 form-group pull-right top_search">
           <div class="input-group">
-            <div class="selectWrapper">
+            <!-- <div class="selectWrapper">
               <select class="selectBox">
                 <option value="fullname">Full Name</option>
                 <option value="email">Email</option>
@@ -20,7 +20,7 @@
                 <option>Student</option>
                 <option>Student</option>
               </select>
-            </div>
+            </div> -->
             <input type="text" class="form-control" placeholder="Search for...">
             <span class="input-group-btn">
               <button class="btn btn-default" type="button">Go!</button>
@@ -49,7 +49,7 @@
                 <ul class="dropdown-menu" role="menu">
                     <li><a href="/network/export2csv"><i class="fa fa-download"></i> - Download CSV</a>
                     </li>
-                    <li><a href="#"><i class="fa fa-upload"></i> - Upload CSV</a>
+                    <li><a popup-csv-open="add"><i class="fa fa-upload"></i> - Upload CSV</a>
                     </li>
                   </ul>
               </li>
@@ -68,11 +68,11 @@
 
             <div class="row" id="dsata-container">
 
-                <form action="/network/importcsv" method="POST" encType="multipart/form-data">
+                <!-- <form action="/network/importcsv" method="POST" encType="multipart/form-data">
                   <input type="text" name="filename" />
                   <input type="file" name="file" accept="*.csv" />
                   <input type="submit" value="Upload Authors" />
-              </form>
+              </form> -->
 
               <div id="letter_filter" class="col-md-12 col-sm-12 col-xs-12 text-center">
                 <ul class="pagination pagination-split">
@@ -143,6 +143,31 @@
             </div>
             <input type="hidden" id="alphabet" value="<%=alphabet%>">
           </div>
+
+            <!-- start Popup box -->
+            <div class="popup" data-popup="popup_usercsv_import">
+              <div class="popup-inner">
+                <h2>Upload user CSV.</h2>
+                <p>Donec in volutpat nisi. In quam lectus, aliquet rhoncus cursus a, congue et arcu.</p>
+                <!-- <p><a data-popup-close="popup" href="#">Close</a></p> -->
+                <!-- <button type="button" class="btn btn-danger">Danger</button> -->
+                <div>
+                  <a href="#">Download Smaple CSV</a>
+                <div class="pop_form">
+                  <form id="uploadcsv" method="POST" enctype="multipart/form-data">
+                    <input class="form-control" type="file" name="csvfile" id="csvfile" placeholder="User CSV">
+                    <!-- <a href="#" class="btn btn-primary disabled" id="csvfilebtn">...</a> -->
+                    <input type="submit" class="btn btn-primary disabled" id="csvfilebtn" value="Upload CSV" disabled/>
+                </form>
+                </div>
+              </div>
+
+                <span class="popup-close" popup-csv-close="popup" href="#">
+                  <i class="fa fa-times" aria-hidden="true"></i>
+                </span>
+              </div>
+            </div>
+            <!-- end Popup box -->
 
         </div>
       </div>
