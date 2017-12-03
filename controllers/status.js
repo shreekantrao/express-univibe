@@ -1,6 +1,6 @@
 var companies = require('../models/companies');
 
-module.exports = {
+module.exports = { 
 
     getStatusList: async(req, res, next) => {
         // console.log('controller userslist');

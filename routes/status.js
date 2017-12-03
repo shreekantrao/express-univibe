@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // var status = require('../controllers/status');
-
+ 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
     res.redirect(301, '/status/list');

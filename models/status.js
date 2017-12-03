@@ -3,12 +3,13 @@ const ObjectId = require('mongodb').ObjectID;
 mongoose.Promise = global.Promise;
 // const bcrypt = require('bcryptjs');
 // const config = require('../config/keys');
-
+const slug = require('mongoose-slug-generator');
+mongoose.plugin(slug);
 // User Schema
 const StatusSchema = mongoose.Schema({
 
   description: { type: String, required: true },
-  slug: { type: String, required: true },
+  slug: { type: String, slug: "fullname", slug_padding_size: 4, unique: true },
   image: { type: String, default: '' },
   posted_on: { type: Date, default: Date.now },
   posted_by: {
