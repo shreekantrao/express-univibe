@@ -3,11 +3,16 @@ mongoose.Promise = global.Promise;
 const bcrypt = require('bcryptjs');
 // const config = require('../config/keys');
 const fastCsv = require('fast-csv');
+const fs = require('fs');
+
+const slug = require('mongoose-slug-generator');
+mongoose.plugin(slug);
 // User Schema
 const UserSchema = mongoose.Schema({
   email: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   is_email_verified: {
     type: Boolean,
@@ -15,9 +20,8 @@ const UserSchema = mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    default: ''
   },
-
   temp_password: {
     type: String,
     default: ''
@@ -33,7 +37,7 @@ const UserSchema = mongoose.Schema({
   user_from: {
     type: Number,
     default: 1
-  }, //1=registration, 2=admin, 3=import, 4=facebook, 5=linkedin, 6=google
+  }, //1=registration, 2=byadmin, 3=import, 4=facebook, 5=linkedin, 6=google
   registered_on: {
     type: Date,
     default: Date.now
@@ -65,7 +69,8 @@ const UserSchema = mongoose.Schema({
   },
   ph_number: {
     type: Number,
-    required: true
+    required: true,
+    unique: true
   },
   is_phone_verified: {
     type: Boolean,
@@ -107,7 +112,7 @@ const UserSchema = mongoose.Schema({
   },
   slug: {
     type: String,
-    required: true
+    slug: "fullname", slug_padding_size: 4, unique: true
   },
   gender: {
     type: Number
@@ -133,10 +138,12 @@ const UserSchema = mongoose.Schema({
     type: String,
     default: ''
   },
-  languages: {
-    type: String,
-    default: ''
-  },
+  languages: [{
+    name: {
+      type: String,
+      default: ''
+    }
+  }],
   dom: {
     type: Date
   },
@@ -528,59 +535,60 @@ module.exports.export2CSV = (req, res) => {
   query.cursor().pipe(csvStream).pipe(res);
 }
 
-module.exports.importCSV = (req, res) => {
+module.exports.importCSV = (userFile, res) => {
   // console.log(req);
-  if (!req.files)
-    return res.status(400).send('No files were uploaded.');
+  // if (!req.files)
+  //   return res.status(400).send('No files were uploaded.');
 
-  let userFile = req.files.file;
+  // let userFile = req.files.file;
+  let stream = fs.createReadStream(__dirname + '/../public/csv/' + userFile);
   let users = [];
 
   const transformer = (doc) => {
     return {
-      salutation: doc.Salutation,
-      fullname: doc.Fullname,
       email: doc.Email,
       is_email_verified: (doc.IS_email_verified === 'Yes') ? true : false,
       user_status: {
-        'pending' : 1,
-        'approved' : 2,
-        'rejected' : 3,
-        'suspend' : 4
+        'pending': 1,
+        'approved': 2,
+        'rejected': 3,
+        'suspend': 4
       }[doc.User_status], //1=pending, 2=approved, 3=rejected, 4=suspend
       user_type: {
-        'Student' : 1,
-        'Alumni' : 2,
-        'Faculty' : 3,
-        'Alcom' : 4,
-        'CollegeAdmin' : 5,
-        'Administrator' : 6
+        'Student': 1,
+        'Alumni': 2,
+        'Faculty': 3,
+        'Alcom': 4,
+        'CollegeAdmin': 5,
+        'Administrator': 6
       }[doc.User_type], //1=Student,  2=Alumni, 3=Faculty, 4=alcom, 5=collegeAdmin, 6=Administrator
       user_from: {
-        'Site registration' : 1,
-        'By Admin' : 2,
-        'By CSV Import' : 3,
-        'By Facebook' : 4,
-        'By Linkedin' : 5,
-        'By Google' : 6
+        'Site registration': 1,
+        'By Admin': 2,
+        'By CSV Import': 3,
+        'By Facebook': 4,
+        'By Linkedin': 5,
+        'By Google': 6
       }[doc.User_registered_from],
-      registered_on: (doc.Registration_date) ? new Date(doc.Registration_date).toLocaleDateString() : new Date(),
-      approved_on: (doc.Approved_on) ? new Date(doc.Approved_on).toLocaleDateString() : new Date(),
+      registered_on: (doc.Registration_date) ? new Date(doc.Registration_date).toLocaleDateString() : new Date,
+      approved_on: (doc.Approved_on) ? new Date(doc.Approved_on).toLocaleDateString() : new Date,
       approved_by_name: doc.Approved_by,
 
+      salutation: doc.Salutation,
+      fullname: doc.Fullname,
       ph_country: doc.Ph_code.replace(/["']/g, ""),
       ph_number: Number(doc.Ph_number.replace(/["']/g, "")),
       is_phone_verified: (doc.Is_ph_verified === 'Yes') ? true : false,
-      // Location: doc.location.address + ', ' + doc.location.city + ', ' + doc.location.state + ', ' + doc.location.country,
+      location: ( doc.Location.indexOf(',') > 0 ) ? {address: doc.Location.split(',')[0]} : '' ,
 
       dob: (doc.DOB) ? new Date(doc.DOB).toLocaleDateString() : '',
       batch: doc.Batch,
       course: doc.Course,
-      // slug: doc.Profile_slug,
+      // slug: module.exports.getSlug(doc.Profile_slug),
       gender: {
-        'Male' : 1,
-        'Female' : 2,
-        'Other' : 3
+        'Male': 1,
+        'Female': 2,
+        'Other': 3
       }[doc.Gender], //1=Male, 2=Female, 3=Other
       membership_id: doc.Membership_Id,
       hostel: doc.Hostel,
@@ -588,7 +596,7 @@ module.exports.importCSV = (req, res) => {
       profile_line: doc.Profile_line,
       summary: doc.Summary,
       aspirations: doc.Aspirations,
-      languages: doc.Languages,
+      // languages: doc.Languages,
       dom: (doc.Date_of_Marriage) ? new Date(doc.Date_of_Marriage).toLocaleDateString() : '',
 
       // Permanent_address: doc.permanent_address.address,
@@ -603,19 +611,20 @@ module.exports.importCSV = (req, res) => {
       // Residential_address_country: doc.residential_address.country,
       // Residential_address_zip: doc.residential_address.zip,
 
-      entrepreneur: (doc.Entrepreneur === 'true')? true : false,
-      public_profile: (doc.Public_profile === 'true')? true : false,
-      donation_status: (doc.Donation_status === 'true')? true : false,
-      renowned_alumni: (doc.Renowned_alumni === 'true')? true : false,
-      mentorship: (doc.Mentorship === 'true')? true : false,
+      entrepreneur: (doc.Entrepreneur === 'true') ? true : false,
+      public_profile: (doc.Public_profile === 'true') ? true : false,
+      donation_status: (doc.Donation_status === 'true') ? true : false,
+      renowned_alumni: (doc.Renowned_alumni === 'true') ? true : false,
+      mentorship: (doc.Mentorship === 'true') ? true : false,
 
       profile_picture: (doc.profile_picture === '') ? 'No' : 'Yes',
-      Last_update: new Date()
+      Last_update: new Date
     }
   };
 
   fastCsv
-    .fromString(userFile.data.toString(), {
+    // .fromString(userFile.data.toString(), {
+    .fromStream(stream, {
       headers: true,
       ignoreEmpty: true
     })
@@ -623,16 +632,21 @@ module.exports.importCSV = (req, res) => {
       console.log(data);
       data = transformer(data);
       console.log(data);
-      data['_id'] = new mongoose.Types.ObjectId(); 
+      data['_id'] = new mongoose.Types.ObjectId();
+      data['_id'] = '5a228b503e26f85d67c3b3ac';
       users.push(data);
     })
     .on("end", function () {
       console.log("done");
+      console.log(users);
       User.create(users, function (err, documents) {
-        if (err) throw err;
+        if (err) {
+          throw err;
+          return res.send(users.length + ' Unable to save.' + err);
+        }
       });
 
-      res.send(users.length + ' authors have been successfully uploaded.');
+      return res.send(users.length + ' authors have been successfully uploaded.');
     });
 }
 

@@ -5888,6 +5888,65 @@ function simpleTemplating(data) {
 	return html;
 }
 
+if ($("#pagecode_network").exists()) {
+
+	//----- OPEN popup to add
+	$(document).on("click", '[popup-csv-open]', function (e) {
+		$('[data-popup="popup_usercsv_import"]').fadeIn(350);
+		e.preventDefault();
+	});
+	//----- Open popup to edit
+	$('#csvfile').change(function (e) {
+		var file = $(this).prop('files');
+		if (file.length !== 0 && file[0].type === 'text/csv'){
+			$('#csvfilebtn').removeClass('disabled');
+			$('#csvfilebtn').prop('disabled', false);
+			$('#csvfilebtn').html('<i class="fa fa-upload"></i>');
+			$('.pop_form').removeClass('bad');
+		}else{
+			$('#csvfilebtn').addClass('disabled');
+			$('#csvfilebtn').prop('disabled', true);
+			$('#csvfilebtn').html('...');
+			$('.pop_form').addClass('bad');
+		}
+		console.log(file);
+	});
+	// $(document).on("click", '#csvfilebtn', function (e) {
+	$("#uploadcsv").on('submit', (function (e) {
+		e.preventDefault();
+		
+		// Get form
+		var form = $('#uploadcsv')[0];
+		// Create an FormData object
+		var data = new FormData(form);
+
+		$.ajax({
+			url: '/network/importcsv',
+			data: data,
+			type: "POST",
+			enctype: 'multipart/form-data',
+			processData: false,
+			contentType: false,
+			cache: false,
+			error: function (e) {
+				console.log(e);
+				// alert('Error - ' + e);
+			},
+			success: function (data) {
+				console.log(data);
+			}
+		});
+
+		// $('[data-popup="popup_usercsv_import"]').fadeOut(350);
+	}));
+
+	//----- CLOSE popup
+	$(document).on("click", '[popup-csv-close]', function (e) {
+		$('[data-popup="popup_usercsv_import"]').fadeOut(350);
+		e.preventDefault();
+	});
+}
+
 // ############### Profile page #################
 
 if ($("#pagecode_profile").exists()) {

@@ -67,7 +67,8 @@ app.use(fileUpload());
 // less parser
 // app.use(lessMiddleware(path.join(__dirname, 'public')));
 
-app.use("/static", express.static(__dirname + "/public"));
+// app.use("/static", express.static(path.join(__dirname + "/public")));
+app.use('/static', express.static(path.join(__dirname, 'public')));
 app.use("/assets", express.static(__dirname + "/views"));
 
 // app.use(express.static(path.join(__dirname, 'public'), {
