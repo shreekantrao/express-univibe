@@ -20,6 +20,7 @@ const companies = require('./routes/companies');
 const industries = require('./routes/industries');
 const cities = require('./routes/cities');
 const courses = require('./routes/courses');
+const status = require('./routes/status');
 
 const app = express();
 
@@ -102,6 +103,7 @@ app.use('/companies', IsAuthenticated, companies);
 app.use('/industries', IsAuthenticated, industries);
 app.use('/cities', IsAuthenticated, cities);
 app.use('/courses', IsAuthenticated, courses);
+app.use('/status', IsAuthenticated, status);
 
 // Default redirected to Dashboard
 // app.get('/', (req, res) => {  return res.redirect(301, '/auth/login');	});

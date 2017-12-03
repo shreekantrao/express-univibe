@@ -5476,6 +5476,10 @@ $(document).ready(function () {
 		init_citiesTablePagination();
 		init_validator();
 	}	
+	if ($("#pagecode_cities").exists()) {
+		init_statusTablePagination();
+		// init_validator();
+	}	
 });
 // This will be used to store pagination data
 const pagination_data = [];
@@ -6191,37 +6195,6 @@ function init_validator() {
 	};
 
 };
-
-// $('.save-college').on('click', function() {
-//   console.log('hi hi');
-//   $('.addCollegeForm').validate();
-// });
-
-// $.fn.serializeObject = function()
-// {
-//     var o = {};
-//     var a = this.serializeArray();
-//     $.each(a, function() {
-//         if (o[this.name] !== undefined) {
-//             if (!o[this.name].push) {
-//                 o[this.name] = [o[this.name]];
-//             }
-//             o[this.name].push(this.value || '');
-//         } else {
-//             o[this.name] = this.value || '';
-//         }
-//     });
-//     return o;
-// };
-
-// // $(function() {
-//     $('form').submit(function(event) {
-//         $('#data').val(JSON.stringify($('form').serializeObject()));
-// 				// return false;
-// 				// console.log(event);
-// 				event.preventDefault();
-//     });
-// });
 
 // ############### College Pagination js #################
 
@@ -7190,6 +7163,282 @@ if ($("#pagecode_cities").exists()) {
 						.animate({backgroundColor: "rgb( 20, 20, 20 )"},()=>{
 							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
 						});
+						$('.col-md-55').removeClass('beingedit');
+					}
+				});
+			},
+			error: function () {
+				$("#dummyrow").html('Unable to save.');
+				err.preventDefault();
+			}
+		});
+
+		err.preventDefault();
+	});
+}
+
+// ############### Courses Pagination js #################
+			// function to be copied
+
+// ############### Status Pagination js #################
+
+function init_statusTablePagination() {
+	let refreshIntervalId = null;
+	let page_no = 1;
+	statusTablePagination(page_no, refreshIntervalId);
+	console.log('out if refreshIntervalId', refreshIntervalId);
+
+	if (refreshIntervalId === null) {
+		console.log('in if refreshIntervalId', refreshIntervalId);
+		refreshIntervalId = setInterval(function () {
+			page_no++;
+			statusTablePagination(page_no, refreshIntervalId);
+			//$("#overlay").hide();
+			if (page_no >= 10) { // change this to 10 page
+				console.log(page_no);
+				clearInterval(refreshIntervalId);
+			}
+		}, 1000);
+	}
+
+}
+
+function statusTablePagination(page_no, refreshIntervalId) {
+	console.log('refreshIntervalId 1', refreshIntervalId);
+	if (refreshIntervalId === null || refreshIntervalId != false)
+		$.ajax({
+			url: "/status/page/" + page_no,
+			type: "GET",
+			beforeSend: function () {
+				// if (page_no == 1)
+				// 	$("#data-container").remove('profile_details');
+				// $("#overlay").html("Loading more...");
+				// $("#overlay").show();
+			},
+			success: function (data) {
+				// $("#dummyrow").hide();
+				// $("#network_total").html(' - Total '+data.total);
+				// $("#search_total").html('Showing '+data.searched_total);
+				$("#data-container").append(eachStatusRow(data, page_no));
+
+				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
+					console.log('refreshIntervalId 2', refreshIntervalId);
+					clearInterval(refreshIntervalId);
+					// console.log('refreshIntervalId 3',refreshIntervalId);				
+					refreshIntervalId = false;
+					// console.log('refreshIntervalId 4',refreshIntervalId);				
+				} //else{refreshIntervalId = true;}
+			},
+			error: function () {
+				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
+				clearInterval(refreshIntervalId);
+			}
+		});
+}
+
+function eachStatusRow(data, page_no) {
+	var html = '';
+	// console.log('total',data.total);
+	// console.log('row size',data.rows.length);
+	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+	{
+		//alert("data hei");
+		$.each(data.rows, function (index, item) {
+			//html += '<li>'+index+' - '+ item.email +'</li>';
+			console.log(item);
+			html += '<div class="col-md-55">' +
+				'<div class="thumbnail">' +
+				'<div class="image view view-first">' +
+				'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" src="' + item.image + '" alt="' + item.name + '" />' +
+				'<div class="mask">' +
+				'<p>Total connections - ' + item.connections_total + '</p>' +
+				'<div class="tools tools-bottom">' +
+				'<a href="#" data-popup-edit="' + item._id + '"><i class="fa fa-pencil"></i></a>' +
+				'<a href="#"><i class="fa fa-trash"></i></a>' +
+				'</div></div></div>' +
+				'<div class="caption">' +
+				'<p>' + item.name + '</p>' +
+				'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
+				'</div></div></div>';
+			let key = item._id;
+			pagination_data[key] = item;
+			//   console.log(pagination_data);			  
+		});
+		if (page_no == 10)
+			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
+	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
+		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no status.</td></tr>';
+		console.log('No data found');
+	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
+		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
+		console.log('Thats all');
+		clearInterval(refreshIntervalId);
+	}
+	// html += '</ul>';
+	return html;
+}
+
+if ($("#pagecode_status").exists()) {
+
+	//----- OPEN popup to add
+	$(document).on("click", '[data-popup-open]', function (e) {
+		$('[data-popup="popup_status_add"]').fadeIn(350);
+		e.preventDefault();
+	});
+	//----- Open popup to edit
+	$(document).on("click", '[data-popup-edit]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-edit');
+		$(this).parent().closest('.col-md-55').addClass('beingedit');
+		$('[data-popup="popup_status_add"] form #company_id').val(pagination_data[targeted_val]._id);
+		$('[data-popup="popup_status_add"] form #name').val(pagination_data[targeted_val].name);
+		$('[data-popup="popup_status_add"] form #slug').val(pagination_data[targeted_val].slug);
+		$('[data-popup="popup_status_add"] form #description').val(pagination_data[targeted_val].description);
+		$('[data-popup="popup_status_add"] #company_status').prop("checked", pagination_data[targeted_val].status);
+		$('[data-popup="popup_status_add"] #company_status').attr("checked");
+
+		$('[data-popup="popup_status_add"]').fadeIn(350);
+		e.preventDefault();
+	});
+
+	//----- CLOSE popup
+	$(document).on("click", '[data-popup-close]', function (e) {
+		$('[data-popup="popup_status_add"]').fadeOut(350);
+		$('.col-md-55').removeClass('beingedit');
+		$('[data-popup="popup_status_add"] form')[0].reset();
+		$('#company_status').prop("checked", true);
+		e.preventDefault();
+	});
+
+	// check for duplicate
+	$("#name")
+		.keyup(function () {
+			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			$('#company-submit').prop('disabled', true);
+		})
+		.blur(function () {
+			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			// $('[data-popup="popup_status_add"] buttton[type=submit]').addClass('disabled');
+			$.ajax({
+				url: "/status/checkcompanyname/", // + convertToSlug(this.value),
+				type: "POST",
+				data: {
+					'name': this.value.trim(),
+					'slug': convertToSlug(this.value),
+					'_id': $("#company_id").val()
+				},
+				beforeSend: function () {
+					// show loading
+					$("#name").addClass('checkingTextbox');
+					$('#company-submit').prop('disabled', true);
+				},
+				success: function (data) {
+					// check data and show msg
+					$("#name").removeClass('checkingTextbox');
+					if (data.name > 0 || data.slug > 0) {
+						$("#slug").val('');
+						$('#name').parents('div.form-group').addClass('bad');
+						$('#name').parents('div.form-group').append('<div class="alert">Company exists.</div>');
+					}
+					$('#company-submit').prop('disabled', false);
+				},
+				error: function () {
+					// plz try later
+				}
+			});
+		});
+
+	// ----- Submit
+	$(document).on("click", '#company-submit', function (err) {
+		// collecting data from form
+		let form = $('[data-popup="popup_status_add"] form')[0];
+		let status = $('#company_status').is(":checked");
+		let url = "/status/addnew";
+		let data = {
+			'name': form.name.value.trim(),
+			'description': form.description.value,
+			'slug': form.slug.value,
+			'image': '',
+			'status': status
+		};
+		// If ID exists post it for Edit.
+		if (form.company_id.value) {
+			data._id = form.company_id.value;
+			url = "/status/savecompany"
+		}
+		// console.log('ajax', data);
+
+		$.ajax({
+			url: url,
+			type: "POST",
+			data: data,
+			beforeSend: function () {
+				// show loading on button
+			},
+			success: function (data) {
+				// hide loading 
+				// console.log('data after save', pagination_data);
+				// console.log('data after id', data.data._id);
+				$('[data-popup="popup_status_add"] form')[0].reset();
+				$('[data-popup="popup_status_add"]').fadeOut(350, function () {
+					// $('#data-container > div:nth-child(1)').after("<div>great things</div>");
+					// to save
+					if (!form.company_id.value) {
+						// --- add value to master array
+						// pagination_data[data.data._id]._id = data.data._id;
+						let key = data.data._id
+						pagination_data[key] = data.data;
+
+						// pagination_data[data.data._id].slug = data.data.slug;
+						// pagination_data[data.data._id].description = data.data.description;
+						// pagination_data[data.data._id].status = data.data.status;
+						// pagination_data[data.data._id].image = data.data.image;
+
+						$('#data-container').children(':eq(0)').after('' +
+							'<div class="col-md-55" style="display:none">' +
+							'<div class="thumbnail">' +
+							'<div class="image view view-first">' +
+							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+							'<div class="mask">' +
+							'<p>Total connections - ' + data.data.connections_total + '</p>' +
+							'<div class="tools tools-bottom">' +
+							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
+							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'</div></div></div>' +
+							'<div class="caption">' +
+							'<p>' + data.data.name + '</p>' +
+							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+							'</div></div></div>');
+						$('#data-container').children(':eq(1)').show("puff");
+					} else {
+						// ---- to edit
+						// --- update value to master array
+						// pagination_data[data.data._id]._id = data.data._id;
+						pagination_data[data.data._id].name = data.data.name;
+						pagination_data[data.data._id].slug = data.data.slug;
+						pagination_data[data.data._id].description = data.data.description;
+						pagination_data[data.data._id].status = data.data.status;
+						pagination_data[data.data._id].image = data.data.image;
+
+						$('.beingedit').html('' +
+							'<div class="thumbnail">' +
+							'<div class="image view view-first">' +
+							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+							'<div class="mask">' +
+							'<p>Total connections - ' + data.data.connections_total + '</p>' +
+							'<div class="tools tools-bottom">' +
+							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
+							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'</div></div></div>' +
+							'<div class="caption">' +
+							'<p>' + data.data.name + '</p>' +
+							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+							'</div></div></div>');
+						// $('.beingedit').prop('style','display:none');
+						// $('.beingedit').show("highlight");
+						$('.beingedit .thumbnail')
+							.animate({ backgroundColor: "rgb( 20, 20, 20 )" }, () => {
+								// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
+							});
 						$('.col-md-55').removeClass('beingedit');
 					}
 				});
