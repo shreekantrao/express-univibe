@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-// var status = require('../controllers/status');
+var status = require('../controllers/status');
  
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -16,7 +16,18 @@ router.get('/list', function (req, res, next) {
 
 router.get('/page/:page_no', function (req, res, next) {
     // console.log('router userslist');
-    companies.getStatusList(req, res, next);
+    status.getStatusList(req, res, next);
 });
 
+// ############################ Change item status ######################################
+
+router.post('/changestate', function (req, res, next) {
+    status.changeState(req, res, next);
+});
+
+// ############################ Delete item ######################################
+
+router.post('/deletestatus', function (req, res, next) {
+    status.deleteStatus(req, res, next);
+});
 module.exports = router;

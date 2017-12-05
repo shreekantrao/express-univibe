@@ -5476,7 +5476,7 @@ $(document).ready(function () {
 		init_citiesTablePagination();
 		init_validator();
 	}	
-	if ($("#pagecode_cities").exists()) {
+	if ($("#pagecode_status").exists()) {
 		init_statusTablePagination();
 		// init_validator();
 	}	
@@ -7235,6 +7235,46 @@ function statusTablePagination(page_no, refreshIntervalId) {
 			}
 		});
 }
+function date2DisplayString(date2Show, thisMoment=new Date) {
+	if (!date2Show) { return; }
+	date2Show = new Date(date2Show);
+	// Convert both dates to milliseconds
+	let date1_ms = date2Show.getTime();
+	let date2_ms = thisMoment.getTime();
+
+	// Calculate the difference in milliseconds
+	// var difference_ms = date2_ms - date1_ms;
+	let delta = parseInt((date2_ms - date1_ms) / 1000);
+	delta = (delta < 2) ? 2 : delta;
+	week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+	var r = '';
+	if (delta < 60) {
+		r = delta + ' seconds ago';
+	} else if (delta < 120) {
+		r = 'a minute ago';
+	} else if (delta < (45 * 60)) {
+		r = (parseInt(delta / 60, 10)).toString() + ' minutes ago';
+	} else if (delta < (2 * 60 * 60)) {
+		r = 'an hour ago';
+	} else if (delta < (24 * 60 * 60)) {
+		// r = '' + (parseInt(delta / 3600, 10)).toString() + ' hours ago';
+		r = 'today';
+	} else if (delta < (48 * 60 * 60)) {
+		// r = 'a day ago';
+		r = 'yesterday';
+	} else if (delta < (168 * 60 * 60)) {
+		// r = (parseInt(delta / 86400, 10)).toString() + ' days ago';
+		r = date2Show.toLocaleString("en-us", { weekday: "long" });
+	} else {
+		r = date2Show.getDate() + ' ' + date2Show.toLocaleString("en-us", { month: "short" }) + ' ' + date2Show.toLocaleString("en-us", { year: "numeric" });
+	}
+	return r;
+}
+function dateFormater(date2Show) {
+	if (!date2Show) { date2Show = new Date; }
+	date2Show = new Date(date2Show);
+	return date2Show.toLocaleString("en-in", { day: "numeric", month: "short", year: "numeric", hour: '2-digit', minute: '2-digit' });
+}
 
 function eachStatusRow(data, page_no) {
 	var html = '';
@@ -7245,24 +7285,25 @@ function eachStatusRow(data, page_no) {
 		//alert("data hei");
 		$.each(data.rows, function (index, item) {
 			//html += '<li>'+index+' - '+ item.email +'</li>';
-			console.log(item);
-			html += '<div class="col-md-55">' +
-				'<div class="thumbnail">' +
-				'<div class="image view view-first">' +
-				'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" src="' + item.image + '" alt="' + item.name + '" />' +
-				'<div class="mask">' +
-				'<p>Total connections - ' + item.connections_total + '</p>' +
-				'<div class="tools tools-bottom">' +
-				'<a href="#" data-popup-edit="' + item._id + '"><i class="fa fa-pencil"></i></a>' +
-				'<a href="#"><i class="fa fa-trash"></i></a>' +
-				'</div></div></div>' +
-				'<div class="caption">' +
-				'<p>' + item.name + '</p>' +
-				'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
-				'</div></div></div>';
-			let key = item._id;
+			// console.log(item);
+			html += '<div class="col-md-6 col-sm-6 col-xs-12 item-' + item.slug + '">' +
+					'<div class="x_panel">' +
+					'<div class="x_title">' +
+					'<h2><i class="fa fa-bars"></i> ' + item.posted_by.name + '<small title="' + dateFormater(item.posted_on) + '">' + date2DisplayString(item.posted_on) + '</small></h2>' +
+					'<ul class="nav navbar-right panel_toolbox">' +
+					'<!--<li><a class="close-link" title="Edit" data-toggle="modal" data-target=".bs-example-modal-edit" item-slug="' + item.slug + '"><i class="fa fa-pencil"></i></a></li>-->' +
+					'<li><a class="close-link" title="Un-publish" id="status-publish" item-slug="' + item.slug + '" item-state="' + item.publish + '"><i class="fa fa-flag ' + ((item.publish === true) ? '' :'faicon-cross') +'"></i></a></li>' +
+					'<li><a class="close-link" title="Delete" data-toggle="modal" data-target=".bs-example-modal-delete" item-slug="' + item.slug + '"><i class="fa fa-trash"></i></a></li></ul>' +
+					'<div class="clearfix"></div>' +
+					'</div>' +
+					'<div class="x_content"><div>';
+			html += (item.image === '')?'':'<img class="status-img" src="' + item.image + '" >';
+			html += (item.description === '')?'':'<p class="status-body">' + item.description + '</p>';
+			html +=	'</div></div></div></div>';
+			
+			let key = item.slug;
 			pagination_data[key] = item;
-			//   console.log(pagination_data);			  
+			  console.log(pagination_data);			  
 		});
 		if (page_no == 10)
 			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
@@ -7280,32 +7321,87 @@ function eachStatusRow(data, page_no) {
 
 if ($("#pagecode_status").exists()) {
 
-	//----- OPEN popup to add
-	$(document).on("click", '[data-popup-open]', function (e) {
-		$('[data-popup="popup_status_add"]').fadeIn(350);
+	//----- Unpublish status
+	$(document).on("click", '#status-publish', function (e) {
+		let _this = this;
+		let targeted_item = $(_this).attr('item-slug');
+		let targeted_status = $(_this).attr('item-state');
+		targeted_status = (targeted_status === 'true')?'false':'true';
+		console.log(targeted_item);
+		$.ajax({
+			url: '/status/changestate',
+			type: 'POST',
+			data: {
+				'slug': targeted_item,
+				'state': targeted_status
+			},
+			beforeSend: function () {
+				$(_this).children("i").css({ fontSize: '0.7em' });
+			},
+			success: function () {
+				// console.log(_this);
+				$(_this).children("i").stop().animate({ fontSize: '1.0em' });
+				$(_this).attr('item-state',targeted_status);
+				if (targeted_status === 'false'){
+					$(_this).children("i").addClass('faicon-cross'); 
+				}else{
+					$(_this).children("i").removeClass('faicon-cross'); 
+				}
+			},
+			error: function () {
+				$(_this).children("i").css({ fontSize: '1.0em' });
+			}
+
+		})
 		e.preventDefault();
 	});
-	//----- Open popup to edit
-	$(document).on("click", '[data-popup-edit]', function (e) {
-		let targeted_val = jQuery(this).attr('data-popup-edit');
-		$(this).parent().closest('.col-md-55').addClass('beingedit');
-		$('[data-popup="popup_status_add"] form #company_id').val(pagination_data[targeted_val]._id);
-		$('[data-popup="popup_status_add"] form #name').val(pagination_data[targeted_val].name);
-		$('[data-popup="popup_status_add"] form #slug').val(pagination_data[targeted_val].slug);
-		$('[data-popup="popup_status_add"] form #description').val(pagination_data[targeted_val].description);
-		$('[data-popup="popup_status_add"] #company_status').prop("checked", pagination_data[targeted_val].status);
-		$('[data-popup="popup_status_add"] #company_status').attr("checked");
 
-		$('[data-popup="popup_status_add"]').fadeIn(350);
+	// $("#myModal").on("show.bs.modal", function (e) {
+		// $(this).modal('hide');
+		// var link = $(e.relatedTarget);
+		// $(this).find(".modal-body").load(link.attr("href"));
+	// })
+
+	//----- Open popup to delete
+	$(document).on("click", '[data-target=".bs-example-modal-delete"]', function (e) {
+		let targeted_val = jQuery(this).attr('item-slug');
+		console.log(pagination_data[targeted_val]);
+		$('#modelheadtext').text('Status by ' + pagination_data[targeted_val].posted_by.name.split(' ')[0]);
+		$('#modelbodytext').html('' + 
+			((pagination_data[targeted_val].image === '') ? '' : '<img class="status-img" src="' + pagination_data[targeted_val].image + '" >') +
+			((pagination_data[targeted_val].description === '') ? '' : '<p class="status-body">' + pagination_data[targeted_val].description + '</p>'));
+		$('#confirmdelete').attr('item-slug', targeted_val);
 		e.preventDefault();
 	});
 
-	//----- CLOSE popup
-	$(document).on("click", '[data-popup-close]', function (e) {
-		$('[data-popup="popup_status_add"]').fadeOut(350);
-		$('.col-md-55').removeClass('beingedit');
-		$('[data-popup="popup_status_add"] form')[0].reset();
-		$('#company_status').prop("checked", true);
+	//----- Delete item and close popup
+	$(document).on("click", '#confirmdelete', function (e) {
+		let targeted_item = jQuery(this).attr('item-slug');
+		$.ajax({
+			url: '/status/deletestatus',
+			type: 'POST',
+			data: {
+				'slug': targeted_item
+			},
+			beforeSend: function () {
+				$('#confirmdelete').children("i").removeClass('fa-trash');
+				$('#confirmdelete').children("i").addClass('fa-spinner fa-spin');
+			},
+			success: function () {
+				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
+				$('#confirmdelete').children("i").addClass('fa-check');
+				setTimeout(function () {
+					$("#modal-delete").modal('hide');
+				}, 1000);
+				$('.item-' + targeted_item).fadeOut(300, function () { $(this).remove(); });
+			},
+			error: function () {
+				console.log('error');
+				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
+				$('#confirmdelete').children("i").addClass('fa-times');
+			}
+
+		})		
 		e.preventDefault();
 	});
 

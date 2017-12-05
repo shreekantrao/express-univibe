@@ -5330,3 +5330,18 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 .unpublished{
     opacity: 0.2;
 }
+
+.status-img{
+        max-width: 150px;
+        max-height: 150px;
+}
+
+.faicon-cross:after {
+    position: absolute;
+    content: "/";
+    left: 10px;
+    top: 2px;
+    font-weight: 700;
+    font-size: 1.8em;
+    color: #ff0000;
+}

@@ -1,4 +1,4 @@
-var companies = require('../models/companies');
+var status = require('../models/status');
 
 module.exports = { 
 
@@ -35,12 +35,12 @@ module.exports = {
             // console.log("sort- "+sortby);
             // console.log("order- "+orderby);
 
-            let data = await companies.getStatusList(pageSize, skip, sortby, orderby, query)
+            let data = await status.getStatusList(pageSize, skip, sortby, orderby, query)
             // console.log('data from model ',data);
             if (!data) {
                 return res.json({
                     success: false,
-                    msg: 'companies not found'
+                    msg: 'status not found'
                 });
             }
             data["pageSize"] = pageSize;
@@ -50,7 +50,7 @@ module.exports = {
         }
     },
 
-    createNewCompany: async(req, res, next) => {
+    createNewStatus: async(req, res, next) => {
         try {
             // console.log('check');
             let body = req.body;
@@ -61,22 +61,22 @@ module.exports = {
                 console.log('Form not filled.');
                 return res.json({
                     success: false,
-                    msg: 'Company not saved'
+                    msg: 'Status not saved'
                 });
             }  
             if( body.image === '') delete body.image;  
 
-            let data = await companies.createNewCompany(body)
+            let data = await status.createNewStatus(body)
             console.log('data ',data);
             if (!data.success) {
                 return res.json({
                     success: false,
-                    msg: 'Company not saved'
+                    msg: 'Status not saved'
                 });
             }
             res.json({
                 success: true,
-                msg: 'Company saved',
+                msg: 'Status saved',
                 data: data.data
             });
         } catch (e) {
@@ -85,9 +85,9 @@ module.exports = {
     },
 
     // ajax call
-    checkCompanyNameExists: async(req, res, next) => {
+    changeState: async(req, res, next) => {
         try {
-            let data = await companies.checkCompanyNameExists(req.body.name, req.body.slug, req.body._id)
+            let data = await status.changeState(req.body.slug, req.body.state)
             console.log('Controller - ',data);
             if (!data) {
                 // let notify = [];
@@ -96,7 +96,7 @@ module.exports = {
                 return res.json({ success: false, msg: 'Unable to check. Please try later.' });
             }
             // let notify = [];
-            // notify.push({ title: "Notification", type: "notice", text: "Company found." });
+            // notify.push({ title: "Notification", type: "notice", text: "Status found." });
             // req.session.notify = notify;            
             res.json(data);
         } catch (e) {
@@ -104,37 +104,56 @@ module.exports = {
         }
     },
 
-    // getCompanyData: async(req, res, next) => {
+    // ajax call
+    deleteStatus: async (req, res, next) => {
+        try {
+            let data = await status.deleteStatus(req.body.slug)
+            console.log('Controller - ', data);
+            if (!data) {
+                // let notify = [];
+                // notify.push({ title: "Notification", type: "notice", text: "Unable to check. Please try later." });
+                // req.session.notify = notify;
+                return res.json({ success: false, msg: 'Unable to check. Please try later.' });
+            }
+            // let notify = [];
+            // notify.push({ title: "Notification", type: "notice", text: "Status found." });
+            // req.session.notify = notify;            
+            res.json(data);
+        } catch (e) {
+            next(e);
+        }
+    },
+    // getStatusData: async(req, res, next) => {
     //     try {
-    //         let data = await companies.getCompanyData(req.params.companyname)
-    //         // console.log('Company data - ',data);
-    //         // console.log('Company data2 - ',data.data);
+    //         let data = await status.getStatusData(req.params.statusname)
+    //         // console.log('Status data - ',data);
+    //         // console.log('Status data2 - ',data.data);
     //         if (!data) {
-    //             // return res.json({success: false, msg: 'Company not found'});
+    //             // return res.json({success: false, msg: 'Status not found'});
     //             let notify = [];
-    //             notify.push({ title: "Notification", type: "notice", text: "Company not found." });
+    //             notify.push({ title: "Notification", type: "notice", text: "Status not found." });
     //             req.session.notify = notify;
-    //             return res.redirect('/companies/list');
-    //             // return res.render('page', {"page_Code":"companies","page_Title":"Company Network", "data":{success: false, msg: 'Company not found'}});
+    //             return res.redirect('/status/list');
+    //             // return res.render('page', {"page_Code":"status","page_Title":"Status Network", "data":{success: false, msg: 'Status not found'}});
     //         }
-    //         res.render('page', { "page_Code": "company-edit", "page_Title": "Profile", "data": data.data });
+    //         res.render('page', { "page_Code": "status-edit", "page_Title": "Profile", "data": data.data });
     //     } catch (e) {
     //         next(e);
     //     }
     // },
 
-    savecompany: async(req, res, next) => {
+    saveStatus: async(req, res, next) => {
         try {
-            let data = await companies.savecompany(req.body)
-            console.log('Company data - ',data);
-            // console.log('Company data2 - ',data.data);
+            let data = await status.savestatus(req.body)
+            console.log('Status data - ',data);
+            // console.log('Status data2 - ',data.data);
             if (!data) {
-                // return res.json({success: false, msg: 'Company not found'});
+                // return res.json({success: false, msg: 'Status not found'});
                 let notify = [];
-                notify.push({ title: "Notification", type: "notice", text: "Company not found." });
+                notify.push({ title: "Notification", type: "notice", text: "Status not found." });
                 req.session.notify = notify;
-                return res.redirect('/companies/list');
-                // return res.render('page', {"page_Code":"companies","page_Title":"Company Network", "data":{success: false, msg: 'Company not found'}});
+                return res.redirect('/status/list');
+                // return res.render('page', {"page_Code":"status","page_Title":"Status Network", "data":{success: false, msg: 'Status not found'}});
             }
             res.json(data);
         } catch (e) {

@@ -8,8 +8,9 @@ mongoose.plugin(slug);
 // User Schema
 const StatusSchema = mongoose.Schema({
 
+  title: { type: String, required: true },
   description: { type: String, required: true },
-  slug: { type: String, slug: "fullname", slug_padding_size: 4, unique: true },
+  slug: { type: String, slug: "posted_by.name", slug_padding_size: 4, unique: true },
   image: { type: String, default: '' },
   posted_on: { type: Date, default: Date.now },
   posted_by: {
@@ -24,47 +25,48 @@ const StatusSchema = mongoose.Schema({
   like_count: { type: Number, default: 0 },
   comment_count: { type: Number, default: 0 },
   tag: { type: String, default: '' },
+  publish: { type: Boolean, default: true }   // true , false
 });
 
-const companies = module.exports = mongoose.model('status', StatusSchema);
+const status = module.exports = mongoose.model('status', StatusSchema);
 
 // module.exports.getUserById = function(id, callback){
 //   User.findById(id, callback);
 // }
 
-module.exports.createNewCompany = function(companyData){
-  var data = new companies(companyData);
+module.exports.createNewStatus = function(statusData){
+  var data = new status(statusData);
   return data.save()
     .then(item => ({ success: true, msg: "item saved to database", data: data }))
     .catch(err => ({ success: false, msg: "unable to save to database" }));
 }
 
-module.exports.checkCompanyNameExists = (name, slug, company_id)=>{
-  // console.log('model -',name);
-  // console.log('model -',slug);
-  company_id = ObjectId(company_id);
-  return Promise.all([
-    companies.count({"name": name, "_id": {$ne: company_id}}).then(count => ({ name: count })),
-    companies.count({"slug": slug, "_id": {$ne: company_id}}).then(count => ({ slug: count }))
-  ]).then(result => result.reduce((acc,curr) =>
-    Object.assign(acc,curr),{})
-  );
+module.exports.changeState = (slug, state)=>{
+  return status.update({"slug": slug}, { $set: {"publish": state }})
+      .then(item => ({ success: true, msg: 'Updated successfully' }))
+      .catch(err => ({ success: false, msg: 'Unable to process'}));
 }
 
-module.exports.savecompany = (companyData)=>{
-    console.log('model -',companyData);
-    // return Promise.all([
-      return companies.findById(companyData._id)
-      .then(company => {
-        console.log('in then', company);
-        company.name = companyData.name;
-        company.slug = companyData.slug;
-        company.description = (companyData.description==='')?'':companyData.description;
-        company.image = (companyData.image==='')?company.image:companyData.image;
-        company.status = companyData.status;
+module.exports.deleteStatus = (slug)=>{
+  return status.find({"slug": slug}).remove()
+      .then(item => ({ success: true, msg: 'Deleted successfully' }))
+      .catch(err => ({ success: false, msg: 'Unable to process'}));
+}
 
-        return company.save()
-        .then(item => ({ success: true, msg: "Item saved", data: company }))
+module.exports.savestatus = (statusData)=>{
+    console.log('model -',statusData);
+    // return Promise.all([
+      return status.findById(statusData._id)
+      .then(status => {
+        console.log('in then', status);
+        status.name = statusData.name;
+        status.slug = statusData.slug;
+        status.description = (statusData.description==='')?'':statusData.description;
+        status.image = (statusData.image==='')?status.image:statusData.image;
+        status.status = statusData.status;
+
+        return status.save()
+        .then(item => ({ success: true, msg: "Item saved", data: status }))
         .catch(err => ({ success: false, msg: "Unable to save" }));
 
       }).catch(err => ({ success: false, msg: "Unable to find" }));
@@ -82,9 +84,9 @@ module.exports.getStatusList = (pageSize, skip, sortby, orderby, query)=>{
     // console.log("query- "+JSON.stringify(query));
 
     return Promise.all([
-      companies.count().then(count => ({ total: count })),
-      companies.count(query).then(count => ({ searched_total: count })),
-      companies.find(query)
+      status.count().then(count => ({ total: count })),
+      status.count(query).then(count => ({ searched_total: count })),
+      status.find(query)
         .sort([[sortby, orderby]])
         .skip(skip)
         .limit(pageSize)
@@ -93,29 +95,3 @@ module.exports.getStatusList = (pageSize, skip, sortby, orderby, query)=>{
       Object.assign(acc,curr),{})
     );    
 }
-
-// module.exports.deleteUserById = (req)=>{
-//   id = req.query.userID;
-//   User.findByIdAndRemove(id, function (err, res){
-//     if(err) { throw err; }
-//     if( res.result.n === 0 ) { console.log("Record not found"); }
-//     console.log("Deleted successfully.");
-//   });
-// }
-
-// module.exports.addUser = function(newUser, callback){
-//   bcrypt.genSalt(10, (err, salt) => {
-//     bcrypt.hash(newUser.password, salt, (err, hash) => {
-//       if(err) throw err;
-//       newUser.password = hash;
-//       newUser.save(callback);
-//     });
-//   });
-// }
-
-// module.exports.comparePassword = function(candidatePassword, hash, callback){
-//   bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
-//     if(err) throw err;
-//     callback(null, isMatch);
-//   });
-// }
