@@ -5480,10 +5480,56 @@ $(document).ready(function () {
 		init_statusTablePagination();
 		// init_validator();
 	}	
+
+	// set search box Action url
+	$("#searchform").attr("action", window.location.href);
+	$("#searchtext").val((window.location.search === "" || window.location.search.indexOf('search')<0)?'':window.location.search.substring(1).split('&').find((i) => { return i.split('=')[0] === 'search'; }).split('=')[1] );
+
 });
+
 // This will be used to store pagination data
 const pagination_data = [];
+// convert date to "minutes/hours ago | Monday/Tuesday"
+function date2DisplayString(date2Show, thisMoment = new Date) {
+	if (!date2Show) { return; }
+	date2Show = new Date(date2Show);
+	// Convert both dates to milliseconds
+	let date1_ms = date2Show.getTime();
+	let date2_ms = thisMoment.getTime();
 
+	// Calculate the difference in milliseconds
+	// var difference_ms = date2_ms - date1_ms;
+	let delta = parseInt((date2_ms - date1_ms) / 1000);
+	delta = (delta < 2) ? 2 : delta;
+	var r = '';
+	if (delta < 60) {
+		r = delta + ' seconds ago';
+	} else if (delta < 120) {
+		r = 'a minute ago';
+	} else if (delta < (45 * 60)) {
+		r = (parseInt(delta / 60, 10)).toString() + ' minutes ago';
+	} else if (delta < (2 * 60 * 60)) {
+		r = 'an hour ago';
+	} else if (delta < (24 * 60 * 60)) {
+		// r = '' + (parseInt(delta / 3600, 10)).toString() + ' hours ago';
+		r = 'today';
+	} else if (delta < (48 * 60 * 60)) {
+		// r = 'a day ago';
+		r = 'yesterday';
+	} else if (delta < (168 * 60 * 60)) {
+		// r = (parseInt(delta / 86400, 10)).toString() + ' days ago';
+		r = date2Show.toLocaleString("en-us", { weekday: "long" });
+	} else {
+		r = date2Show.toLocaleString("en-in", { day: "numeric", month: "short", year: "numeric" });
+	}
+	return r;
+}
+// Formate date to Indian date time
+function dateFormater(date2Show) {
+	if (!date2Show) date2Show = new Date;
+	else date2Show = new Date(date2Show);
+	return date2Show.toLocaleString("en-in", { day: "numeric", month: "short", year: "numeric", hour: '2-digit', minute: '2-digit' });
+}
 // ############### Bootstrap table js #################
 
 var $table = $('#table'),
@@ -7206,8 +7252,10 @@ function init_statusTablePagination() {
 function statusTablePagination(page_no, refreshIntervalId) {
 	console.log('refreshIntervalId 1', refreshIntervalId);
 	if (refreshIntervalId === null || refreshIntervalId != false)
+		// let url = "/status/page/" + page_no;
+	// window.location.search
 		$.ajax({
-			url: "/status/page/" + page_no,
+			url: "/status/page/" + page_no + window.location.search,
 			type: "GET",
 			beforeSend: function () {
 				// if (page_no == 1)
@@ -7234,46 +7282,6 @@ function statusTablePagination(page_no, refreshIntervalId) {
 				clearInterval(refreshIntervalId);
 			}
 		});
-}
-function date2DisplayString(date2Show, thisMoment=new Date) {
-	if (!date2Show) { return; }
-	date2Show = new Date(date2Show);
-	// Convert both dates to milliseconds
-	let date1_ms = date2Show.getTime();
-	let date2_ms = thisMoment.getTime();
-
-	// Calculate the difference in milliseconds
-	// var difference_ms = date2_ms - date1_ms;
-	let delta = parseInt((date2_ms - date1_ms) / 1000);
-	delta = (delta < 2) ? 2 : delta;
-	week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-	var r = '';
-	if (delta < 60) {
-		r = delta + ' seconds ago';
-	} else if (delta < 120) {
-		r = 'a minute ago';
-	} else if (delta < (45 * 60)) {
-		r = (parseInt(delta / 60, 10)).toString() + ' minutes ago';
-	} else if (delta < (2 * 60 * 60)) {
-		r = 'an hour ago';
-	} else if (delta < (24 * 60 * 60)) {
-		// r = '' + (parseInt(delta / 3600, 10)).toString() + ' hours ago';
-		r = 'today';
-	} else if (delta < (48 * 60 * 60)) {
-		// r = 'a day ago';
-		r = 'yesterday';
-	} else if (delta < (168 * 60 * 60)) {
-		// r = (parseInt(delta / 86400, 10)).toString() + ' days ago';
-		r = date2Show.toLocaleString("en-us", { weekday: "long" });
-	} else {
-		r = date2Show.getDate() + ' ' + date2Show.toLocaleString("en-us", { month: "short" }) + ' ' + date2Show.toLocaleString("en-us", { year: "numeric" });
-	}
-	return r;
-}
-function dateFormater(date2Show) {
-	if (!date2Show) { date2Show = new Date; }
-	date2Show = new Date(date2Show);
-	return date2Show.toLocaleString("en-in", { day: "numeric", month: "short", year: "numeric", hour: '2-digit', minute: '2-digit' });
 }
 
 function eachStatusRow(data, page_no) {
@@ -7318,7 +7326,9 @@ function eachStatusRow(data, page_no) {
 	// html += '</ul>';
 	return html;
 }
-
+// window.onload = function () {
+// 	$(".searchform").attr("action", window.location.href);
+// }
 if ($("#pagecode_status").exists()) {
 
 	//----- Unpublish status
@@ -7405,146 +7415,4 @@ if ($("#pagecode_status").exists()) {
 		e.preventDefault();
 	});
 
-	// check for duplicate
-	$("#name")
-		.keyup(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
-			$('#company-submit').prop('disabled', true);
-		})
-		.blur(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
-			// $('[data-popup="popup_status_add"] buttton[type=submit]').addClass('disabled');
-			$.ajax({
-				url: "/status/checkcompanyname/", // + convertToSlug(this.value),
-				type: "POST",
-				data: {
-					'name': this.value.trim(),
-					'slug': convertToSlug(this.value),
-					'_id': $("#company_id").val()
-				},
-				beforeSend: function () {
-					// show loading
-					$("#name").addClass('checkingTextbox');
-					$('#company-submit').prop('disabled', true);
-				},
-				success: function (data) {
-					// check data and show msg
-					$("#name").removeClass('checkingTextbox');
-					if (data.name > 0 || data.slug > 0) {
-						$("#slug").val('');
-						$('#name').parents('div.form-group').addClass('bad');
-						$('#name').parents('div.form-group').append('<div class="alert">Company exists.</div>');
-					}
-					$('#company-submit').prop('disabled', false);
-				},
-				error: function () {
-					// plz try later
-				}
-			});
-		});
-
-	// ----- Submit
-	$(document).on("click", '#company-submit', function (err) {
-		// collecting data from form
-		let form = $('[data-popup="popup_status_add"] form')[0];
-		let status = $('#company_status').is(":checked");
-		let url = "/status/addnew";
-		let data = {
-			'name': form.name.value.trim(),
-			'description': form.description.value,
-			'slug': form.slug.value,
-			'image': '',
-			'status': status
-		};
-		// If ID exists post it for Edit.
-		if (form.company_id.value) {
-			data._id = form.company_id.value;
-			url = "/status/savecompany"
-		}
-		// console.log('ajax', data);
-
-		$.ajax({
-			url: url,
-			type: "POST",
-			data: data,
-			beforeSend: function () {
-				// show loading on button
-			},
-			success: function (data) {
-				// hide loading 
-				// console.log('data after save', pagination_data);
-				// console.log('data after id', data.data._id);
-				$('[data-popup="popup_status_add"] form')[0].reset();
-				$('[data-popup="popup_status_add"]').fadeOut(350, function () {
-					// $('#data-container > div:nth-child(1)').after("<div>great things</div>");
-					// to save
-					if (!form.company_id.value) {
-						// --- add value to master array
-						// pagination_data[data.data._id]._id = data.data._id;
-						let key = data.data._id
-						pagination_data[key] = data.data;
-
-						// pagination_data[data.data._id].slug = data.data.slug;
-						// pagination_data[data.data._id].description = data.data.description;
-						// pagination_data[data.data._id].status = data.data.status;
-						// pagination_data[data.data._id].image = data.data.image;
-
-						$('#data-container').children(':eq(0)').after('' +
-							'<div class="col-md-55" style="display:none">' +
-							'<div class="thumbnail">' +
-							'<div class="image view view-first">' +
-							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
-							'<div class="mask">' +
-							'<p>Total connections - ' + data.data.connections_total + '</p>' +
-							'<div class="tools tools-bottom">' +
-							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#"><i class="fa fa-trash"></i></a>' +
-							'</div></div></div>' +
-							'<div class="caption">' +
-							'<p>' + data.data.name + '</p>' +
-							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
-							'</div></div></div>');
-						$('#data-container').children(':eq(1)').show("puff");
-					} else {
-						// ---- to edit
-						// --- update value to master array
-						// pagination_data[data.data._id]._id = data.data._id;
-						pagination_data[data.data._id].name = data.data.name;
-						pagination_data[data.data._id].slug = data.data.slug;
-						pagination_data[data.data._id].description = data.data.description;
-						pagination_data[data.data._id].status = data.data.status;
-						pagination_data[data.data._id].image = data.data.image;
-
-						$('.beingedit').html('' +
-							'<div class="thumbnail">' +
-							'<div class="image view view-first">' +
-							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
-							'<div class="mask">' +
-							'<p>Total connections - ' + data.data.connections_total + '</p>' +
-							'<div class="tools tools-bottom">' +
-							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#"><i class="fa fa-trash"></i></a>' +
-							'</div></div></div>' +
-							'<div class="caption">' +
-							'<p>' + data.data.name + '</p>' +
-							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
-							'</div></div></div>');
-						// $('.beingedit').prop('style','display:none');
-						// $('.beingedit').show("highlight");
-						$('.beingedit .thumbnail')
-							.animate({ backgroundColor: "rgb( 20, 20, 20 )" }, () => {
-								// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
-							});
-						$('.col-md-55').removeClass('beingedit');
-					}
-				});
-			},
-			error: function () {
-				$("#dummyrow").html('Unable to save.');
-				err.preventDefault();
-			}
-		});
-
-		err.preventDefault();
-	});
 }

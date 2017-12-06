@@ -28,6 +28,7 @@ const StatusSchema = mongoose.Schema({
   publish: { type: Boolean, default: true }   // true , false
 });
 
+StatusSchema.index({ description: 'text' });
 const status = module.exports = mongoose.model('status', StatusSchema);
 
 // module.exports.getUserById = function(id, callback){

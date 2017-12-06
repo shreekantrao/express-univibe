@@ -9,6 +9,7 @@ router.get('/', function (req, res, next) {
 });
 router.get('/list', function (req, res, next) {
     // console.log("alphabet = "+req.params.alphabet);
+    // status.getStatusSearch(req, res, next);
     res.render('page', { "page_Code": "status", "page_Title": "College User Status" });
 });
 

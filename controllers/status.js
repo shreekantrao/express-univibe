@@ -15,14 +15,17 @@ module.exports = {
 
             alphabet = req.params.alphabet;
             // console.log("alphabet= "+alphabet);
+            searchText = req.query.search;
 
             var query = {};
 
-            // if (typeof alphabet != 'undefined') {
-            //     var regexp = new RegExp("^" + alphabet);
-            //     // console.log("regexp- "+regexp);
-            //     query["fullname"] = regexp;
-            // }
+            if (typeof searchText != 'undefined') {
+                // var regexp = new RegExp("^" + searchText);
+                // var query = { $or: [{ "description": searchText }, { "posted_by.name": searchText }] };
+                var query = { $text: { $search: searchText } };
+                // console.log("regexp- "+regexp);
+                // query["description"] = regexp;
+            }
 
             sortby = req.query.sort;
             if (typeof sortby == 'undefined')
@@ -45,40 +48,6 @@ module.exports = {
             }
             data["pageSize"] = pageSize;
             res.json(data);
-        } catch (e) {
-            next(e);
-        }
-    },
-
-    createNewStatus: async(req, res, next) => {
-        try {
-            // console.log('check');
-            let body = req.body;
-            if(body.name===''||body.slug===''){
-                let notify = [];
-                notify.push({ title: "Notification", type: "notice", text: "Your form is not properly filled." });
-                req.session.notify = notify;
-                console.log('Form not filled.');
-                return res.json({
-                    success: false,
-                    msg: 'Status not saved'
-                });
-            }  
-            if( body.image === '') delete body.image;  
-
-            let data = await status.createNewStatus(body)
-            console.log('data ',data);
-            if (!data.success) {
-                return res.json({
-                    success: false,
-                    msg: 'Status not saved'
-                });
-            }
-            res.json({
-                success: true,
-                msg: 'Status saved',
-                data: data.data
-            });
         } catch (e) {
             next(e);
         }
@@ -122,7 +91,7 @@ module.exports = {
         } catch (e) {
             next(e);
         }
-    },
+    }
     // getStatusData: async(req, res, next) => {
     //     try {
     //         let data = await status.getStatusData(req.params.statusname)
@@ -142,22 +111,22 @@ module.exports = {
     //     }
     // },
 
-    saveStatus: async(req, res, next) => {
-        try {
-            let data = await status.savestatus(req.body)
-            console.log('Status data - ',data);
-            // console.log('Status data2 - ',data.data);
-            if (!data) {
-                // return res.json({success: false, msg: 'Status not found'});
-                let notify = [];
-                notify.push({ title: "Notification", type: "notice", text: "Status not found." });
-                req.session.notify = notify;
-                return res.redirect('/status/list');
-                // return res.render('page', {"page_Code":"status","page_Title":"Status Network", "data":{success: false, msg: 'Status not found'}});
-            }
-            res.json(data);
-        } catch (e) {
-            next(e);
-        }
-    }    
+    // saveStatus: async(req, res, next) => {
+    //     try {
+    //         let data = await status.savestatus(req.body)
+    //         console.log('Status data - ',data);
+    //         // console.log('Status data2 - ',data.data);
+    //         if (!data) {
+    //             // return res.json({success: false, msg: 'Status not found'});
+    //             let notify = [];
+    //             notify.push({ title: "Notification", type: "notice", text: "Status not found." });
+    //             req.session.notify = notify;
+    //             return res.redirect('/status/list');
+    //             // return res.render('page', {"page_Code":"status","page_Title":"Status Network", "data":{success: false, msg: 'Status not found'}});
+    //         }
+    //         res.json(data);
+    //     } catch (e) {
+    //         next(e);
+    //     }
+    // }    
 }
