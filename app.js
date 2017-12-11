@@ -21,6 +21,8 @@ const industries = require('./routes/industries');
 const cities = require('./routes/cities');
 const courses = require('./routes/courses');
 const status = require('./routes/status');
+const blogs = require('./routes/blogs');
+const opportunity = require('./routes/opportunity');
 
 const app = express();
 
@@ -99,11 +101,20 @@ app.use('/dashboard', IsAuthenticated, dashboard);
 // app.use('/users', users);
 app.use('/network', IsAuthenticated, network);
 app.use('/colleges', IsAuthenticated, colleges);
+
+// Master tables
 app.use('/companies', IsAuthenticated, companies);
 app.use('/industries', IsAuthenticated, industries);
 app.use('/cities', IsAuthenticated, cities);
 app.use('/courses', IsAuthenticated, courses);
+
+// Post Router
 app.use('/status', IsAuthenticated, status);
+app.use('/blogs', IsAuthenticated, blogs);
+app.use('/opportunity', opportunity);
+// app.use('/events', IsAuthenticated, events);
+// app.use('/photos', IsAuthenticated, photos);
+// app.use('/videos', IsAuthenticated, videos);
 
 // Default redirected to Dashboard
 // app.get('/', (req, res) => {  return res.redirect(301, '/auth/login');	});
