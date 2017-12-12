@@ -23,6 +23,7 @@ const courses = require('./routes/courses');
 const status = require('./routes/status');
 const blogs = require('./routes/blogs');
 const opportunity = require('./routes/opportunity');
+const event = require('./routes/event');
 
 const app = express();
 
@@ -111,8 +112,8 @@ app.use('/courses', IsAuthenticated, courses);
 // Post Router
 app.use('/status', IsAuthenticated, status);
 app.use('/blogs', IsAuthenticated, blogs);
-app.use('/opportunity', opportunity);
-// app.use('/events', IsAuthenticated, events);
+app.use('/opportunity', IsAuthenticated, opportunity);
+app.use('/event', event);
 // app.use('/photos', IsAuthenticated, photos);
 // app.use('/videos', IsAuthenticated, videos);
 
