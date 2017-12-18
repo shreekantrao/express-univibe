@@ -52,13 +52,33 @@ mongoose.connection.on('error', (err) => {
   console.log('Database error: ' + err);
 });
 
+app.all('*', (req, res, next) => {
+  console.log(req.get('host'));
+  console.log(req.headers);
+
+  // if( typeof req.cookies['sitecode'] == 'undefined')
+  //   console.log('sitecode');
+  // else{
+  //   let sitecode = req.cookies['sitecode'];
+  //   console.log(sitecode);
+  // }
+  // res.cookie('cookiename', 'cookievalue', {
+  //   maxAge: 86400 * 1000, // 24 hours
+  //   // httpOnly: true, // http only, prevents JavaScript cookie access
+  //   // secure: true // cookie must be sent over https / ssl
+  // });
+  next();
+});
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+
+// logs all file request to terminal
+// app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
