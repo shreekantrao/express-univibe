@@ -6,11 +6,11 @@ mongoose.Promise = global.Promise;
 const slug = require('mongoose-slug-generator');
 mongoose.plugin(slug);
 // User Schema
-const StatusSchema = mongoose.Schema({
+const BlogsSchema = mongoose.Schema({
 
   title: { type: String, required: true },
   description: { type: String, required: true },
-  slug: { type: String, slug: "posted_by.name", slug_padding_size: 4, unique: true },
+  slug: { type: String, slug: "title", slug_padding_size: 4, unique: true },
   image: { type: String, default: '' },
   posted_on: { type: Date, default: Date.now },
   posted_by: {
@@ -28,46 +28,46 @@ const StatusSchema = mongoose.Schema({
   publish: { type: Boolean, default: true }   // true , false
 });
 
-StatusSchema.index({ description: 'text' });
-const status = module.exports = mongoose.model('status', StatusSchema);
+BlogsSchema.index({ description: 'text' });
+const blogs = module.exports = mongoose.model('blogs', BlogsSchema);
 
 // module.exports.getUserById = function(id, callback){
 //   User.findById(id, callback);
 // }
 
-module.exports.createNewStatus = function(statusData){
-  var data = new status(statusData);
+module.exports.createNewBlogs = function(blogsData){
+  var data = new blogs(blogsData);
   return data.save()
     .then(item => ({ success: true, msg: "item saved to database", data: data }))
     .catch(err => ({ success: false, msg: "unable to save to database" }));
 }
 
 module.exports.changeState = (slug, state)=>{
-  return status.update({"slug": slug}, { $set: {"publish": state }})
+  return blogs.update({"slug": slug}, { $set: {"publish": state }})
       .then(item => ({ success: true, msg: 'Updated successfully' }))
       .catch(err => ({ success: false, msg: 'Unable to process'}));
 }
 
-module.exports.deleteStatus = (slug)=>{
-  return status.find({"slug": slug}).remove()
+module.exports.deleteBlogs = (slug)=>{
+  return blogs.find({"slug": slug}).remove()
       .then(item => ({ success: true, msg: 'Deleted successfully' }))
       .catch(err => ({ success: false, msg: 'Unable to process'}));
 }
 
-module.exports.savestatus = (statusData)=>{
-    console.log('model -',statusData);
+module.exports.saveblogs = (blogsData)=>{
+    console.log('model -',blogsData);
     // return Promise.all([
-      return status.findById(statusData._id)
-      .then(status => {
-        console.log('in then', status);
-        status.name = statusData.name;
-        status.slug = statusData.slug;
-        status.description = (statusData.description==='')?'':statusData.description;
-        status.image = (statusData.image==='')?status.image:statusData.image;
-        status.status = statusData.status;
+      return blogs.findById(blogsData._id)
+      .then(blogs => {
+        console.log('in then', blogs);
+        blogs.name = blogsData.name;
+        blogs.slug = blogsData.slug;
+        blogs.description = (blogsData.description==='')?'':blogsData.description;
+        blogs.image = (blogsData.image==='')?blogs.image:blogsData.image;
+        blogs.blogs = blogsData.blogs;
 
-        return status.save()
-        .then(item => ({ success: true, msg: "Item saved", data: status }))
+        return blogs.save()
+        .then(item => ({ success: true, msg: "Item saved", data: blogs }))
         .catch(err => ({ success: false, msg: "Unable to save" }));
 
       }).catch(err => ({ success: false, msg: "Unable to find" }));
@@ -76,7 +76,7 @@ module.exports.savestatus = (statusData)=>{
     // );
 }
 
-module.exports.getStatusList = (pageSize, skip, sortby, orderby, query)=>{
+module.exports.getBlogsList = (pageSize, skip, sortby, orderby, query)=>{
   
     // console.log("limit- "+pageSize);
     // console.log("skip- "+skip);
@@ -85,9 +85,9 @@ module.exports.getStatusList = (pageSize, skip, sortby, orderby, query)=>{
     // console.log("query- "+JSON.stringify(query));
 
     return Promise.all([
-      status.count().then(count => ({ total: count })),
-      status.count(query).then(count => ({ searched_total: count })),
-      status.find(query)
+      blogs.count().then(count => ({ total: count })),
+      blogs.count(query).then(count => ({ searched_total: count })),
+      blogs.find(query)
         .sort([[sortby, orderby]])
         .skip(skip)
         .limit(pageSize)

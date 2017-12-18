@@ -21,6 +21,9 @@ const industries = require('./routes/industries');
 const cities = require('./routes/cities');
 const courses = require('./routes/courses');
 const status = require('./routes/status');
+const blogs = require('./routes/blogs');
+const opportunity = require('./routes/opportunity');
+const event = require('./routes/event');
 
 const app = express();
 
@@ -49,13 +52,33 @@ mongoose.connection.on('error', (err) => {
   console.log('Database error: ' + err);
 });
 
+app.all('*', (req, res, next) => {
+  console.log(req.get('host'));
+  console.log(req.headers);
+
+  // if( typeof req.cookies['sitecode'] == 'undefined')
+  //   console.log('sitecode');
+  // else{
+  //   let sitecode = req.cookies['sitecode'];
+  //   console.log(sitecode);
+  // }
+  // res.cookie('cookiename', 'cookievalue', {
+  //   maxAge: 86400 * 1000, // 24 hours
+  //   // httpOnly: true, // http only, prevents JavaScript cookie access
+  //   // secure: true // cookie must be sent over https / ssl
+  // });
+  next();
+});
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+
+// logs all file request to terminal
+// app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
@@ -99,11 +122,20 @@ app.use('/dashboard', IsAuthenticated, dashboard);
 // app.use('/users', users);
 app.use('/network', IsAuthenticated, network);
 app.use('/colleges', IsAuthenticated, colleges);
+
+// Master tables
 app.use('/companies', IsAuthenticated, companies);
 app.use('/industries', IsAuthenticated, industries);
 app.use('/cities', IsAuthenticated, cities);
 app.use('/courses', IsAuthenticated, courses);
+
+// Post Router
 app.use('/status', IsAuthenticated, status);
+app.use('/blogs', IsAuthenticated, blogs);
+app.use('/opportunity', IsAuthenticated, opportunity);
+app.use('/event', event);
+// app.use('/photos', IsAuthenticated, photos);
+// app.use('/videos', IsAuthenticated, videos);
 
 // Default redirected to Dashboard
 // app.get('/', (req, res) => {  return res.redirect(301, '/auth/login');	});

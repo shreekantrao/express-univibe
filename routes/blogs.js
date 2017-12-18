@@ -1,34 +1,34 @@
 var express = require('express');
 var router = express.Router();
 
-var status = require('../controllers/status');
- 
+var blogs = require('../controllers/blogs');
+
 /* GET users listing. */
 router.get('/', function (req, res, next) {
-    res.redirect(301, '/status/list');
+    res.redirect(301, '/blogs/list');
 });
 router.get('/list', function (req, res, next) {
     // console.log("alphabet = "+req.params.alphabet);
-    // status.getStatusSearch(req, res, next);
-    res.render('page', { "page_Code": "status", "page_Title": "College User Status" });
+    // blogs.getBlogsSearch(req, res, next);
+    res.render('page', { "page_Code": "blogs", "page_Title": "College User Blogs" });
 });
 
-// ############################ Status list page ######################################
+// ############################ Blogs list page ######################################
 
 router.get('/page/:page_no', function (req, res, next) {
     // console.log('router userslist');
-    status.getStatusList(req, res, next);
+    blogs.getBlogsList(req, res, next);
 });
 
-// ############################ Change item status ######################################
+// ############################ Change item blogs ######################################
 
 router.post('/changestate', function (req, res, next) {
-    status.changeState(req, res, next);
+    blogs.changeState(req, res, next);
 });
 
 // ############################ Delete item ######################################
 
 router.post('/delete', function (req, res, next) {
-    status.deleteStatus(req, res, next);
+    blogs.deleteBlogs(req, res, next);
 });
 module.exports = router;

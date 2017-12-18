@@ -1,8 +1,8 @@
-var status = require('../models/status');
+var blogs = require('../models/blogs');
 
 module.exports = { 
 
-    getStatusList: async(req, res, next) => {
+    getBlogsList: async(req, res, next) => {
         // console.log('controller userslist');
         try {
 
@@ -38,12 +38,12 @@ module.exports = {
             // console.log("sort- "+sortby);
             // console.log("order- "+orderby);
 
-            let data = await status.getStatusList(pageSize, skip, sortby, orderby, query)
+            let data = await blogs.getBlogsList(pageSize, skip, sortby, orderby, query)
             // console.log('data from model ',data);
             if (!data) {
                 return res.json({
                     success: false,
-                    msg: 'status not found'
+                    msg: 'blogs not found'
                 });
             }
             data["pageSize"] = pageSize;
@@ -56,7 +56,7 @@ module.exports = {
     // ajax call
     changeState: async(req, res, next) => {
         try {
-            let data = await status.changeState(req.body.slug, req.body.state)
+            let data = await blogs.changeState(req.body.slug, req.body.state)
             console.log('Controller - ',data);
             if (!data) {
                 // let notify = [];
@@ -65,7 +65,7 @@ module.exports = {
                 return res.json({ success: false, msg: 'Unable to check. Please try later.' });
             }
             // let notify = [];
-            // notify.push({ title: "Notification", type: "notice", text: "Status found." });
+            // notify.push({ title: "Notification", type: "notice", text: "Blogs found." });
             // req.session.notify = notify;            
             res.json(data);
         } catch (e) {
@@ -74,9 +74,9 @@ module.exports = {
     },
 
     // ajax call
-    deleteStatus: async (req, res, next) => {
+    deleteBlogs: async (req, res, next) => {
         try {
-            let data = await status.deleteStatus(req.body.slug)
+            let data = await blogs.deleteBlogs(req.body.slug)
             console.log('Controller - ', data);
             if (!data) {
                 // let notify = [];
@@ -85,48 +85,12 @@ module.exports = {
                 return res.json({ success: false, msg: 'Unable to check. Please try later.' });
             }
             // let notify = [];
-            // notify.push({ title: "Notification", type: "notice", text: "Status found." });
+            // notify.push({ title: "Notification", type: "notice", text: "Blogs found." });
             // req.session.notify = notify;            
             res.json(data);
         } catch (e) {
             next(e);
         }
     }
-    // getStatusData: async(req, res, next) => {
-    //     try {
-    //         let data = await status.getStatusData(req.params.statusname)
-    //         // console.log('Status data - ',data);
-    //         // console.log('Status data2 - ',data.data);
-    //         if (!data) {
-    //             // return res.json({success: false, msg: 'Status not found'});
-    //             let notify = [];
-    //             notify.push({ title: "Notification", type: "notice", text: "Status not found." });
-    //             req.session.notify = notify;
-    //             return res.redirect('/status/list');
-    //             // return res.render('page', {"page_Code":"status","page_Title":"Status Network", "data":{success: false, msg: 'Status not found'}});
-    //         }
-    //         res.render('page', { "page_Code": "status-edit", "page_Title": "Profile", "data": data.data });
-    //     } catch (e) {
-    //         next(e);
-    //     }
-    // },
-
-    // saveStatus: async(req, res, next) => {
-    //     try {
-    //         let data = await status.savestatus(req.body)
-    //         console.log('Status data - ',data);
-    //         // console.log('Status data2 - ',data.data);
-    //         if (!data) {
-    //             // return res.json({success: false, msg: 'Status not found'});
-    //             let notify = [];
-    //             notify.push({ title: "Notification", type: "notice", text: "Status not found." });
-    //             req.session.notify = notify;
-    //             return res.redirect('/status/list');
-    //             // return res.render('page', {"page_Code":"status","page_Title":"Status Network", "data":{success: false, msg: 'Status not found'}});
-    //         }
-    //         res.json(data);
-    //     } catch (e) {
-    //         next(e);
-    //     }
-    // }    
+   
 }
