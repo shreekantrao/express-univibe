@@ -68,8 +68,8 @@ app.all('*', (req, res, next) => {
     next();
   }else{
     // console.log('Req header found ');
-    cookieHeader = req.cookies['sitecode'];
-    console.log(cookieHeader);
+    cookieHeader = req.cookies['sitecode'];   // this variable is global variable 
+    // console.log(cookieHeader);
     next();
   }
 });
