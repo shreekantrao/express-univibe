@@ -3,6 +3,7 @@ const path = require('path');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieSession = require('cookie-session');
+const cookieParser = require('cookie-parser')
 const passport = require('passport');
 const bodyParser = require('body-parser');
 // const lessMiddleware = require('less-middleware');
@@ -26,6 +27,8 @@ const opportunity = require('./routes/opportunity');
 const event = require('./routes/event');
 
 const app = express();
+
+app.use(cookieParser())
 
 // set up session cookies
 app.use(cookieSession({
@@ -52,22 +55,23 @@ mongoose.connection.on('error', (err) => {
   console.log('Database error: ' + err);
 });
 
+let college = require('./controllers/colleges');
 app.all('*', (req, res, next) => {
-  console.log(req.get('host'));
-  console.log(req.headers);
-
-  // if( typeof req.cookies['sitecode'] == 'undefined')
-  //   console.log('sitecode');
-  // else{
-  //   let sitecode = req.cookies['sitecode'];
-  //   console.log(sitecode);
-  // }
-  // res.cookie('cookiename', 'cookievalue', {
-  //   maxAge: 86400 * 1000, // 24 hours
-  //   // httpOnly: true, // http only, prevents JavaScript cookie access
-  //   // secure: true // cookie must be sent over https / ssl
-  // });
-  next();
+  // console.log('Cookie ', req.query.clearcookie);
+  if (typeof req.cookies['sitecode'] == 'undefined') {
+    // console.log('req headers not set');
+    college.getSiteHeader(req, res, keys.domain.base, next);
+    // cookieHeader = res.cookies['sitecode'];
+    // next();
+  } else if (typeof req.query.clearcookie !== 'undefined'){
+    res.clearCookie("sitecode");
+    next();
+  }else{
+    // console.log('Req header found ');
+    cookieHeader = req.cookies['sitecode'];   // this variable is global variable 
+    // console.log(cookieHeader);
+    next();
+  }
 });
 
 // view engine setup
@@ -83,6 +87,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
+
 // app.use(cookieParser());
 
 // except file upload
@@ -118,7 +123,7 @@ function IsAuthenticated(req, res, next) {
 
 // Index Route
 app.use('/auth', authRoutes);
-app.use('/dashboard', IsAuthenticated, dashboard);
+app.use('/dashboard',  dashboard);
 // app.use('/users', users);
 app.use('/network', IsAuthenticated, network);
 app.use('/colleges', IsAuthenticated, colleges);

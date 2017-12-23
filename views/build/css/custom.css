@@ -303,12 +303,12 @@ body {
 }
 
 .profile_pic {
-    width: 35%;
+    width: 100%;
     float: left
 }
 
 .img-circle.profile_img {
-    width: 90%;
+    width: 35%;
     background: #fff;
     margin: 20px 0 0 75px;
     z-index: 1000;
@@ -979,7 +979,8 @@ a:focus {
     display: block;
     height: 55px;
     margin: 0;
-    padding-left: 10px
+    padding-left: 10px;
+    text-align: center;
 }
 
 .site_title:hover,

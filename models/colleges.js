@@ -72,6 +72,15 @@ const colleges = module.exports = mongoose.model('Colleges', CollegesSchema);
 //   User.findById(id, callback);
 // }
 
+module.exports.getSiteHeader = (query) => {
+  // console.log('model -', query);
+  // return colleges.findOne({ "slug": "vjti" })
+  return colleges.findOne(query)
+    .select({ "_id": 0, "name": 1, "slug": 1, "domain": 1, "long_name": 1, "short_name": 1, "logo_s": 1, "logo_l": 1 })
+    .then(data => ({ data: data }))
+    .catch(data => ({ data: null }));
+}
+
 module.exports.createNewCollege = function(collegeData){
   var data = new colleges(collegeData);
   return data.save()
