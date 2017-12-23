@@ -2,6 +2,68 @@ var colleges = require('../models/colleges');
 
 module.exports = {
 
+    getSiteHeader: async (req, res, key, next) => {
+        // let host = req.get('host');
+        // console.log(req.get('host'));
+        // console.log(req.baseUrl);
+        // console.log(req.subdomains);
+        // console.log(req.headers);
+        
+        let domain = req.headers.host.replace('www.', '');
+        let subDomain = domain.split('.');
+        let query = {};
+        
+        if (domain.indexOf(key) > -1) {
+            if (subDomain.length > 2) {
+                subDomain = subDomain[0];
+            } else {
+                subDomain = "community";
+            }
+            query = { "slug": subDomain };
+        } else {
+            query = { "domain": domain.split(':')[0] };
+        }
+        // console.log(query);
+
+        try {
+            let data = await colleges.getSiteHeader(query);
+            // console.log('Controller ',data);
+
+            if (data.data === null) {
+                console.log('404 page');
+                return res.redirect('404 page');
+            }
+            if ( (domain.indexOf(key) > -1) && (data.data.domain !== '') ){
+                return res.redirect('http://www.'+data.data.domain+':3000');
+            }
+            // if( typeof req.cookies['sitecode'] == 'undefined'){
+            //   console.log('sitecode');
+            cookieHeader = data.data;
+
+              res.cookie('sitecode', data.data, {
+                maxAge: 3 * 60 * 60 * 1000, // 3 hours
+                // httpOnly: true, // http only, prevents JavaScript cookie access
+                // secure: true // cookie must be sent over https / ssl
+              });
+            // }else{
+            //   let sitecode = req.cookies['sitecode'];
+            //   console.log(sitecode);
+            // }
+
+            next();
+        } catch (e) {
+            next(e);
+        }
+
+        //  --------------------------------------
+        // https://askubuntu.com/questions/150135/how-to-block-specific-domains-in-hosts-file/150180#150180
+        // We have used dnsmasq to route all sub-domains to our site.
+        //  --------------------------------------
+
+
+        
+    },
+
     getCollegeList: async(req, res, next) => {
         // console.log('controller userslist');
         try {
