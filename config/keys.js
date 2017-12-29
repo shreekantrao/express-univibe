@@ -1,7 +1,8 @@
 module.exports = {
   //database: 'mongodb://brad:brad@ds121190.mlab.com:21190/meanauthapp',   //prod
   domain: {
-    base: 'univ.com'
+    base: 'univ.com',
+    core: 'core'
   },
   mongodb: {
     database: 'mongodb://localhost:27017/meanauth',    //dev
@@ -13,5 +14,8 @@ module.exports = {
   },
   session: {
     cookieKey: 'sess_univibe'
+  },
+  usersession: {
+    secretKey: 'userSess_univibe'
   }
 }

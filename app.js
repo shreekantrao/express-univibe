@@ -4,7 +4,8 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser')
-const passport = require('passport');
+// const passport = require('passport');
+// const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 // const lessMiddleware = require('less-middleware');
 const mongoose = require('mongoose');
@@ -12,8 +13,8 @@ const fileUpload = require('express-fileupload');
 const keys = require('./config/keys');
 
 
-const passportSetup = require('./config/passport-setup');
-const authRoutes = require('./routes/auth');
+// const passportSetup = require('./config/passport-setup');
+const login = require('./routes/login');
 const dashboard = require('./routes/dashboard');
 const network = require('./routes/network');
 const colleges = require('./routes/colleges');
@@ -37,8 +38,8 @@ app.use(cookieSession({
 }));
 
 // initialize passport
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 /*********** Connect To Database *********/
 // mongoose.connect(keys.database);
@@ -58,18 +59,22 @@ mongoose.connection.on('error', (err) => {
 let college = require('./controllers/colleges');
 app.all('*', (req, res, next) => {
   // console.log('Cookie ', req.query.clearcookie);
-  if (typeof req.cookies['sitecode'] == 'undefined') {
+  // console.log(req.headers);
+
+  if (typeof req.cookies['siteHeader'] == 'undefined') {
     // console.log('req headers not set');
     college.getSiteHeader(req, res, keys.domain.base, next);
-    // cookieHeader = res.cookies['sitecode'];
+    // siteHeader = res.cookies['siteHeader'];
     // next();
   } else if (typeof req.query.clearcookie !== 'undefined'){
-    res.clearCookie("sitecode");
+    res.clearCookie("siteHeader");
     next();
   }else{
-    // console.log('Req header found ');
-    cookieHeader = req.cookies['sitecode'];   // this variable is global variable 
-    // console.log(cookieHeader);
+    // ############################################################
+    //            this variable is global variable 
+                siteHeader = req.cookies['siteHeader'];
+    // ############################################################
+    // console.log('Req header found ', siteHeader);
     next();
   }
 });
@@ -107,46 +112,37 @@ app.use("/assets", express.static(__dirname + "/views"));
 // }));
 
 
-//authentication middleware
-// const login_controller = require('./controllers/login');
-// app.all('*', login_controller.userAuth);
-
-function IsAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    next();
-  } else {
-    // next(new Error(401));
-    console.log('Isauthenticated function')    
-    res.redirect('/auth/login');
-  }
-}
+let user = require('./controllers/login');
 
 // Index Route
-app.use('/auth', authRoutes);
-app.use('/dashboard',  dashboard);
+app.use('/login', login);
+app.use('/dashboard', user.verifyToken,  dashboard);
 // app.use('/users', users);
-app.use('/network', IsAuthenticated, network);
-app.use('/colleges', IsAuthenticated, colleges);
+app.use('/network', user.verifyToken, network);
+app.use('/colleges', user.verifyToken, colleges);
 
 // Master tables
-app.use('/companies', IsAuthenticated, companies);
-app.use('/industries', IsAuthenticated, industries);
-app.use('/cities', IsAuthenticated, cities);
-app.use('/courses', IsAuthenticated, courses);
+app.use('/companies', user.verifyToken, companies);
+app.use('/industries', user.verifyToken, industries);
+app.use('/cities', user.verifyToken, cities);
+app.use('/courses', user.verifyToken, courses);
 
 // Post Router
-app.use('/status', IsAuthenticated, status);
-app.use('/blogs', IsAuthenticated, blogs);
-app.use('/opportunity', IsAuthenticated, opportunity);
+app.use('/status', user.verifyToken, status);
+app.use('/blogs', user.verifyToken, blogs);
+app.use('/opportunity', user.verifyToken, opportunity);
 app.use('/event', event);
-// app.use('/photos', IsAuthenticated, photos);
-// app.use('/videos', IsAuthenticated, videos);
+// app.use('/photos', user.verifyToken, photos);
+// app.use('/videos', user.verifyToken, videos);
+
+app.get('/logout', (req, res) => {  
+  res.clearCookie("authorization");  
+  return res.redirect('/login');	
+});
 
 // Default redirected to Dashboard
-// app.get('/', (req, res) => {  return res.redirect(301, '/auth/login');	});
-app.get('/', (req, res) => {
-  if (req.isAuthenticated()) res.redirect('/dashboard');
-  else res.redirect('/auth/login');
+app.get('/', user.verifyToken, (req, res) => {
+  res.redirect('/dashboard');
 });
 
 

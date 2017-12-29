@@ -740,9 +740,29 @@ module.exports.addUser = function (newUser, callback) {
   });
 }
 
-module.exports.comparePassword = function (candidatePassword, hash, callback) {
-  bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
-    if (err) throw err;
-    callback(null, isMatch);
-  });
+
+module.exports.getUserByUsername = (username) => {
+  const query = { email: username }
+  const field = { _id: 0, email: 1, password:1, registration_type: 1, salutation: 1, fullname: 1, batch: 1, course: 1, slug: 1, profile_picture: 1, mentorship: 1, renowned_alumni: 1, public_profile: 1, profile_line: 1, hostel: 1, membership_id: 1, location: 1 };
+  return User.findOne(query, field)
+    .then(data => {
+      // throw err;
+      if(data)
+      return ({ success: true, msg: "user found", data: data })
+      else
+      return ({ success: false, msg: "user not found" })
+    })
+    .catch(err => ({ success: false, msg: "something went wrong" }));
+}
+module.exports.comparePassword = (candidatePassword, dbHash) => {
+  console.log( 'Entered password', candidatePassword );
+  console.log( 'DB password', dbHash );
+  return bcrypt.compare(candidatePassword, dbHash)
+    .then(data => ({ success: true, msg: "Password match", data: data }))
+    .catch(err => ({ success: false, msg: "Password not match" }));
+
+  // bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
+  //   if (err) throw err;
+  //   callback(null, isMatch);
+  // });
 }
