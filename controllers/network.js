@@ -4,19 +4,21 @@ module.exports = {
 
     userslist : async (req, res, next) => {
             // console.log('controller userslist');
-        try {
-
-            pageSize = 6;
             
-            skip = parseInt(req.params.page_no);
+        try {
+            let db_slug = req.cookies['siteHeader'].db_slug;
+            // console.log( 'db_slug', db_slug );
+            let pageSize = 6;
+            
+            let skip = parseInt(req.params.page_no);
             if(isNaN(skip)) skip = 1;
-            skip = (skip-1)*pageSize;
+                skip = (skip-1)*pageSize;
             if(skip < 0) skip = 0;
 
             alphabet = req.params.alphabet;
             // console.log("alphabet= "+alphabet);
 
-            var query = {};
+            let query = {};
 
             if( typeof alphabet != 'undefined' ) {
                 var regexp = new RegExp("^"+ alphabet);
@@ -24,17 +26,17 @@ module.exports = {
                 query["fullname"] = regexp;
             }
             
-            sortby = req.query.sort;
+            let sortby = req.query.sort;
             if(typeof sortby == 'undefined')
-            sortby="fullname";
-            orderby = 1;
+             sortby="fullname";
+            let orderby = 1;
             
             // console.log("limit- "+pageSize);
             // console.log("skip- "+skip);
             // console.log("sort- "+sortby);
             // console.log("order- "+orderby);
 
-            let data = await network.getUserList(pageSize, skip, sortby, orderby, query)
+            let data = await network.getUserList(pageSize, skip, sortby, orderby, query, db_slug)
             if(!data) {
                 return res.json({success: false, msg: 'Users not found'});
             }
@@ -75,7 +77,8 @@ module.exports = {
 
     checkemailavailable : async (req, res, next) => {
         try{
-            let check = await network.checkemailavailable(req.body.email);
+            let db_slug = req.cookies['siteHeader'].db_slug;
+            let check = await network.checkemailavailable(req.body.email, db_slug);
             // console.log('check',check)
             res.send((check.data)?false:true);
         } catch(e){
@@ -87,9 +90,11 @@ module.exports = {
             // console.log('controller userslist');
         try 
         {
+            let db_slug = req.cookies['siteHeader'].db_slug;
+            
             slug = req.params.slug;
             // console.log('slug - '+slug);
-            let data = await network.getProfileData(slug)
+            let data = await network.getProfileData(slug, db_slug)
             // console.log("Con data ="+JSON.stringify(data.data));
             if(!data) {
                 return {success: false, msg: 'Users not found'};
@@ -104,6 +109,8 @@ module.exports = {
     profileAdd: async(req, res, next) => {
         try {
             let formData = req.body;
+            console.log('formData', formData);
+            // check for mandatory fields
             if( formData.salutation===''||
                 formData.fullname===''||
                 formData.email===''||
@@ -128,13 +135,13 @@ module.exports = {
                     user_type:                      doc.user_type,
                     user_from:                      doc.user_from,
                     approved_on:                    new Date(),
-                    approved_by:                    'admin_id',
-                    approved_by_name:               'admin_name',
+                    approved_by_id:                 req.cookies['userHeader'].slug,
+                    approved_by_name:               req.cookies['userHeader'].fullname,
                     activation_key:                 'temp_key',
                     salutation:                     doc.salutation,
                     fullname:                       doc.fullname,
                     ph_country:                     doc.ph_country,
-                    ph_number:                      parseInt(doc.ph_number),
+                    ph_number:                      parseInt( doc.ph_number.replace('-','').replace(' ','').trim() ),
                     location:{
                         address:                    doc.address,
                         city:                       doc.city,
@@ -145,7 +152,6 @@ module.exports = {
                     dob:                            doc.dob,
                     batch:                          doc.batch,
                     course:                         doc.course,
-                    slug:                           'User_slug',
                     gender:                         doc.gender,
                     membership_id:                  doc.membership_id,
                     hostel:                         doc.hostel,
@@ -161,8 +167,9 @@ module.exports = {
                 };
             }
             
+            let db_slug = req.cookies['siteHeader'].db_slug;
             // return res.json(req.body);
-            let data = await network.profileAdd(transformer(formData))
+            let data = await network.profileAdd(transformer(formData), db_slug)
             console.log('retrun from model',data);
             if (data.status) {
                 let notify = [];

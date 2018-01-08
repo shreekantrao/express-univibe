@@ -12,21 +12,6 @@ const mongoose = require('mongoose');
 const fileUpload = require('express-fileupload');
 const keys = require('./config/keys');
 
-
-// const passportSetup = require('./config/passport-setup');
-const login = require('./routes/login');
-const dashboard = require('./routes/dashboard');
-const network = require('./routes/network');
-const colleges = require('./routes/colleges');
-const companies = require('./routes/companies');
-const industries = require('./routes/industries');
-const cities = require('./routes/cities');
-const courses = require('./routes/courses');
-const status = require('./routes/status');
-const blogs = require('./routes/blogs');
-const opportunity = require('./routes/opportunity');
-const event = require('./routes/event');
-
 const app = express();
 
 app.use(cookieParser())
@@ -74,7 +59,6 @@ app.all('*', (req, res, next) => {
     //            this variable is global variable 
                 siteHeader = req.cookies['siteHeader'];
     // ############################################################
-    // console.log('Req header found ', siteHeader);
     next();
   }
 });
@@ -111,8 +95,21 @@ app.use("/assets", express.static(__dirname + "/views"));
 // 	hidden: true
 // }));
 
+// const passportSetup = require('./config/passport-setup');
+const login = require('./routes/login');
+const dashboard = require('./routes/dashboard');
+const network = require('./routes/network');
+const colleges = require('./routes/colleges');
+const companies = require('./routes/companies');
+const industries = require('./routes/industries');
+const cities = require('./routes/cities');
+const courses = require('./routes/courses');
+const status = require('./routes/status');
+const blogs = require('./routes/blogs');
+const opportunity = require('./routes/opportunity');
+const event = require('./routes/event');
 
-let user = require('./controllers/login');
+const user = require('./controllers/login');
 
 // Index Route
 app.use('/login', login);
