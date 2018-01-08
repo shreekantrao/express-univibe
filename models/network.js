@@ -372,6 +372,16 @@ const UserSchema = mongoose.Schema({
   }
 });
 
+
+var establishedModels = {};
+function createModelForName(name) {
+  if (!(name in establishedModels)) {
+    // var Any = new Schema({ any: Schema.Types.Mixed });
+    establishedModels[name] = mongoose.model(name, UserSchema);
+  }
+  return establishedModels[name];
+}
+
 // UserSchema.options.toJSON = {
 //   transform: function(doc, ret) {
 //     ret.id = ret._id;
@@ -380,26 +390,32 @@ const UserSchema = mongoose.Schema({
 //   }
 // };
 
-const User = module.exports = mongoose.model('users', UserSchema);
+const collection = 'users';
+// const User = module.exports = mongoose.model('users', UserSchema);
 
 module.exports.getUserById = function (id, callback) {
   User.findById(id, callback);
 }
 
-module.exports.getProfileData = function (slug) {
+module.exports.getProfileData = function (slug, db_slug = '') {
   const query = {};
   query["profile_slug"] = slug;
   // 'profile_slug': slug
   return Promise.all([
     User.findOne(query)
-    .then(data => ({
-      data: data
-    }))
+    .then(data => ({ data: data }))
   ]).then(result => result.reduce((acc, curr) =>
     Object.assign(acc, curr), {}));
 }
 
-module.exports.getUserList = (pageSize, skip, sortby, orderby, query) => {
+module.exports.getUserList = (pageSize, skip, sortby, orderby, query, db_slug = '') => {
+
+  if (db_slug === '') return false;
+
+  // let db_name = 'users';
+  let db_name = db_slug + '-' + collection;
+  // console.log('db complete name - ', db_name);
+  let User = createModelForName(db_name); // Create the db model.
 
   // console.log("limit- " + pageSize);
   // console.log("skip- " + skip);
@@ -408,21 +424,13 @@ module.exports.getUserList = (pageSize, skip, sortby, orderby, query) => {
   // console.log("query- " + JSON.stringify(query));
 
   return Promise.all([
-    User.count().then(count => ({
-      total: count
-    })),
-    User.count(query).then(count => ({
-      searched_total: count
-    })),
+    User.count().then(count => ({ total: count })),
+    User.count(query).then(count => ({ searched_total: count })),
     User.find(query)
-    .sort([
-      [sortby, orderby]
-    ])
+    .sort([ [sortby, orderby] ])
     .skip(skip)
     .limit(pageSize)
-    .then(data => ({
-      rows: data
-    }))
+    .then(data => ({ rows: data }))
   ]).then(result => result.reduce((acc, curr) =>
     Object.assign(acc, curr), {}));
 
@@ -430,7 +438,8 @@ module.exports.getUserList = (pageSize, skip, sortby, orderby, query) => {
 
 module.exports.export2CSV = (req, res) => {
   // var User = mongoose.model('Users', UserSchema);
-
+  let db_name = req.cookies['siteHeader'].db_slug + '-' + collection;
+  let User = createModelForName(db_name); // Create the db model.
   const query = User.find();
 
   const transformer = (doc) => {
@@ -650,7 +659,13 @@ module.exports.importCSV = (userFile, res) => {
     });
 }
 
-module.exports.checkemailavailable = (email) => {
+module.exports.checkemailavailable = (email, db_slug = '') => {
+  
+  if (db_slug === '') return false;
+
+  let db_name = db_slug + '-' + collection;
+  let User = createModelForName(db_name); // Create the db model.
+
   const query = {};
   query["email"] = email;
   // query["_id"] = 1;
@@ -658,9 +673,7 @@ module.exports.checkemailavailable = (email) => {
   // 'profile_slug': slug
   return Promise.all([
     User.count(query)
-    .then(data => ({
-      data: data
-    }))
+    .then(data => ({ data: data }))
   ]).then(result => result.reduce((acc, curr) =>
     Object.assign(acc, curr), {}));
   // return true;
@@ -679,7 +692,12 @@ module.exports.deleteUserById = (req) => {
   });
 }
 
-module.exports.profileAdd = (profileData) => {
+module.exports.profileAdd = (profileData, db_slug = '') => {
+  
+  if (db_slug === '') return false;
+
+  let db_name = db_slug + '-' + collection;
+  let User = createModelForName(db_name); // Create the db model.
   // console.log('profileData',profileData);
   let data = new User(profileData);
 
@@ -730,19 +748,40 @@ module.exports.profileAdd = (profileData) => {
   // .catch(err => ({ msg: "unable to save to database", status: false }));
 }
 
-module.exports.addUser = function (newUser, callback) {
-  bcrypt.genSalt(10, (err, salt) => {
-    bcrypt.hash(newUser.password, salt, (err, hash) => {
-      if (err) throw err;
-      newUser.password = hash;
-      newUser.save(callback);
-    });
-  });
-}
+// module.exports.addUser = function (newUser, callback) {
+//   bcrypt.genSalt(10, (err, salt) => {
+//     bcrypt.hash(newUser.password, salt, (err, hash) => {
+//       if (err) throw err;
+//       newUser.password = hash;
+//       newUser.save(callback);
+//     });
+//   });
+// }
 
-module.exports.comparePassword = function (candidatePassword, hash, callback) {
-  bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
-    if (err) throw err;
-    callback(null, isMatch);
-  });
+
+module.exports.getUserByUsername = ( db_slug = '', query) => {
+  
+  if (db_slug === '') return false;
+
+  let db_name = db_slug + '-' + collection;
+  let User = createModelForName(db_name); // Create the db model.
+
+  // const query = { $and: [{ email: username }, { user_type: 5 } ] }
+  const field = { _id: 0, email: 1, password:1, registration_type: 1, salutation: 1, fullname: 1, batch: 1, course: 1, slug: 1, profile_picture: 1, mentorship: 1, renowned_alumni: 1, public_profile: 1, profile_line: 1, hostel: 1, membership_id: 1, location: 1 };
+  return User.findOne(query, field)
+    .then(data => {
+      // throw err;
+      if(data)
+      return ({ success: true, msg: "user found", data: data })
+      else
+      return ({ success: false, msg: "user not found" })
+    })
+    .catch(err => ({ success: false, msg: "something went wrong" }));
+}
+module.exports.comparePassword = (candidatePassword, dbHash) => {
+  // console.log( 'Entered password', candidatePassword );
+  // console.log( 'DB password', dbHash );
+  return bcrypt.compare(candidatePassword, dbHash)
+    .then(data => data)
+    .catch(err => err);
 }

@@ -6185,16 +6185,16 @@ if ($("#pagecode_college-add").exists()) {
 
 	$("#name")
 		.keyup(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			$("#slug").val(generateCollegeSlug(this.value)); //+'.univibe.com');
 		})
 		.blur(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
+			$("#slug").val(generateCollegeSlug(this.value)); //+'.univibe.com');
 			$.ajax({
-				url: "/colleges/checkcollegename/", // + convertToSlug(this.value),
+				url: "/colleges/checkcollegename/", // + generateCollegeSlug(this.value),
 				type: "POST",
 				data: {
 					'name': this.value,
-					'slug': convertToSlug(this.value)
+					'slug': generateCollegeSlug(this.value)
 				},
 				beforeSend: function () {
 					// show loading
@@ -6215,6 +6215,10 @@ if ($("#pagecode_college-add").exists()) {
 			});
 		});
 
+}
+
+function generateCollegeSlug(Text) {
+	return Text.trim().toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '');
 }
 
 function convertToSlug(Text) {

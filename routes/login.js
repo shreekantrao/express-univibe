@@ -8,7 +8,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-	console.log('Post for login router');
+	// console.log('Post for login router');
 	login.userLogin(req, res);
 });
 

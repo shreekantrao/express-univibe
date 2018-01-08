@@ -42,13 +42,13 @@ router.get('/add', function(req, res) {
 
 // --- College add acction--- //
 router.post('/addnew', function(req, res, next) {
+	// console.log("add new college ", req.body);
 	colleges.createNewCollege(req, res, next);
-	// console.log("data for slug = "+JSON.stringify(data));
 	// res.render('page', {"page_Code":"college-add","page_Title":"Add new College"});
 });
 
 router.post('/checkcollegename', function(req, res, next) {
-	console.log("data for slug");
+	// console.log("data for slug");
 	colleges.checkCollegeNameExists(req, res, next);
 });
 // ############################ College detail ######################################

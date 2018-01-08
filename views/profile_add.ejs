@@ -358,7 +358,9 @@
                           <option value="3">Faculty</option>
                           <option value="4">Alcom</option>
                           <option value="5">College Admin</option>
-                          <!-- <option value="6">Administrator</option> -->
+                          <% if(userHeader.user_type == 6) { %>
+                          <option value="6">Administrator</option>
+                          <% } %>
                         </select>
                       </div>
                     </div>

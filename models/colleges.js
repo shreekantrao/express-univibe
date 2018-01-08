@@ -8,6 +8,7 @@ const CollegesSchema = mongoose.Schema({
 
   name: { type: String, required: true },
   slug: { type: String, required: true },
+  db_slug: { type: String, required: false },
   domain: { type: String },
   registered_date: { type: Date, default: Date.now },
   last_updated: { type: Date, default: Date.now },
@@ -58,14 +59,32 @@ const CollegesSchema = mongoose.Schema({
 
 });
 
-CollegesSchema.options.toJSON = {
-  transform: function(doc, ret) {
-    ret.last_updated = ret.last_updated;
-    ret.registered_date = ret.registered_date;
-    // delete ret._id;
-    // delete ret.__v;
-  }
-};
+// This is call only before save
+CollegesSchema.pre('save', function (next) {
+  // console.log('db slug ',this.db_slug);
+  // console.log('slug ',this.slug);
+  this.db_slug = this.slug;
+  next();
+});
+// This will be called only when UPDATE is fired
+CollegesSchema.pre('update', function () {
+  this.last_updated = Date.now();
+});
+// This will be called only when FIND is fired
+CollegesSchema.pre('find', function () {
+  // console.log( mongoose.Query); // true
+  // console.log(this instanceof mongoose.Query); // true
+});
+
+// This will be called only when FIND is fired
+// CollegesSchema.options.toJSON = {
+//   transform: function(doc, ret) {
+//     ret.last_updated = ret.last_updated;
+//     ret.registered_date = ret.registered_date;
+//     // delete ret._id;
+//     // delete ret.__v;
+//   }
+// };
 const colleges = module.exports = mongoose.model('Colleges', CollegesSchema);
 
 // module.exports.getUserById = function(id, callback){
@@ -76,7 +95,7 @@ module.exports.getSiteHeader = (query) => {
   // console.log('model -', query);
   // return colleges.findOne({ "slug": "vjti" })
   return colleges.findOne(query)
-    .select({ "_id": 0, "name": 1, "slug": 1, "domain": 1, "long_name": 1, "short_name": 1, "logo_s": 1, "logo_l": 1 })
+    .select({ "_id": 0, "name": 1, "slug": 1, "db_slug": 1, "domain": 1, "long_name": 1, "short_name": 1, "logo_s": 1, "logo_l": 1 })
     .then(data => ({ data: data }))
     .catch(data => ({ data: null }));
 }
@@ -84,13 +103,13 @@ module.exports.getSiteHeader = (query) => {
 module.exports.createNewCollege = function(collegeData){
   var data = new colleges(collegeData);
   return data.save()
-    .then(item => ({ msg: "item saved to database", slug: collegeData.slug }))
-    .catch(err => ({ msg: "unable to save to database" }));
+    .then(item => ({success: true, msg: "item saved to database", slug: collegeData.slug }))
+    .catch(err => ({success: false, msg: "unable to save to database", error: err }));
 }
 
 module.exports.checkCollegeNameExists = (name, slug)=>{
-  console.log('model -',name);
-  console.log('model -',slug);
+  // console.log('model -',name);
+  // console.log('model -',slug);
   return Promise.all([
     colleges.count({"name": name}).then(count => ({ name: count })),
     colleges.count({"slug": slug}).then(count => ({ slug: count }))
@@ -110,11 +129,11 @@ module.exports.getCollegeData = (slug)=>{
 
 module.exports.getCollegeList = (pageSize, skip, sortby, orderby, query)=>{
   
-    console.log("limit- "+pageSize);
-    console.log("skip- "+skip);
-    console.log("sort- "+sortby);
-    console.log("order- "+orderby);
-    console.log("query- "+JSON.stringify(query));
+    // console.log("limit- "+pageSize);
+    // console.log("skip- "+skip);
+    // console.log("sort- "+sortby);
+    // console.log("order- "+orderby);
+    // console.log("query- "+JSON.stringify(query));
 
     return Promise.all([
       colleges.count().then(count => ({ total: count })),

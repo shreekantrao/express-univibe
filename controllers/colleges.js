@@ -38,13 +38,17 @@ module.exports = {
             }
             // if( typeof req.cookies['sitecode'] == 'undefined'){
             //   console.log('sitecode');
-            cookieHeader = data.data;
+            
+            // ############################################################
+            //          this is global variable for Site details
+                            siteHeader = data.data;
+            // ############################################################
 
-              res.cookie('sitecode', data.data, {
-                maxAge: 3 * 60 * 60 * 1000, // 3 hours
-                // httpOnly: true, // http only, prevents JavaScript cookie access
-                // secure: true // cookie must be sent over https / ssl
-              });
+            res.cookie('siteHeader', data.data, {
+               maxAge: 3 * 60 * 60 * 1000, // 3 hours
+            // httpOnly: true, // http only, prevents JavaScript cookie access
+            // secure: true // cookie must be sent over https / ssl
+            });
             // }else{
             //   let sitecode = req.cookies['sitecode'];
             //   console.log(sitecode);
@@ -117,17 +121,21 @@ module.exports = {
                 let notify = [];
                 notify.push({ title: "Notification", type: "notice", text: "Your form is not properly filled." });
                 req.session.notify = notify;
-                console.log('Form now filled.');
+                console.log('Form not filled.');
                 return res.redirect('/colleges/add');
             }    
 
             let data = await colleges.createNewCollege(req.body)
-            if (!data) {
-                return res.json({
-                    success: false,
-                    msg: 'College not saved'
-                });
+            console.log('Data from model ',data);
+            if (!data.success) {
+                let notify = [];
+                notify.push({ title: "Warning", type: "notice", text: "Unable to create new college." });
+                req.session.notify = notify;
+                return res.redirect('/colleges/add');
             }
+            let notify = [];
+            notify.push({ title: "Success", type: "notice", text: "New college successfully created." });
+            req.session.notify = notify;
             res.redirect('/colleges/' + data.slug + '/edit');
         } catch (e) {
             next(e);
