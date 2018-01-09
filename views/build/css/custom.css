@@ -5368,3 +5368,8 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
     font-size: 1.8em;
     color: #ff0000;
 }
+.pagination-msgbar{
+    display: none;
+    text-align: center;
+    font-weight: 500;
+}

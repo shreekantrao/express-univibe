@@ -5844,110 +5844,112 @@ function bst_DeleteButton(oBtn) {
 
 // ############### Network Pagination js #################
 
-var page_no = 1;
-var alphabet = $("#alphabet").val();
-var refreshIntervalId = null;
 
-function init_networkPagination() {
-
-	if (alphabet != '') {
-		alphabet = '/' + alphabet;
-	}
-	networkPagination();
-
-	refreshIntervalId = setInterval(function () {
-		page_no++;
-		networkPagination();
-		//$("#overlay").hide();
-		if (page_no >= 10) { // change this to 10 page
-			console.log(page_no);
-			clearInterval(refreshIntervalId);
+async function init_networkPagination(time = 2000, page_no = 1, alphabet = $("#alphabet").val()) {
+	let callagain = true;
+	setTimeout(async function () {
+		
+		if( page_no == 1 ){
+			time = 2000;
+			if (alphabet != '') alphabet = '/' + alphabet;
 		}
-	}, 1000);
+		let data = await networkPagination(page_no, alphabet);
+		// console.log('calling func',data);
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{ 
+			$("#data-container").append(networkListTemplating(data));
+			// console.log('Data found');
+			if (data.searched_total <= data.pagesize*page_no) {
+				$("#msgbar").html('That\'s all.');
+				callagain = false;
+			} else if(page_no == 10) 
+				$("#msgbar").html("Didn\'t find what you are looking? Please try searching.");
+		} else if (data.total == 0 || ( data.rows.length == 0 && page_no == 1 )){
+			callagain = false;
+			$("#msgbar").html('No data found.');
+			// console.log('No data found');
+		} else {
+			callagain = false;
+			$("#msgbar").html('That\'s all.');
+			// console.log('Thats all');
+		}
+		page_no++;
+		if (page_no <= 10 && callagain)	// change this to 10 page
+			init_networkPagination(time, page_no, alphabet);
+	}, time);
 
-}
+};
 
-function networkPagination() {
-	$.ajax({
+
+function networkPagination(page_no, alphabet) {
+	// let dataRow = null;
+	return $.ajax({
 		url: "/network/page/" + page_no + alphabet,
 		type: "GET",
 		beforeSend: function () {
 			if (page_no == 1)
 				$("#data-container").remove('profile_details');
-			$("#overlay").html("Loading more...");
-			$("#overlay").show();
+			$("#msgbar").html("Loading page no- "+page_no);
+			$("#msgbar").show();
 		},
 		success: function (data) {
 			$("#overlay").hide();
-			$("#network_total").html(' - Total ' + data.total);
-			$("#search_total").html('Showing ' + data.searched_total);
-			$("#data-container").append(simpleTemplating(data));
+			if (page_no == 1){
+				$("#network_total").html(' - Total ' + data.total);
+				$("#search_total").html('Showing ' + data.searched_total);	}
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
 		},
 		error: function () {
-			$("#overlay").html("Error...");
+			$("#msgbar").html("Something went wrong.");
 		}
-	});
+	})
+	.then(data=>data);
+	// .catch(error=>error);
 }
 
-function simpleTemplating(data) {
+function networkListTemplating(data) {
 	var html = '';
-	console.log(data.total);
-	console.log(data.rows.length);
-	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
-	{
-		//alert("data hei");
-		$.each(data.rows, function (index, item) {
-			//html += '<li>'+index+' - '+ item.email +'</li>';
-			html += '<div class="col-md-4 col-sm-4 col-xs-12 profile_details">' +
-				'<div class="well profile_view">' +
-				'<div class="col-sm-12">' +
-				'<h4 class="brief"><i>' + item.registration_type + '</i></h4>' +
-				'<div class="left col-xs-8">' +
-				'<h2>' + item.salutation + ' ' + item.fullname + '</h2>' +
-				'<p><strong>About: </strong> ' + item.profile_line + ' </p>' +
-				'<ul class="list-unstyled">' +
-				'<li><i class="fa fa-envelope-o"></i> ' + item.email + '</li>' +
-				'<li><i class="fa fa-map-marker"></i> ' + item.location + '</li>' +
-				'<li><i class="fa fa-phone"></i> ' + item.ph_country + ' ' + item.ph_number + '</li>' +
-				'</ul>' +
-				'</div>' +
-				'<div class="right col-xs-4 text-center">' +
-				'<img src="/assets/build/images/img.jpg" alt="" onerror="this.src=\'/assets/build/images/user.jpg\'" class="img-circle img-responsive">' +
-				'</div>' +
-				'</div>' +
-				'<div class="col-xs-12 bottom text-center">' +
-				'<div class="col-xs-12 col-sm-6 emphasis">' +
-				'<p class="ratings">' +
-				'<a>4.0</a>' +
-				'<a href="#"><span class="fa fa-star"></span></a>' +
-				'<a href="#"><span class="fa fa-star"></span></a>' +
-				'<a href="#"><span class="fa fa-star"></span></a>' +
-				'<a href="#"><span class="fa fa-star"></span></a>' +
-				'<a href="#"><span class="fa fa-star-o"></span></a>' +
-				'</p>' +
-				'</div>' +
-				'<div class="col-xs-12 col-sm-6 emphasis">' +
-				'<button type="button" class="btn btn-success btn-xs"> <i class="fa fa-user">' +
-				'</i> <i class="fa fa-comments-o"></i> </button>' +
-				'<a href="/network/profile/' + item.slug + '" class="btn btn-primary btn-xs" role="button">' +
-				'<i class="fa fa-user"> </i> View Profile' +
-				'</a>' +
-				'</div>' +
-				'</div>' +
-				'</div>' +
-				'</div>';
-		});
-		if (page_no == 10)
-			html += '<p style="clear: both; text-align: center;">Didn\'t find what you are looking? Please try searching.</p>';
-	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
-		html += '<p>No data found.</p>';
-		console.log('No data found');
-	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
-		html += '<p>That\'s all.</p>';
-		console.log('Thats all');
-		clearInterval(refreshIntervalId);
-	}
-	// html += '</ul>';
+	$.each(data.rows, function (index, item) {
+		html += '<div class="col-md-4 col-sm-4 col-xs-12 profile_details">' +
+			'<div class="well profile_view">' +
+			'<div class="col-sm-12">' +
+			'<h4 class="brief"><i>' + ['Student','Alumni','Faculty','Alcom','College Admin','Administrator'][item.user_type] + '</i></h4>' +
+			'<div class="left col-xs-8">' +
+			'<h2>' + item.salutation + ' ' + item.fullname + '</h2>' +
+			'<p><strong>About: </strong> ' + item.profile_line + ' </p>' +
+			'<ul class="list-unstyled">' +
+			'<li><i class="fa fa-envelope-o"></i> ' + item.email + '</li>' +
+			'<li><i class="fa fa-map-marker"></i> ' + item.location + '</li>' +
+			'<li><i class="fa fa-phone"></i> ' + item.ph_country + ' ' + item.ph_number + '</li>' +
+			'</ul>' +
+			'</div>' +
+			'<div class="right col-xs-4 text-center">' +
+			'<img src="/assets/build/images/img.jpg" alt="" onerror="this.src=\'/assets/build/images/user.jpg\'" class="img-circle img-responsive">' +
+			'</div>' +
+			'</div>' +
+			'<div class="col-xs-12 bottom text-center">' +
+			'<div class="col-xs-12 col-sm-6 emphasis">' +
+			'<p class="ratings">' +
+			'<a>4.0</a>' +
+			'<a href="#"><span class="fa fa-star"></span></a>' +
+			'<a href="#"><span class="fa fa-star"></span></a>' +
+			'<a href="#"><span class="fa fa-star"></span></a>' +
+			'<a href="#"><span class="fa fa-star"></span></a>' +
+			'<a href="#"><span class="fa fa-star-o"></span></a>' +
+			'</p>' +
+			'</div>' +
+			'<div class="col-xs-12 col-sm-6 emphasis">' +
+			'<button type="button" class="btn btn-success btn-xs"> <i class="fa fa-user">' +
+			'</i> <i class="fa fa-comments-o"></i> </button>' +
+			'<a href="/network/profile/' + item.slug + '" class="btn btn-primary btn-xs" role="button">' +
+			'<i class="fa fa-user"> </i> View Profile' +
+			'</a>' +
+			'</div>' +
+			'</div>' +
+			'</div>' +
+			'</div>';
+	});
 	return html;
 }
 

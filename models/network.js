@@ -372,7 +372,7 @@ const UserSchema = mongoose.Schema({
   }
 });
 
-
+// To make db name dynamic
 var establishedModels = {};
 function createModelForName(name) {
   if (!(name in establishedModels)) {
@@ -397,24 +397,28 @@ module.exports.getUserById = function (id, callback) {
   User.findById(id, callback);
 }
 
-module.exports.getProfileData = function (slug, db_slug = '') {
-  const query = {};
-  query["profile_slug"] = slug;
-  // 'profile_slug': slug
-  return Promise.all([
-    User.findOne(query)
-    .then(data => ({ data: data }))
-  ]).then(result => result.reduce((acc, curr) =>
-    Object.assign(acc, curr), {}));
+module.exports.getProfileData = function (slug = '', db_slug = '') {
+  if (db_slug === '' || slug === '') return false;
+
+  let db_name = db_slug + '-' + collection;
+  let User = createModelForName(db_name); // Create the db model.
+
+  // const query = {};
+  // query["slug"] = slug;
+  let query = { slug: slug };
+  return User.findOne(query)
+    .then(data => {
+      if(!data)  return { success: false, msg: "User not found" }
+      return { success: true, msg: "User details found", data: data }
+    })
+    .catch(err => ({ success: false, msg: "something went wrong" }));
 }
 
 module.exports.getUserList = (pageSize, skip, sortby, orderby, query, db_slug = '') => {
 
   if (db_slug === '') return false;
 
-  // let db_name = 'users';
   let db_name = db_slug + '-' + collection;
-  // console.log('db complete name - ', db_name);
   let User = createModelForName(db_name); // Create the db model.
 
   // console.log("limit- " + pageSize);
@@ -422,11 +426,11 @@ module.exports.getUserList = (pageSize, skip, sortby, orderby, query, db_slug = 
   // console.log("sort- " + sortby);
   // console.log("order- " + orderby);
   // console.log("query- " + JSON.stringify(query));
-
+  const field = { _id: 0, email: 1, user_status: 1, user_type: 1, salutation: 1, fullname: 1, ph_country: 1, ph_number: 1, location: 1, batch: 1, course: 1, slug: 1, gender: 1, profile_line:1, profile_picture: 1, mentorship: 1, renowned_alumni: 1, public_profile: 1, hostel: 1, membership_id: 1 };
   return Promise.all([
     User.count().then(count => ({ total: count })),
     User.count(query).then(count => ({ searched_total: count })),
-    User.find(query)
+    User.find(query, field)
     .sort([ [sortby, orderby] ])
     .skip(skip)
     .limit(pageSize)
@@ -671,11 +675,12 @@ module.exports.checkemailavailable = (email, db_slug = '') => {
   // query["_id"] = 1;
 
   // 'profile_slug': slug
-  return Promise.all([
-    User.count(query)
-    .then(data => ({ data: data }))
-  ]).then(result => result.reduce((acc, curr) =>
-    Object.assign(acc, curr), {}));
+  // return Promise.all([
+  return User.count(query)
+    .then(data => ({ success: true, msg: "User details found", data: data }))
+    .catch(err => ({ success: false, msg: "something went wrong" }));
+  // ]).then(result => result.reduce((acc, curr) =>
+  //   Object.assign(acc, curr), {}));
   // return true;
 }
 
@@ -748,17 +753,6 @@ module.exports.profileAdd = (profileData, db_slug = '') => {
   // .catch(err => ({ msg: "unable to save to database", status: false }));
 }
 
-// module.exports.addUser = function (newUser, callback) {
-//   bcrypt.genSalt(10, (err, salt) => {
-//     bcrypt.hash(newUser.password, salt, (err, hash) => {
-//       if (err) throw err;
-//       newUser.password = hash;
-//       newUser.save(callback);
-//     });
-//   });
-// }
-
-
 module.exports.getUserByUsername = ( db_slug = '', query) => {
   
   if (db_slug === '') return false;
@@ -767,7 +761,7 @@ module.exports.getUserByUsername = ( db_slug = '', query) => {
   let User = createModelForName(db_name); // Create the db model.
 
   // const query = { $and: [{ email: username }, { user_type: 5 } ] }
-  const field = { _id: 0, email: 1, password:1, registration_type: 1, salutation: 1, fullname: 1, batch: 1, course: 1, slug: 1, profile_picture: 1, mentorship: 1, renowned_alumni: 1, public_profile: 1, profile_line: 1, hostel: 1, membership_id: 1, location: 1 };
+  const field = { _id: 0, email: 1, password: 1, registration_type: 1, salutation: 1, fullname: 1, batch: 1, course: 1, slug: 1, profile_picture: 1, mentorship: 1, renowned_alumni: 1, public_profile: 1, profile_line: 1, user_type: 1, hostel: 1, membership_id: 1, location: 1 };
   return User.findOne(query, field)
     .then(data => {
       // throw err;
