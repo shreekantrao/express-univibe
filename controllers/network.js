@@ -8,7 +8,7 @@ module.exports = {
         try {
             let db_slug = req.cookies['siteHeader'].db_slug;
             // console.log( 'db_slug', db_slug );
-            let pageSize = 6;
+            let pageSize = 9;
             
             let skip = parseInt(req.params.page_no);
             if(isNaN(skip)) skip = 1;
@@ -36,10 +36,12 @@ module.exports = {
             // console.log("sort- "+sortby);
             // console.log("order- "+orderby);
 
-            let data = await network.getUserList(pageSize, skip, sortby, orderby, query, db_slug)
+            let data = await network.getUserList(pageSize, skip, sortby, orderby, query, db_slug);
+            // console.log("Network model data =", data);
             if(!data) {
                 return res.json({success: false, msg: 'Users not found'});
             }
+            data["pagesize"] = pageSize;
             res.json(data);
         } catch(e) {
             next(e);
@@ -91,15 +93,16 @@ module.exports = {
         try 
         {
             let db_slug = req.cookies['siteHeader'].db_slug;
-            
             slug = req.params.slug;
-            // console.log('slug - '+slug);
+
             let data = await network.getProfileData(slug, db_slug)
-            // console.log("Con data ="+JSON.stringify(data.data));
-            if(!data) {
-                return {success: false, msg: 'Users not found'};
+            // console.log("Network model data =", data);
+            if(!data.success) {
+                let notify = [];
+                notify.push({ title: "Notification", type: "notice", text: "data.msg" });
+                req.session.notify = notify;
+                return res.redirect('/network/list');
             }
-            // return data;
             res.render('page', {"page_Code":"profile","page_Title":"Profile", "data":data.data});
         } catch(e) {
             next(e);
