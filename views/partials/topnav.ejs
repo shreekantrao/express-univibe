@@ -8,7 +8,7 @@
               <ul class="nav navbar-nav navbar-right">
                 <li class="">
                   <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                    <img src="<%= userHeader.profile_picture %>" alt="<%= userHeader.fullname %>"><%= userHeader.salutation %> <%= userHeader.fullname %>
+                    <img src="/static<%= userHeader.profile_picture %>" alt="<%= userHeader.fullname %>" onerror="this.src='/static/images/user.jpg'"><%= userHeader.salutation %> <%= userHeader.fullname %>
                     <span class=" fa fa-angle-down"></span>
                   </a>
                   <ul class="dropdown-menu dropdown-usermenu pull-right">

@@ -53,6 +53,7 @@ module.exports = {
     createNewCourse: async(req, res, next) => {
         try {
             // console.log('check');
+            let db_slug = req.cookies['siteHeader'].db_slug;
             let body = req.body;
             if(body.name===''||body.slug===''){
                 let notify = [];
@@ -66,7 +67,7 @@ module.exports = {
             }  
             if( body.image === '') delete body.image;  
 
-            let data = await courses.createNewCourse(body)
+            let data = await courses.createNewCourse(body, db_slug)
             console.log('data ',data);
             if (!data.success) {
                 return res.json({

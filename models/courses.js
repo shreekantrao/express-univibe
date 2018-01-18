@@ -3,12 +3,14 @@ const ObjectId = require('mongodb').ObjectID;
 mongoose.Promise = global.Promise;
 // const bcrypt = require('bcryptjs');
 // const config = require('../config/keys');
+const slug = require('mongoose-slug-generator');
+mongoose.plugin(slug);
 
 // User Schema
 const CoursesSchema = mongoose.Schema({
 
-  name: { type: String, required: true },
-  slug: { type: String, required: true },
+  name: { type: String, required: true, unique: true, index: true },
+  slug: { type: String, slug: "name", slug_padding_size: 1, unique: true, index: true },
   description: { type: String, default: '' },
   image: { type: String, default: '/assets/build/images/course.jpg' },
   connections_total: { type: Number, default: 0 },
@@ -26,13 +28,25 @@ const CoursesSchema = mongoose.Schema({
 
 });
 
-const courses = module.exports = mongoose.model('Courses', CoursesSchema);
+// To make db name dynamic
+var establishedModels = {};
+function createModelForName(name) {
+  if (!(name in establishedModels)) {
+    // var Any = new Schema({ any: Schema.Types.Mixed });
+    establishedModels[name] = mongoose.model(name, CoursesSchema);
+  }
+  return establishedModels[name];
+}
+// const courses = module.exports = mongoose.model('Courses', CoursesSchema);
 
-// module.exports.getUserById = function(id, callback){
-//   User.findById(id, callback);
-// }
+const collection = 'courses';
 
-module.exports.createNewCourse = function(courseData){
+module.exports.createNewCourse = function(courseData, db_slug){
+  // console.log('course model', db_slug);
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let courses = createModelForName(db_name); // Create the db model.
+
   var data = new courses(courseData);
   return data.save()
     .then(item => ({ success: true, msg: "item saved to database", data: data }))
@@ -94,28 +108,15 @@ module.exports.getCourseList = (pageSize, skip, sortby, orderby, query)=>{
     );    
 }
 
-// module.exports.deleteUserById = (req)=>{
-//   id = req.query.userID;
-//   User.findByIdAndRemove(id, function (err, res){
-//     if(err) { throw err; }
-//     if( res.result.n === 0 ) { console.log("Record not found"); }
-//     console.log("Deleted successfully.");
-//   });
-// }
+module.exports.getDropDownCourseList = function (db_slug) {
+  // console.log('course model', db_slug);
+  if (!db_slug) return false;
 
-// module.exports.addUser = function(newUser, callback){
-//   bcrypt.genSalt(10, (err, salt) => {
-//     bcrypt.hash(newUser.password, salt, (err, hash) => {
-//       if(err) throw err;
-//       newUser.password = hash;
-//       newUser.save(callback);
-//     });
-//   });
-// }
+  let db_name = db_slug + '-' + collection;
+  let courses = createModelForName(db_name); // Create the db model.
+  // var data = new colleges(collegeData);
+  return courses.find({"status": true}, { "_id": 0, "name": 1, "slug": 1 })
+    .then(courses => ({ success: true, msg: "Success", courses: courses }))
+    .catch(err => ({ success: false, msg: "unable to get year", error: err }));
+}
 
-// module.exports.comparePassword = function(candidatePassword, hash, callback){
-//   bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
-//     if(err) throw err;
-//     callback(null, isMatch);
-//   });
-// }

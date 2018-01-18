@@ -3,16 +3,19 @@ mongoose.Promise = global.Promise;
 const bcrypt = require('bcryptjs');
 // const config = require('../config/keys');
 const fastCsv = require('fast-csv');
-const fs = require('fs');
+const FS = require('fs');
+const Path = require('path');
 
 const slug = require('mongoose-slug-generator');
 mongoose.plugin(slug);
+
 // User Schema
 const UserSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    index: true
   },
   is_email_verified: {
     type: Boolean,
@@ -70,7 +73,8 @@ const UserSchema = mongoose.Schema({
   ph_number: {
     type: Number,
     required: true,
-    unique: true
+    unique: true,
+    index:true
   },
   is_phone_verified: {
     type: Boolean,
@@ -112,7 +116,10 @@ const UserSchema = mongoose.Schema({
   },
   slug: {
     type: String,
-    slug: "fullname", slug_padding_size: 4, unique: true
+    slug: "fullname",
+    slug_padding_size: 4,
+    unique: true,
+    index: true
   },
   gender: {
     type: Number
@@ -372,6 +379,13 @@ const UserSchema = mongoose.Schema({
   }
 });
 
+// UserSchema.index({ email: 1, ph_number: 1, slug: 1}, {unique: true});
+
+UserSchema.on('index', function (err) {
+  if (err) console.log(err); // error occurred during index creation
+  else console.log('No Index error');
+})
+
 // To make db name dynamic
 var establishedModels = {};
 function createModelForName(name) {
@@ -533,7 +547,8 @@ module.exports.export2CSV = (req, res) => {
     };
   }
 
-  const filename = 'export.csv';
+  // const filename = 'export.csv';
+  let filename = req.cookies['siteHeader'].db_slug + '_user_csv_' + new Date().getTime() + '.csv';
 
   res.setHeader('Content-disposition', `attachment; filename=${filename}`);
   res.writeHead(200, {
@@ -548,69 +563,49 @@ module.exports.export2CSV = (req, res) => {
   query.cursor().pipe(csvStream).pipe(res);
 }
 
-module.exports.importCSV = (userFile, res) => {
+module.exports.importCSV = (req, res, userFile) => {
+
+  let db_name = req.cookies['siteHeader'].db_slug + '-' + collection;
+  let User = createModelForName(db_name); // Create the db model.
   // console.log(req);
   // if (!req.files)
   //   return res.status(400).send('No files were uploaded.');
 
   // let userFile = req.files.file;
-  let stream = fs.createReadStream(__dirname + '/../public/csv/' + userFile);
+  let stream = FS.createReadStream(__dirname + '/../public/csv/' + userFile);
   let users = [];
 
   const transformer = (doc) => {
     return {
-      email: doc.Email,
-      is_email_verified: (doc.IS_email_verified === 'Yes') ? true : false,
-      user_status: {
-        'pending': 1,
-        'approved': 2,
-        'rejected': 3,
-        'suspend': 4
-      }[doc.User_status], //1=pending, 2=approved, 3=rejected, 4=suspend
-      user_type: {
-        'Student': 1,
-        'Alumni': 2,
-        'Faculty': 3,
-        'Alcom': 4,
-        'CollegeAdmin': 5,
-        'Administrator': 6
-      }[doc.User_type], //1=Student,  2=Alumni, 3=Faculty, 4=alcom, 5=collegeAdmin, 6=Administrator
-      user_from: {
-        'Site registration': 1,
-        'By Admin': 2,
-        'By CSV Import': 3,
-        'By Facebook': 4,
-        'By Linkedin': 5,
-        'By Google': 6
-      }[doc.User_registered_from],
-      registered_on: (doc.Registration_date) ? new Date(doc.Registration_date).toLocaleDateString() : new Date,
-      approved_on: (doc.Approved_on) ? new Date(doc.Approved_on).toLocaleDateString() : new Date,
-      approved_by_name: doc.Approved_by,
-
       salutation: doc.Salutation,
       fullname: doc.Fullname,
+      email: doc.Email,
+      is_email_verified: (doc.IS_email_verified === 'Yes') ? true : false,
       ph_country: doc.Ph_code.replace(/["']/g, ""),
       ph_number: Number(doc.Ph_number.replace(/["']/g, "")),
       is_phone_verified: (doc.Is_ph_verified === 'Yes') ? true : false,
-      location: ( doc.Location.indexOf(',') > 0 ) ? {address: doc.Location.split(',')[0]} : '' ,
 
+      location: ( doc.Location.indexOf(',') > 0 ) ? {address: doc.Location.split(',')[0]} : '' ,
       dob: (doc.DOB) ? new Date(doc.DOB).toLocaleDateString() : '',
       batch: doc.Batch,
       course: doc.Course,
-      // slug: module.exports.getSlug(doc.Profile_slug),
-      gender: {
-        'Male': 1,
-        'Female': 2,
-        'Other': 3
-      }[doc.Gender], //1=Male, 2=Female, 3=Other
+      slug: doc.Profile_slug,
+      gender: {'Male': 1,'Female': 2,'Other': 3}[doc.Gender], //1=Male, 2=Female, 3=Other
       membership_id: doc.Membership_Id,
       hostel: doc.Hostel,
 
       profile_line: doc.Profile_line,
       summary: doc.Summary,
       aspirations: doc.Aspirations,
-      // languages: doc.Languages,
+      languages: doc.Languages,
       dom: (doc.Date_of_Marriage) ? new Date(doc.Date_of_Marriage).toLocaleDateString() : '',
+      
+      user_status: {'pending': 1,'approved': 2,'rejected': 3,'suspend': 4}[doc.User_status], //1=pending, 2=approved, 3=rejected, 4=suspend
+      user_type: {'Student': 1,'Alumni': 2,'Faculty': 3,'Alcom': 4,'CollegeAdmin': 5,'Administrator': 6}[doc.User_type], //1=Student,  2=Alumni, 3=Faculty, 4=alcom, 5=collegeAdmin, 6=Administrator
+      user_from: {'Site registration': 1,'By Admin': 2,'By CSV Import': 3,'By Facebook': 4,'By Linkedin': 5,'By Google': 6}[doc.User_registered_from],
+      registered_on: (doc.Registration_date) ? new Date(doc.Registration_date).toLocaleDateString() : new Date,
+      approved_on: (doc.Approved_date) ? new Date(doc.Approved_date).toLocaleDateString() : new Date,
+      approved_by_name: doc.Approved_by,
 
       // Permanent_address: doc.permanent_address.address,
       // Permanent_address_city: doc.permanent_address.city,
@@ -635,6 +630,9 @@ module.exports.importCSV = (userFile, res) => {
     }
   };
 
+  // const Bulk = User.collection.initializeUnorderedBulkOp();
+  // Bulk.find({ slug: data.slug }).upsert().update( { '$set': data }, false, true);  
+
   fastCsv
     // .fromString(userFile.data.toString(), {
     .fromStream(stream, {
@@ -642,11 +640,11 @@ module.exports.importCSV = (userFile, res) => {
       ignoreEmpty: true
     })
     .on("data", function (data) {
-      console.log(data);
+      console.log('raw data',data);
       data = transformer(data);
-      console.log(data);
+      console.log('Transfered data ', data);
       data['_id'] = new mongoose.Types.ObjectId();
-      data['_id'] = '5a228b503e26f85d67c3b3ac';
+      // data['_id'] = '5a228b503e26f85d67c3b3ac';
       users.push(data);
     })
     .on("end", function () {
@@ -654,27 +652,28 @@ module.exports.importCSV = (userFile, res) => {
       console.log(users);
       User.create(users, function (err, documents) {
         if (err) {
-          throw err;
+          // throw err;
+          if (err && err.code === 11000) 
+            console.log('User already exists...')
+            // req.flash('error', 'User already exists');
           return res.send(users.length + ' Unable to save.' + err);
         }
+        return res.send(users.length + ' authors have been successfully uploaded.');
       });
-
-      return res.send(users.length + ' authors have been successfully uploaded.');
     });
 }
 
-module.exports.checkemailavailable = (email, db_slug = '') => {
+module.exports.checkemailavailable = (email, slug, db_slug = '') => {
   
   if (db_slug === '') return false;
 
   let db_name = db_slug + '-' + collection;
   let User = createModelForName(db_name); // Create the db model.
 
-  const query = {};
+  let query = {};
   query["email"] = email;
-  // query["_id"] = 1;
+  if(slug)  query["slug"] = { $ne: slug };
 
-  // 'profile_slug': slug
   // return Promise.all([
   return User.count(query)
     .then(data => ({ success: true, msg: "User details found", data: data }))
@@ -697,13 +696,15 @@ module.exports.deleteUserById = (req) => {
   });
 }
 
-module.exports.profileAdd = (profileData, db_slug = '') => {
+module.exports.addProfileData = (profileData, userFile, filename, db_slug = '') => {
   
   if (db_slug === '') return false;
 
   let db_name = db_slug + '-' + collection;
   let User = createModelForName(db_name); // Create the db model.
+  
   // console.log('profileData',profileData);
+  // console.log('filename',filename);
   let data = new User(profileData);
 
   let getSalt = () => {
@@ -716,7 +717,6 @@ module.exports.profileAdd = (profileData, db_slug = '') => {
       })
     })
   }
-
   let getHash = (salt) => {
     return new Promise((resolve, reject) => {
       bcrypt.hash(data.password, salt, (err, hash) => {
@@ -727,21 +727,72 @@ module.exports.profileAdd = (profileData, db_slug = '') => {
       });
     })
   }
-  return getSalt().then((salt) => {
-      return getHash(salt);
-    }).then((hash) => {
-      data.password = hash;
-      // console.log('call save here', data.password);
-      return data.save();
+  let processImg = () =>{
+    return new Promise((resolve, reject) => {
+      if (!userFile) resolve();
+      else{
+        let path1 = Path.join(__dirname, '..', 'public', db_slug);
+        let path2 = Path.join(__dirname, '..', 'public', db_slug, 'profile_img/');
+        // console.log('path', path2);
+
+        if (!FS.existsSync(path1)) {
+          // console.log('Create path1');
+          FS.mkdirSync(path1, (err)=>{
+            if (err) { reject(err); }
+          });
+          // ------------ copy whole dir to new dir -------------------
+          // var copyDir = function (src, dest) {
+          //   mkdir(dest);
+          //   var files = fs.readdirSync(src);
+          //   for (var i = 0; i < files.length; i++) {
+          //     var current = fs.lstatSync(path.join(src, files[i]));
+          //     if (current.isDirectory()) {
+          //       copyDir(path.join(src, files[i]), path.join(dest, files[i]));
+          //     } else if (current.isSymbolicLink()) {
+          //       var symlink = fs.readlinkSync(path.join(src, files[i]));
+          //       fs.symlinkSync(symlink, path.join(dest, files[i]));
+          //     } else {
+          //       copy(path.join(src, files[i]), path.join(dest, files[i]));
+          //     }
+          //   }
+          // };
+
+        }
+        if (!FS.existsSync(path2)) {
+          // console.log('Create path2');
+              FS.mkdirSync(path2, (err)=>{
+                if (err) { reject(err); }
+              });
+        }
+        userFile.mv(path2 + filename, (err) => {
+          if (err) {
+            // console.log('error - ', err)
+            reject(err);            
+          }
+          resolve();
+        });
+      }
     })
-    .then(item => ({
-      msg: "item saved to database",
-      status: true
-    }))
-    .catch(err => ({
-      msg: "unable to save to database",
-      status: false
-    }));
+    // let path = __dirname + '/../public/' + req.cookies['siteHeader'].db_slug +'/profile_img/';
+
+    // Use the mv() method to place the file somewhere on your server
+
+  }
+  // return getSalt()
+  //   .then((salt) => { return getHash(salt); })
+  //   .then((hash) => { data.password = hash; return data.save(); })
+  //   .then(item => ({ msg: "item saved to database", status: true }))
+  //   .catch(err => ({ msg: "unable to save to database", status: false }));
+
+  return Promise.all([
+    getSalt()
+      .then((salt) => { return getHash(salt); })
+      .then((hash) => { data.password = hash; return data.save(); })
+      .then(item => ({ msg: "item saved to database", status: true })),
+    processImg()
+  ]).then(result => result.reduce((acc, curr) => Object.assign(acc, curr), {}));
+
+
 
   process.on('unhandledRejection', (reason, p) => {
     console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);

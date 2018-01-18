@@ -43,7 +43,7 @@ router.post('/importcsv', function(req, res, next) {
 // --- Profile page --- //
 router.get('/profile/:slug?', function(req, res) {
 	// var data = 
-	network.profileData(req, res);
+	network.getProfileData(req, res);
 	// console.log("data for slug = "+JSON.stringify(data));
 	// res.render('page', {"page_Code":"profile","page_Title":"Profile", "data":data});
 });
@@ -61,7 +61,7 @@ router.get('/add', function(req, res) {
 // --- Add new Profile page --- //
 router.post('/add', function(req, res) {
 	// res.render('page', {"page_Code":"profile_add","page_Title":"Add New Profile"});
-	network.profileAdd(req, res);
+	network.addProfileData(req, res);
 });
 // --- Ajax call to check email exist --- //
 router.post('/checkemailavailable', function(req, res, next) {

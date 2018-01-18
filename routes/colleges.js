@@ -72,4 +72,12 @@ router.get('/:collegename/edit', function(req, res, next) {
 router.post('/edit', function(req, res, next) {
 	colleges.saveCollegeData(req, res, next);
 });
+
+// --- Ajax call to get Batch & Courses --- //
+router.post('/getbatchncourses', function (req, res, next) {
+	console.log('router');
+	// res.render('page', {"page_Code":"profile_add","page_Title":"Add New Profile"});
+	colleges.getBatchNCourses(req, res, next);
+});
+
 module.exports = router;

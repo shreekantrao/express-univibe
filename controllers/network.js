@@ -1,5 +1,6 @@
 const network = require('../models/network');
 // const csv = require('csv-express')
+
 module.exports = {
 
     userslist : async (req, res, next) => {
@@ -70,7 +71,7 @@ module.exports = {
                    return res.json({ msg: err });
                }
                 //  res.json({ msg: 'File uploaded.' });
-                 return network.importCSV(filename, res);
+                 return network.importCSV(req, res, filename);
              });
         } catch(e){
             next(e);
@@ -80,15 +81,15 @@ module.exports = {
     checkemailavailable : async (req, res, next) => {
         try{
             let db_slug = req.cookies['siteHeader'].db_slug;
-            let check = await network.checkemailavailable(req.body.email, db_slug);
-            // console.log('check',check)
+            let check = await network.checkemailavailable(req.body.email, req.body.slug, db_slug);
+            console.log('check',check)
             res.send((check.data)?false:true);
         } catch(e){
             next(e);
         }
     },
 
-    profileData : async (req, res) => {
+    getProfileData : async (req, res) => {
             // console.log('controller userslist');
         try 
         {
@@ -108,11 +109,15 @@ module.exports = {
             next(e);
         }
     },
-
-    profileAdd: async(req, res, next) => {
+    
+    addProfileData: async(req, res, next) => {
         try {
             let formData = req.body;
-            console.log('formData', formData);
+            let userFile = req.files.profilepic;
+            let filename = '';
+            let db_slug = req.cookies['siteHeader'].db_slug;
+            // console.log('formData', formData);
+            
             // check for mandatory fields
             if( formData.salutation===''||
                 formData.fullname===''||
@@ -127,6 +132,16 @@ module.exports = {
                 req.session.notify = notify;
                 console.log('Form not filled properly.');
                 return res.redirect('/network/add');
+            }    
+            
+            const processImg = (name) => {
+                if (!userFile){
+                    filename = '/' + db_slug +'/lego/' + Math.floor((Math.random() * 10) + 1) + '.jpg';
+                    return filename;
+                }else{
+                    filename = name.toLowerCase().replace(' ', '') +'_'+ new Date().getTime() + '.' + userFile.name.split('.').pop();
+                    return '/' + db_slug + '/profile_img/' + filename;
+                } 
             }    
 
             const transformer = (doc) => {
@@ -166,13 +181,13 @@ module.exports = {
                     public_profile:                 doc.public_profile,
                     donation_status:                doc.donation_status,
                     renowned_alumni:                doc.renowned_alumni,
-                    mentorship:                     doc.mentorship
+                    mentorship:                     doc.mentorship,
+                    profile_picture:                processImg(doc.fullname)
                 };
             }
             
-            let db_slug = req.cookies['siteHeader'].db_slug;
             // return res.json(req.body);
-            let data = await network.profileAdd(transformer(formData), db_slug)
+            let data = await network.addProfileData(transformer(formData), userFile, filename, db_slug)
             console.log('retrun from model',data);
             if (data.status) {
                 let notify = [];

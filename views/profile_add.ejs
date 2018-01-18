@@ -47,32 +47,41 @@
             <div class="clearfix"></div>
           </div>
           <div class="x_content">
-            <div class="col-md-2 col-sm-2 col-xs-12 profile_left">
-              <!-- Profile details -->
-              <div class="profile_img">
-                <div id="crop-avatar">
-                  <!-- Current avatar -->
-                  <img onerror="this.src='/assets/build/images/user.jpg'" class="img-responsive avatar-view" src="/assets/build/images/img.jpg"
-                    alt="Avatar" title="Change the avatar">
+            <form class="form-horizontal form-label-left" method="post" action="/network/add" novalidate enctype="multipart/form-data">
+              <div class="col-md-2 col-sm-2 col-xs-12 profile_left">
+                <!-- Profile details -->
+                <div class="profile_img">
+                  <div id="crop-avatar">
+                    <!-- Current avatar -->
+                    <img onerror="this.src='/static/images/user.jpg'" class="img-responsive avatar-view" src="/static/images/user.jpg" alt="Profile avatar" title="Profile avatar"
+                      id="profileimg">
+                    <div class="upload_i"><i class="fa fa-upload fa-2x"></i></div>
+                  </div>
+                  <a href="#" id="removeimage">
+                    <i class="fa fa-close"></i>
+                    <small id="imagename"> Profile avatar</small>
+                  </a>
+                  <div style="height:0px;overflow:hidden">
+                    <input type="file" id="profilepic" name="profilepic" accept="image/*">
+                  </div>
                 </div>
+
+
               </div>
+              <div class="col-md-10 col-sm-10 col-xs-12">
 
 
-            </div>
-            <div class="col-md-10 col-sm-10 col-xs-12">
-
-
-              <!-- User form -->
-              <div class="x_panel">
-                <div class="x_title">
-                  <h2>Profile basic
-                    <!-- <small>different form elements</small> -->
-                  </h2>
-                  <div class="clearfix"></div>
-                </div>
-                <div class="x_content">
-                  <br />
-                  <form class="form-horizontal form-label-left" method="post" action="/network/add" novalidate>
+                <!-- User form -->
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Profile basic
+                      <!-- <small>different form elements</small> -->
+                    </h2>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <br />
+                    <!-- <form class="form-horizontal form-label-left" method="post" action="/network/add" novalidate> -->
 
                     <!-- Full name -->
                     <div class="form-group field">
@@ -92,15 +101,15 @@
                         <input type="text" class="form-control" placeholder="Full name" id="fullname" name="fullname" value="" required="required">
                       </div>
                     </div>
-                    
-                      <!-- email -->
+
+                    <!-- email -->
                     <div class="form-group field" id="email_check_div">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Email
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <input type="email" id="emailid" class="form-control" placeholder="Email" data-validate-linked='email'>
-                        <input type="hidden" id="email"   class="form-control" name="email" required="required" data-validate-linked='email'>
+                        <input type="hidden" id="email" class="form-control" name="email" required="required" data-validate-linked='email'>
                         <input type="hidden" name="is_email_verified" value="0">
                       </div>
                       <!-- <div class="col-md-1 col-sm-1 col-xs-12">
@@ -233,18 +242,18 @@
                     </div>
                     <!-- state -->
                     <div class="form-group field">
-                        <label class="control-label col-md-2 col-sm-2 col-xs-12">City</label>
-                        <div class="col-md-7 col-sm-7 col-xs-12">
-                          <input id="state" name="state" value="" type="text" readonly="readonly" class="form-control" placeholder="State">
-                        </div>
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">City</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input id="state" name="state" value="" type="text" readonly="readonly" class="form-control" placeholder="State">
                       </div>
+                    </div>
                     <!-- country -->
                     <div class="form-group field">
-                        <label class="control-label col-md-2 col-sm-2 col-xs-12">City</label>
-                        <div class="col-md-7 col-sm-7 col-xs-12">
-                          <input id="country" name="country" value="" type="text" readonly="readonly" class="form-control" placeholder="Country">
-                        </div>
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">City</label>
+                      <div class="col-md-7 col-sm-7 col-xs-12">
+                        <input id="country" name="country" value="" type="text" readonly="readonly" class="form-control" placeholder="Country">
                       </div>
+                    </div>
                     <!-- Lat & Long -->
                     <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Lat & Long</label>
@@ -298,13 +307,16 @@
                     <!-- Gender -->
                     <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">Gender
-                          <span class="required">*</span>
-                        </label>
+                        <span class="required">*</span>
+                      </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
                         <div class="radio">
-                            <label><input type="radio" class="flat" name="gender" value="1" checked="checked"> Male </label>
-                            <label><input type="radio" class="flat" name="gender" value="2"> Female </label>
-                            <label><input type="radio" class="flat" name="gender" value="3"> Other </label>
+                          <label>
+                            <input type="radio" class="flat" name="gender" value="1" checked="checked"> Male </label>
+                          <label>
+                            <input type="radio" class="flat" name="gender" value="2"> Female </label>
+                          <label>
+                            <input type="radio" class="flat" name="gender" value="3"> Other </label>
                         </div>
                       </div>
                     </div>
@@ -313,20 +325,26 @@
                       <!-- <small>different form elements</small> -->
                     </h2>
                     <div class="ln_solid"></div>
-                    
+
                     <!-- Password -->
                     <div class="form-group field">
-                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Password<span class="required">*</span></label>
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Password
+                        <span class="required">*</span>
+                      </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <input id="password" name="password" type="password" class="form-control" placeholder="Password" data-validate-length="6,20" required='required'>
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Password" data-validate-length="6,20"
+                          required='required'>
                       </div>
                     </div>
 
                     <!-- Re type Password -->
                     <div class="form-group field">
-                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Re-type<span class="required">*</span></label>
+                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Re-type
+                        <span class="required">*</span>
+                      </label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <input id="repassword" type="password" class="form-control" placeholder="Re-type Password" data-validate-linked='password' required='required'>
+                        <input id="repassword" type="password" class="form-control" placeholder="Re-type Password" data-validate-linked='password'
+                          required='required'>
                       </div>
                     </div>
 
@@ -339,7 +357,7 @@
                     <div class="form-group field">
                       <label class="control-label col-md-2 col-sm-2 col-xs-12">User Status</label>
                       <div class="col-md-7 col-sm-7 col-xs-12">
-                        <select class="form-control" id="user_status" name="user_status"> 
+                        <select class="form-control" id="user_status" name="user_status">
                           <option value="1">Pending</option>
                           <option selected value="2">Approved</option>
                           <option value="3">Rejected</option>
@@ -359,18 +377,18 @@
                           <option value="4">Alcom</option>
                           <option value="5">College Admin</option>
                           <% if(userHeader.user_type == 6) { %>
-                          <option value="6">Administrator</option>
-                          <% } %>
+                            <option value="6">Administrator</option>
+                            <% } %>
                         </select>
                       </div>
                     </div>
 
                     <!-- User From //1=registration, 2=admin, 3=import, 4=facebook, 5=linkedin, 6=google -->
                     <!-- <div class="form-group field"> -->
-                      <!-- <label class="control-label col-md-2 col-sm-2 col-xs-12">User From</label> -->
-                      <!-- <div class="col-md-7 col-sm-7 col-xs-12"> -->
-                        <input type="hidden" name="user_from" value="2">
-                      <!-- </div> -->
+                    <!-- <label class="control-label col-md-2 col-sm-2 col-xs-12">User From</label> -->
+                    <!-- <div class="col-md-7 col-sm-7 col-xs-12"> -->
+                    <input type="hidden" name="user_from" value="2">
+                    <!-- </div> -->
                     <!-- </div> -->
 
                     <!-- Registered on -->
@@ -482,7 +500,7 @@
                       </div>
                     </div> -->
                     <div class="ln_solid"></div>
-                    
+
                     <div class="form-group field">
                       <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-6">
                         <button type="button" class="btn btn-primary">Cancel</button>
@@ -491,10 +509,11 @@
                       </div>
                     </div>
 
-                  </form>
+                    <!-- </form> -->
+                  </div>
                 </div>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

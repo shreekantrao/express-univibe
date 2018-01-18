@@ -148,6 +148,15 @@ module.exports.getCollegeList = (pageSize, skip, sortby, orderby, query)=>{
     );    
 }
 
+module.exports.getEstablishmentYear = function (db_slug) {
+  // console.log('College model');
+  if (!db_slug) return false;
+
+  // var data = new colleges(collegeData);
+  return colleges.findOne({ "db_slug": db_slug }, { "_id": 0, "establishment_year": 1 })
+    .then(year => ({ success: true, msg: "Success", year: year }))
+    .catch(err => ({ success: false, msg: "unable to get year", error: err }));
+}
 // module.exports.deleteUserById = (req)=>{
 //   id = req.query.userID;
 //   User.findByIdAndRemove(id, function (err, res){

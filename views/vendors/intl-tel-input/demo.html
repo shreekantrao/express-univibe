@@ -10,10 +10,8 @@
 
 <body>
   <h1>International Telephone Input</h1>
-  <form action="#" method="get"> 
-    <input id="ph_number" name="ph_number" type="tel">
-    <input id="ph_country" name="ph_country" >
-    <!-- <input id="ph_number" name="ph_number"> -->
+  <form>
+    <input id="phone" type="tel">
     <button type="submit">Submit</button>
   </form>
 
@@ -21,36 +19,27 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="build/js/intlTelInput.js"></script>
   <script>
-    $("#ph_number").intlTelInput({
+    $("#phone").intlTelInput({
       // allowDropdown: false,
       // autoHideDialCode: false,
       // autoPlaceholder: "off",
       // dropdownContainer: "body",
       // excludeCountries: ["us"],
       // formatOnDisplay: false,
-      geoIpLookup: function(callback) {
-        $.get("http://ipinfo.io", function() {}, "jsonp").always(function(resp) {
-          var countryCode = (resp && resp.country) ? resp.country : "";
-          callback(countryCode);
-        });
-      },
-      hiddenInput: "full_number",
-      initialCountry: "auto",
-      nationalMode: false,
+      // geoIpLookup: function(callback) {
+      //   $.get("http://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+      //     var countryCode = (resp && resp.country) ? resp.country : "";
+      //     callback(countryCode);
+      //   });
+      // },
+      // hiddenInput: "full_number",
+      // initialCountry: "auto",
+      // nationalMode: false,
       // onlyCountries: ['us', 'gb', 'ch', 'ca', 'do'],
       // placeholderNumberType: "MOBILE",
-      // preferredCountries: ['in', 'cn', 'jp'],
-      separateDialCode: true,
-      utilsScript: "http://localhost:3000/assets/vendors/intl-tel-input/build/js/utils.js",
-      customPlaceholder: function (selectedCountryPlaceholder, selectedCountryData) {
-        console.log('selectedCountryPlaceholder',selectedCountryPlaceholder);
-        console.log('selectedCountryData',selectedCountryData);
-        // $("#ph_number").inputmask(selectedCountryPlaceholder.replace(/[0-9]/g, "9"));
-        // $("#ph_country").val('+' + $("#ph_number").intlTelInput("getSelectedCountryData").dialCode);
-        $("#ph_country").val('+' + selectedCountryData.dialCode);
-        // $("#ph_number").intlTelInput("setNumber", $("#temp_number").val());
-        // $("#temp_number").val('');
-      }
+      // preferredCountries: ['cn', 'jp'],
+      // separateDialCode: true,
+      utilsScript: "build/js/utils.js"
     });
   </script>
 </body>

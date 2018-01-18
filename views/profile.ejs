@@ -52,8 +52,16 @@
                       <div class="profile_img">
                         <div id="crop-avatar">
                           <!-- Current avatar -->
-                          <img onerror="this.src='/assets/build/images/user.jpg'" class="img-responsive avatar-view" src="/assets/build/images/img.jpg" alt="Avatar" title="Change the avatar">
+                          <img onerror="this.src='/static/images/user.jpg'" class="img-responsive avatar-view" src="/static/images/user.jpg" alt="Profile avatar"
+                            title="Profile avatar" id="profileimg">
+                          <div class="upload_i">
+                            <i class="fa fa-upload fa-2x"></i>
+                          </div>
                         </div>
+                        <a href="#" id="removeimage">
+                          <i class="fa fa-close"></i>
+                          <small id="imagename"> Profile avatar</small>
+                        </a>
                       </div>
                       <h3><%= data.salutation+' '+data.fullname %></h3>
 
@@ -157,16 +165,20 @@
                                           <option value="Dr">Dr</option>
                                         </select>
                                       </div>
-                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                      <div class="col-md-6 col-sm-6 col-xs-12">
                                         <input type="text" class="form-control" placeholder="Full name" id="fullname" value="<%= data.fullname %>">
+                                        <input type="hidden" id="slug" value="<%= data.slug %>">
                                       </div>
                                     </div>
 
                                     <!-- email -->
-                                    <div class="item form-group">
+                                    <div class="item form-group" id="email_check_div">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Email<span class="required">*</span></label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <input type="email" id="email" value="<%= data.email %>" required="required" class="form-control" placeholder="Email">
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <input type="email" id="emailid" class="form-control" value="<%= data.email %>" placeholder="Email" data-validate-linked='email'>
+                                        <input type="hidden" id="email" class="form-control" name="email" value="<%= data.email %>" required="required" data-validate-linked='email'>
+
+                                        <!-- <input type="email" id="email" name="email" value="<%= data.email %>" required="required" class="form-control" placeholder="Email"> -->
                                       </div>
                                       <div class="col-md-1 col-sm-1 col-xs-12">
                                         <% if( data.is_email_verified === 'y' ) { %>
@@ -180,9 +192,9 @@
                                     <!-- Phone -->
                                     <div class="item form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Phone<span class="required">*</span></label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <input type="tel" id="ph_number" name="ph_number" required="required" data-validate-length-range="8,20" class="form-control" >
-                                        <input type="hidden" id="ph_country" name="ph_country" class="form-control" >
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <input type="tel" id="ph_number" name="ph_number" value="<%= data.ph_number %>" required="required" data-validate-length-range="8,20" class="form-control" >
+                                        <input type="hidden" id="ph_country" name="ph_country" class="form-control" value="<%= data.ph_country %>" >
                                         <input type="hidden" id="temp_number" value="<%= data.ph_country +''+ data.ph_number %>">
                                       </div>
                                       <div class="col-md-1 col-sm-1 col-xs-12">
@@ -197,7 +209,7 @@
                                     <!-- Date of Birth -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Birth<span class="required">*</span></label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <div class='input-group date' id='myDatepicker_dob' data-date="<%= data.dob %>" data-date-format="dd-mmm-yyyy">
                                             <input type='text' class="form-control" readonly="readonly" id="dob" value="<%= data.dob %>">
                                             <span class="input-group-addon">
@@ -208,12 +220,15 @@
                                     </div>
 
                                     <!-- Profile pic -->
-                                    <div class="form-group">
+                                    <div style="height:0px;overflow:hidden">
+                                      <input type="file" id="profilepic" name="profilepic" accept="image/*">
+                                    </div>
+                                    <!-- <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Profile picture<span class="required">*</span></label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <input type='text' class="form-control" id="profile_picture" value="<%= data.profile_picture %>" />
                                       </div>
-                                    </div>
+                                    </div> -->
 
                                     <h2>College <!-- <small>different form elements</small> --></h2>
                                     <div class="ln_solid"></div>
@@ -221,16 +236,16 @@
                                     <!-- Batch -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Batch<span class="required">*</span></label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <select class="form-control" id="batch" value="<%= data.batch %>">
-                                          <option value="1999">1999</option>
+                                          <!-- <option value="1999">1999</option>
                                           <option value="2000">2000</option>
                                           <option value="2001">2001</option>
                                           <option value="2002">2002</option>
                                           <option value="2003">2003</option>
                                           <option value="2004">2004</option>
                                           <option value="2005">2005</option>
-                                          <option value="2006">2006</option>
+                                          <option value="2006">2006</option> -->
                                         </select>
                                       </div>
                                     </div>
@@ -238,14 +253,14 @@
                                     <!-- Course -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Course<span class="required">*</span></label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <select class="form-control" id="course" value="<%= data.course %>">
-                                          <option value="BSC">BSC</option>
+                                          <!-- <option value="BSC">BSC</option>
                                           <option value="MSC">MSC</option>
                                           <option value="BBA">BBA</option>
                                           <option value="MBA">MBA</option>
                                           <option value="BScIT">BScIT</option>
-                                          <option value="CA">CA</option>
+                                          <option value="CA">CA</option> -->
                                         </select>
                                       </div>
                                     </div>
@@ -253,7 +268,7 @@
                                     <!-- Memship ID -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Membership ID</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <input id="membership_id" value="<%= data.membership_id %>" type="text" class="form-control" placeholder="Membership ID">
                                       </div>
                                     </div>
@@ -261,7 +276,7 @@
                                     <!-- Hostel -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Hostel</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <input id="hostel" value="<%= data.hostel %>" type="text" class="form-control" placeholder="Hostel">
                                       </div>
                                     </div>
@@ -269,7 +284,7 @@
                                     <!-- Location -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Location<span class="required">*</span></label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;"><%= data.location %></label>
                                       </div>
                                     </div>
@@ -277,7 +292,7 @@
                                     <!-- Lat & Long -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Lat & Long</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;"><%= data.latnlong %></label>
                                       </div>
                                     </div>
@@ -288,7 +303,7 @@
                                     <!-- Profile line -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Profile line</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <input id="profile_line" value="<%= data.profile_line %>" type="text" class="form-control" placeholder="Doctor at AIMS">
                                       </div>
                                     </div>
@@ -296,7 +311,7 @@
                                     <!-- Summary -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Summary</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <textarea id="summary" value="<%= data.summary %>" class="form-control" rows="3" placeholder="Summary"></textarea>
                                       </div>
                                     </div>
@@ -304,7 +319,7 @@
                                     <!-- Aspiration -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Aspiration</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <textarea id="aspiration" value="<%= data.aspiration %>" class="form-control" rows="3" placeholder="Aspiration"></textarea>
                                       </div>
                                     </div>
@@ -312,7 +327,7 @@
                                     <!-- Date of Marriage -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Marriage</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <div class='input-group date' id='myDatepicker2'>
                                             <input type='text' value="<%= data.dom %>" class="form-control" />
                                             <span class="input-group-addon">
@@ -325,7 +340,7 @@
                                     <!-- Gender -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Gender</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <div class="radio">
                                           <% if(data.gender === 'm') { %>
                                           <label><input type="radio" class="flat" name="gender"> Male </label>
@@ -343,7 +358,7 @@
 
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">New Password</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <input id="password" type="password" class="form-control" placeholder="New Password">
                                       </div>
                                     </div>
@@ -351,7 +366,7 @@
                                     <!-- Re type Password -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Re-type</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <input id="repassword" type="password" class="form-control" placeholder="Re-type Password">
                                       </div>
                                     </div>
@@ -362,7 +377,7 @@
                                       <div class="col-md-1 col-sm-1 col-xs-12" style="padding-top: 5px;">
                                             <input id="temp-pass-check" type="checkbox" class="js-switch" />
                                       </div>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
                                         <input id="temp-pass-text" type="text" disabled="disabled" class="form-control" placeholder="Temparary Password">
                                       </div>
                                     </div>                      
@@ -373,7 +388,7 @@
                                     <!-- User Status -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">User Status</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <select class="form-control" id="user_status">
                                           <option <%= (data.user_status==1)?'selected="selected"':'' %> >Pending</option>
                                           <option <%= (data.user_status==2)?'selected="selected"':'' %> >Approved</option>
@@ -386,7 +401,7 @@
                                     <!-- User type -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">User Type</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <select class="form-control" id="user_type">
                                           <option <%= (data.user_type==6)?'selected="selected"':'' %> >Student</option>
                                           <option <%= (data.user_type==5)?'selected="selected"':'' %> >Alumni</option>
@@ -401,7 +416,7 @@
                                     <!-- User From -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">User From</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <select class="form-control" disabled="disabled">
                                           <option <%= (data.user_from==1)?'selected="selected"':'' %> >Registration</option>
                                           <option <%= (data.user_from==2)?'selected="selected"':'' %> >Admin</option>
@@ -416,7 +431,7 @@
                                     <!-- Registered on -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Registered on</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;"><%= data.registered_on %></label>
                                       </div>
                                     </div>  
@@ -424,7 +439,7 @@
                                     <!-- Approved on -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Approved on</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;"><%= data.approved_on %></label>
                                       </div>
                                     </div>                      
@@ -432,7 +447,7 @@
                                     <!-- Approved by -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Approved by</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;"><%= data.approved_by_name %></label>
                                       </div>
                                     </div>                      
@@ -440,7 +455,7 @@
                                     <!-- Last updated -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Last updated</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;"><%= data.last_update %></label>
                                       </div>
                                     </div>
@@ -451,7 +466,7 @@
                                     <!-- Entrepreneur -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Entrepreneur</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12" style="padding-top: 5px;">
+                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
                                         <input id="entrepreneur" <%= (data.entrepreneur)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>
@@ -459,7 +474,7 @@
                                     <!-- Public profile -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Public Profile</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12" style="padding-top: 5px;">
+                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
                                         <input id="public_profile" <%= (data.public_profile)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>
@@ -467,7 +482,7 @@
                                     <!-- Donation status -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Donation Status</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12" style="padding-top: 5px;">
+                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
                                         <input id="donation_status" <%= (data.donation_status)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>
@@ -475,7 +490,7 @@
                                     <!-- Renouwned Alumni -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Renowned_Alumni</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12" style="padding-top: 5px;">
+                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
                                         <input id="renowned_alumni" <%= (data.renowned_alumni)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>  
@@ -483,7 +498,7 @@
                                     <!-- Mentorship -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Mentorship</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12" style="padding-top: 5px;">
+                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
                                         <input id="mentorship" <%= (data.mentorship)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>
@@ -491,7 +506,7 @@
                                     <!-- DND email -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">Email notification - (DND)</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;">Yes</label>
                                       </div>
                                     </div>
@@ -499,13 +514,13 @@
                                     <!-- DND SMS -->
                                     <div class="form-group">
                                       <label class="control-label col-md-3 col-sm-3 col-xs-12">SMS notification - (DND)</label>
-                                      <div class="col-md-9 col-sm-9 col-xs-12">
+                                      <div class="col-md-8 col-sm-8 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;">No</label>
                                       </div>
                                     </div>                      
 
                                     <div class="form-group">
-                                      <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
+                                      <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-3">
                                         <button type="button" class="btn btn-primary">Cancel</button>
                                         <button type="reset" class="btn btn-primary">Reset</button>
                                         <button type="submit" class="btn btn-success">Submit</button>

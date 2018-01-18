@@ -1,4 +1,5 @@
-var colleges = require('../models/colleges');
+const colleges = require('../models/colleges');
+const courses = require('../models/courses');
 
 module.exports = {
 
@@ -197,5 +198,27 @@ module.exports = {
         } catch (e) {
             next(e);
         }
-    }    
+    },    
+
+    getBatchNCourses: async (req, res, next) => {
+        try {
+            let db_slug = req.cookies['siteHeader'].db_slug;
+            
+            let course = await courses.getDropDownCourseList(db_slug);
+            // console.log('course', course);
+            let year = await colleges.getEstablishmentYear(db_slug);
+            // console.log('year', year);
+            
+            if( !(course.success && year.success) )
+                return res.json(false);
+            if( course.courses.length==0 && year.year )
+                return res.json(false);
+            let data = {};
+            data["course"] = course;
+            data['year'] = year;
+            return res.json(data);
+        } catch (e) {
+            next(e);
+        }
+    }
 }

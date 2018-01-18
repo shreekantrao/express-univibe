@@ -5845,7 +5845,7 @@ function bst_DeleteButton(oBtn) {
 // ############### Network Pagination js #################
 
 
-async function init_networkPagination(time = 2000, page_no = 1, alphabet = $("#alphabet").val()) {
+async function init_networkPagination(time = 1, page_no = 1, alphabet = $("#alphabet").val()) {
 	let callagain = true;
 	setTimeout(async function () {
 		
@@ -5925,7 +5925,7 @@ function networkListTemplating(data) {
 			'</ul>' +
 			'</div>' +
 			'<div class="right col-xs-4 text-center">' +
-			'<img src="/assets/build/images/img.jpg" alt="" onerror="this.src=\'/assets/build/images/user.jpg\'" class="img-circle img-responsive">' +
+			'<img src="/static' + item.profile_picture + '" alt="" onerror="this.src=\'/static/images/user.jpg\'" class="img-circle img-responsive">' +
 			'</div>' +
 			'</div>' +
 			'<div class="col-xs-12 bottom text-center">' +
@@ -5998,7 +5998,7 @@ if ($("#pagecode_network").exists()) {
 				// alert('Error - ' + e);
 			},
 			success: function (data) {
-				console.log(data);
+				console.log('msg', data);
 			}
 		});
 
@@ -6012,8 +6012,7 @@ if ($("#pagecode_network").exists()) {
 	});
 }
 
-// ############### Profile page #################
-
+// ############### Profile edit page #################
 if ($("#pagecode_profile").exists()) {
 
 	// --- temp password on/off --- //
@@ -6027,13 +6026,11 @@ if ($("#pagecode_profile").exists()) {
 	});
 
 	// --- DOB calender --- //
-	$('#myDatepicker_dob').datetimepicker({
-		ignoreReadonly: true,
-		allowInputToggle: true,
-		format: "DD-MMM-YYYY"
-	});
-	$('#myDatepicker_dob').data("DateTimePicker").maxDate("31-12-2000");
-	$('#myDatepicker_dob').data("DateTimePicker").minDate("01-01-1900");
+	$('#myDatepicker_dob').datetimepicker({ignoreReadonly: true, allowInputToggle: true, format: "DD MMM YYYY"});
+	let d = new Date();
+	$('#myDatepicker_dob').data("DateTimePicker").defaultDate( new Date( (d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
+	$('#myDatepicker_dob').data("DateTimePicker").maxDate( new Date( (d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
+	$('#myDatepicker_dob').data("DateTimePicker").minDate( new Date( (d.getFullYear() - 100) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
 
 
 	// --- Phone country pick --- //
@@ -6065,8 +6062,130 @@ if ($("#pagecode_profile").exists()) {
 			// $("#temp_number").val('');
 		}
 	});
+
+	// set number on page load
+	let temp_number = $("#temp_number").val();
+	if(temp_number) $("#ph_number").intlTelInput("setNumber", $("#temp_number").val() );
+
+	// --- check email available --- //
+	$("#emailid").on('blur', function () {
+		// validator.checkField.call(validator, e.target
+
+		$.ajax({
+			url: "/network/checkemailavailable/",
+			type: "POST",
+			data: {
+				email: $("#emailid").val(),
+				slug: $("#slug").val()
+			},
+			beforeSend: function () {
+				// show loading
+				$("#emailid").addClass('checkingTextbox');
+				$("#email").val('');
+				// validator = new FormValidator();
+				// validator.settings.classes.bad = 'error';
+			},
+			success: function (data) {
+				if (data) {
+					$("#email").val($("#emailid").val());
+				} else {
+					$("#email").val('');
+					$("#email_check_div").addClass('bad');
+				}
+				$("#emailid").removeClass('checkingTextbox');
+			},
+			error: function () {
+				$("#email").val('');
+				$("#emailid").removeClass('checkingTextbox');
+			}
+		});
+	});
+
+	// profile image set
+	$(document).on("click", '.upload_i', function (e) {
+		$("#profilepic").click();
+	});
+	$("#profilepic").change(function (e) {
+		var file = $(this).prop('files');
+		// console.log('Helo',file);
+		if (file && file[0]) {
+			var reader = new FileReader();
+
+			reader.onload = function (e) {
+				console.log('read e -', e);
+				$('#profileimg')
+					.attr('src', e.target.result)
+					.attr('alt', file[0].name)
+					.attr('title', file[0].name);
+				// .width(150)
+				// .height(200);
+				$('#imagename').html(' ' + file[0].name);
+			};
+
+			reader.readAsDataURL(file[0]);
+		}
+	});
+
+	$(document).on("click", '#removeimage', function (e) {
+		// console.log('clear', $("#profilepic").val());	
+		$("#profilepic").val('');
+		$("#profileimg").attr('src', '');
+		$('#imagename').html(' Profile avatar');
+		// console.log('cleared', $("#profilepic").val());	
+		e.preventDefault();
+		return false;
+	});
+	
+	$(function () {
+		$.ajax({
+			url: "/colleges/getbatchncourses/",
+			type: "POST",
+
+			beforeSend: function () {
+				// show loading
+				$("#batch").prop("disabled", true); 
+				$("#course").prop("disabled", true); 
+				$("#batch").addClass('checkingTextbox');
+				$("#course").addClass('checkingTextbox');
+				// validator = new FormValidator();
+				// validator.settings.classes.bad = 'error';
+			},
+			success: function (data) {
+				if (!data || !(data.course.success && data.year.success) ) {
+					$("#batch").removeClass('checkingTextbox');
+					$("#course").removeClass('checkingTextbox');
+					// show error while data fetching
+				}
+				if ( data.year.year.establishment_year > 1800 ) {
+					let year = data.year.year.establishment_year + 3;
+					let till = new Date().getFullYear() + 4;
+					while (year <= till) {
+						$('#batch').append($('<option>', {value: year,text: year}));
+						year++;
+					}
+					$("#batch").prop("disabled", false);
+					$("#batch").removeClass('checkingTextbox');
+				}
+				if ( data.course.courses.length > 0 ) {
+					$.each(data.course.courses, function (i, item) {
+						$('#course').append($('<option>', {value: item.slug,text: item.name	}));
+					});
+					$("#course").prop("disabled", false);
+					$("#course").removeClass('checkingTextbox');
+					// add values to dropdown				 
+				}else{
+					$("#course").removeClass('checkingTextbox');
+				}
+			},
+			error: function () {
+				$("#email").val('');
+				$("#emailid").removeClass('checkingTextbox');
+			}
+		});
+	});
 }
 
+// ############### Profile add page #################
 if ($("#pagecode_profile_add").exists()) {
 
 	// --- Phone country pick --- //
@@ -6099,7 +6218,7 @@ if ($("#pagecode_profile_add").exists()) {
 		}
 	});
 
-
+	// --- check email available --- //
 	$("#emailid").on('blur', function () {
 		// validator.checkField.call(validator, e.target
 
@@ -6131,15 +6250,51 @@ if ($("#pagecode_profile_add").exists()) {
 	});
 
 	// --- DOB calender --- //
-	$('#myDatepicker_dob, #myDatepicker_dom').datetimepicker({
-		ignoreReadonly: true,
-		allowInputToggle: true,
-		format: "DD-MMM-YYYY"
-	});
-	$('#myDatepicker_dob').data("DateTimePicker").maxDate("31-12-2000");
-	$('#myDatepicker_dob').data("DateTimePicker").minDate("01-01-1900");
+	$('#myDatepicker_dob, #myDatepicker_dom').datetimepicker({ ignoreReadonly: true, allowInputToggle: true, format: "DD MMM YYYY" 	});
 
+	let d = new Date();
+	$('#myDatepicker_dob').data("DateTimePicker").defaultDate(new Date((d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate()));
+	$('#myDatepicker_dob').data("DateTimePicker").maxDate(new Date((d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate()));
+	$('#myDatepicker_dob').data("DateTimePicker").minDate(new Date((d.getFullYear() - 100) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate()));
+	// $('#myDatepicker_dom').data("DateTimePicker").defaultDate(new Date((d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate()));
+	$('#myDatepicker_dom').data("DateTimePicker").maxDate(new Date());
+	$('#myDatepicker_dom').data("DateTimePicker").minDate(new Date((d.getFullYear() - 80) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate()));
+
+	$(document).on("click", '.upload_i', function (e) {
+		$("#profilepic").click();
+	});
+	$("#profilepic").change( function (e) {
+		var file = $(this).prop('files');
+		// console.log('Helo',file);
+		if (file && file[0]) {
+			var reader = new FileReader();
+			
+			reader.onload = function (e) {
+				console.log('read e -',e);
+				$('#profileimg')
+					.attr('src', e.target.result)
+					.attr('alt', file[0].name)
+					.attr('title', file[0].name);
+					// .width(150)
+					// .height(200);
+				$('#imagename').html(' ' + file[0].name);
+			};
+
+			reader.readAsDataURL(file[0]);
+		}
+	});
+	
+	$(document).on("click", '#removeimage', function (e) {
+		// console.log('clear', $("#profilepic").val());	
+		$("#profilepic").val('');
+		$("#profileimg").attr('src', '');
+		$('#imagename').html(' Profile avatar');		
+		// console.log('cleared', $("#profilepic").val());	
+		e.preventDefault();
+		return false;	
+	});
 }
+
 // ############### College Detail page #################
 /* SMART WIZARD ADD */
 function init_SmartWizard_add() {
