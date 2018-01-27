@@ -5495,6 +5495,7 @@ $(document).ready(function () {
 
 });
 
+//#################### Shrikant Rao ###############
 // This will be used to store pagination data
 const pagination_data = [];
 // convert date to "minutes/hours ago | Monday/Tuesday"
@@ -5842,7 +5843,7 @@ function bst_DeleteButton(oBtn) {
 	return false;
 }
 
-// ############### Network Pagination js #################
+// ############### Network list Pagination js #################
 
 
 async function init_networkPagination(time = 1, page_no = 1, alphabet = $("#alphabet").val()) {
@@ -5981,9 +5982,9 @@ if ($("#pagecode_network").exists()) {
 		e.preventDefault();
 		
 		// Get form
-		var form = $('#uploadcsv')[0];
+		let form = $('#uploadcsv')[0];
 		// Create an FormData object
-		var data = new FormData(form);
+		let data = new FormData(form);
 
 		$.ajax({
 			url: '/network/importcsv',
@@ -6022,16 +6023,31 @@ if ($("#pagecode_profile").exists()) {
 			$("#temp-pass-text").prop('disabled', false);
 		} else {
 			$("#temp-pass-text").prop('disabled', true);
+			$("#temp-pass-check").parent().closest('.form-group').removeClass('bad');
 		}
 	});
 
-	// --- DOB calender --- //
-	$('#myDatepicker_dob').datetimepicker({ignoreReadonly: true, allowInputToggle: true, format: "DD MMM YYYY"});
-	let d = new Date();
-	$('#myDatepicker_dob').data("DateTimePicker").defaultDate( new Date( (d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
-	$('#myDatepicker_dob').data("DateTimePicker").maxDate( new Date( (d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
-	$('#myDatepicker_dob').data("DateTimePicker").minDate( new Date( (d.getFullYear() - 100) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
-
+	/* --- DOB & DOM calender --- */{
+		$('#myDatepicker_dob').datetimepicker({ignoreReadonly: true, allowInputToggle: true, format: "DD MMM YYYY"});
+		let d = new Date();
+		console.log('this - ', new Date($('#dob').attr('savedvalue')));
+		if( isNaN( new Date($('#dob').attr('sv')).getTime() ) )
+			$('#myDatepicker_dob').data("DateTimePicker").defaultDate( new Date( (d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
+		else	
+			$('#myDatepicker_dob').data("DateTimePicker").defaultDate( new Date($('#dob').attr('sv')) );
+		$('#myDatepicker_dob').data("DateTimePicker").maxDate( new Date( (d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
+		$('#myDatepicker_dob').data("DateTimePicker").minDate( new Date( (d.getFullYear() - 100) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
+		
+		/* --- DOM calender --- */
+		$('#myDatepicker_dom').datetimepicker({ignoreReadonly: true, allowInputToggle: true, format: "DD MMM YYYY"});
+		// console.log('this - ', new Date($('#dob').attr('sv')));
+		if( isNaN( new Date($('#dom').attr('sv')).getTime() ) == false )
+			$('#myDatepicker_dom').data("DateTimePicker").defaultDate( new Date($('#dom').attr('sv')) );
+		// else	
+			// $('#myDatepicker_dom').data("DateTimePicker").defaultDate( new Date( (d.getFullYear() - 10) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
+		$('#myDatepicker_dom').data("DateTimePicker").maxDate( new Date () );
+		$('#myDatepicker_dom').data("DateTimePicker").minDate( new Date( (d.getFullYear() - 80) + ' ' + (d.getMonth() + 1) + ' ' + d.getDate() ) );
+	}
 
 	// --- Phone country pick --- //
 	$("#ph_number").intlTelInput({
@@ -6062,44 +6078,9 @@ if ($("#pagecode_profile").exists()) {
 			// $("#temp_number").val('');
 		}
 	});
-
 	// set number on page load
 	let temp_number = $("#temp_number").val();
 	if(temp_number) $("#ph_number").intlTelInput("setNumber", $("#temp_number").val() );
-
-	// --- check email available --- //
-	$("#emailid").on('blur', function () {
-		// validator.checkField.call(validator, e.target
-
-		$.ajax({
-			url: "/network/checkemailavailable/",
-			type: "POST",
-			data: {
-				email: $("#emailid").val(),
-				slug: $("#slug").val()
-			},
-			beforeSend: function () {
-				// show loading
-				$("#emailid").addClass('checkingTextbox');
-				$("#email").val('');
-				// validator = new FormValidator();
-				// validator.settings.classes.bad = 'error';
-			},
-			success: function (data) {
-				if (data) {
-					$("#email").val($("#emailid").val());
-				} else {
-					$("#email").val('');
-					$("#email_check_div").addClass('bad');
-				}
-				$("#emailid").removeClass('checkingTextbox');
-			},
-			error: function () {
-				$("#email").val('');
-				$("#emailid").removeClass('checkingTextbox');
-			}
-		});
-	});
 
 	// profile image set
 	$(document).on("click", '.upload_i', function (e) {
@@ -6125,7 +6106,6 @@ if ($("#pagecode_profile").exists()) {
 			reader.readAsDataURL(file[0]);
 		}
 	});
-
 	$(document).on("click", '#removeimage', function (e) {
 		// console.log('clear', $("#profilepic").val());	
 		$("#profilepic").val('');
@@ -6135,8 +6115,29 @@ if ($("#pagecode_profile").exists()) {
 		e.preventDefault();
 		return false;
 	});
+
+	// --- Format date to show --- //
+	$('#registered_on').html( dateFormater($('#registered_on').attr('savedvalue')) );
+	$('#approved_on').html( dateFormater($('#approved_on').attr('savedvalue')) );
+	$('#last_update').html( dateFormater($('#last_update').attr('savedvalue')) );
 	
-	$(function () {
+	// --- attempt to remove 'name' from form --- //
+	// $(function () {
+	// 	$('form :input').on('change', function () {
+	// 		onChange(this.id)
+	// 	});
+
+	// });
+	// function onChange (id) {
+	// 	console.log('value -', $('#' + id).val(), 'attr -', $('#' + id).attr('sv') );	
+	// 	if ($('#' + id).val() != $('#' + id).attr('sv'))
+	// 		$('#' + id).attr('name',id)
+	// 	else
+	// 		$('#' + id).removeAttr('name')	;
+	// }
+
+	// --- ajax get Batch & Course form --- //
+	$(function () {	
 		$.ajax({
 			url: "/colleges/getbatchncourses/",
 			type: "POST",
@@ -6157,18 +6158,22 @@ if ($("#pagecode_profile").exists()) {
 					// show error while data fetching
 				}
 				if ( data.year.year.establishment_year > 1800 ) {
+					let savedvalue =  $('#batch').attr('savedvalue');
 					let year = data.year.year.establishment_year + 3;
 					let till = new Date().getFullYear() + 4;
 					while (year <= till) {
-						$('#batch').append($('<option>', {value: year,text: year}));
+						if(year == savedvalue) $('#batch').append($('<option >', {value: year,text: year, selected: true}));
+						else $('#batch').append($('<option>', {value: year,text: year}));
 						year++;
 					}
 					$("#batch").prop("disabled", false);
 					$("#batch").removeClass('checkingTextbox');
 				}
 				if ( data.course.courses.length > 0 ) {
+					let savedvalue = $('#course').attr('savedvalue');					
 					$.each(data.course.courses, function (i, item) {
-						$('#course').append($('<option>', {value: item.slug,text: item.name	}));
+						if (item.slug == savedvalue ) $('#course').append($('<option>', {value: item.slug,text: item.name, selected: true }));
+						else $('#course').append($('<option>', {value: item.slug,text: item.name	}));
 					});
 					$("#course").prop("disabled", false);
 					$("#course").removeClass('checkingTextbox');
@@ -6182,6 +6187,102 @@ if ($("#pagecode_profile").exists()) {
 				$("#emailid").removeClass('checkingTextbox');
 			}
 		});
+	});
+	
+	$("#profileeditform").validate({
+		errorClass: "alert",
+		errorElement: "div",
+		errorPlacement: ($error, $element) => $error.appendTo($element.closest(".form-group")),
+		highlight: (e)=>$(e).parent().closest('.form-group').addClass('bad'),
+		unhighlight: (e) => $(e).parent().closest('.form-group').removeClass('bad'),
+		rules: {
+			email: {
+				remote: {
+					url: "/network/checkemailavailable/",
+					type: "post",
+					data: { email: ()=> $("#email").val(), slug: $("#slug").val() },
+					beforeSend: () => $("#email").addClass('checkingTextbox'),
+					complete: () => $("#email").removeClass('checkingTextbox')
+				}
+			},
+			ph_number: {
+				remote: {
+					url: "/network/checkphoneavailable/",
+					type: "post",
+					data: { ph_country: () => $("#ph_country").val(), slug: $("#slug").val() },
+					beforeSend: () => $("#ph_number").addClass('checkingTextbox'),
+					complete: () => $("#ph_number").removeClass('checkingTextbox')
+				},
+				regex: '^[0-6]|_'
+			},
+			batch:{
+				regex: '_'
+			},
+			course:{
+				regex: '_'
+			},
+			repassword:{
+				equalTo: "#password"
+			},
+			temp_password:{
+				required: "#temp-pass-check:checked"
+			}
+		},messages:{
+			fullname:{ required: "Full name required.", minlength: "Min 2 charecters." },
+			email:{ required: "Email required", email: "Enter valid email", remote: "Email already taken." },
+			ph_number:{ required: "Phone no. required.", regex: "Invalid phone no.", remote: "No. already taken." },
+			batch:{ regex: "Select your batch."},
+			course:{ regex: "Select your course."},
+			address:{ required: "Location required.",minlength:"Min 3 charecters."},
+			profile_line:{ minlength:"Min 10 charecters."},
+			summary:{ minlength:"Min 10 charecters."},
+			aspirations:{ minlength:"Min 10 charecters."},
+			password:{ minlength:"Min 6 charecters."},
+			repassword:{ minlength:"Min 6 charecters.", equalTo: "Password not match."},
+			temp_password:{ minlength:"Min 6 charecters.", required: "Now it's required."}
+		}
+	});
+	$.validator.addMethod( "regex", function (value, element, regexp) {
+		// console.log('regexp',regexp,' | value ',value);
+			var re = new RegExp(regexp, 'g');
+			return !re.test(value);
+		}, "Please check your input."
+	);
+
+	// --- ajax submit form --- //
+	$(function () {		
+		$("#profileeditform").on('submit', (function (e) {
+			let fm = $("#profileeditform");
+				fm.validate();
+
+			if(fm.valid()){
+
+				// Get form
+				let form = $('#profileeditform')[0];
+				// Create an FormData object
+				let data = new FormData(form);
+
+				$.ajax({
+					url: '/network/update',
+					data: data,
+					type: "POST",
+					enctype: 'multipart/form-data',
+					processData: false,
+					contentType: false,
+					cache: false,
+					error: function (e) {
+						console.log(e);
+						// alert('Error - ' + e);
+					},
+					success: function (data) {
+						console.log('msg', data);
+					}
+				});
+			}
+			
+			e.preventDefault();
+			return false;			
+		}));
 	});
 }
 
@@ -6382,6 +6483,8 @@ function convertToSlug(Text) {
 	return Text.trim().toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
 }
 
+
+/* ### This is old validator and needs to be romved ### */
 /* --- VALIDATOR --- */
 function init_validator() {
 
@@ -6415,6 +6518,7 @@ function init_validator() {
 	};
 
 };
+/* ### This is old validator and needs to be romved ### */
 
 // ############### College Pagination js #################
 

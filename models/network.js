@@ -420,7 +420,7 @@ module.exports.getProfileData = function (slug = '', db_slug = '') {
   // const query = {};
   // query["slug"] = slug;
   let query = { slug: slug };
-  return User.findOne(query)
+  return User.findOne(query, { _id: 0, social_ids: 0, family: 0, job: 0, education: 0, residential_address: 0, permanent_address: 0, social_links: 0, password: 0, temp_password:0})
     .then(data => {
       if(!data)  return { success: false, msg: "User not found" }
       return { success: true, msg: "User details found", data: data }
@@ -683,6 +683,27 @@ module.exports.checkemailavailable = (email, slug, db_slug = '') => {
   // return true;
 }
 
+module.exports.checkphoneavailable = (ph_country, ph_number, slug, db_slug = '') => {
+  
+  if (db_slug === '') return false;
+
+  let db_name = db_slug + '-' + collection;
+  let User = createModelForName(db_name); // Create the db model.
+
+  let query = {};
+  query["ph_country"] = ph_country;
+  query["ph_number"] = ph_number;
+  if(slug)  query["slug"] = { $ne: slug };
+
+  // return Promise.all([
+  return User.count(query)
+    .then(data => ({ success: true, msg: "User details found", data: data }))
+    .catch(err => ({ success: false, msg: "something went wrong" }));
+  // ]).then(result => result.reduce((acc, curr) =>
+  //   Object.assign(acc, curr), {}));
+  // return true;
+}
+
 module.exports.deleteUserById = (req) => {
   id = req.query.userID;
   User.findByIdAndRemove(id, function (err, res) {
@@ -791,6 +812,146 @@ module.exports.addProfileData = (profileData, userFile, filename, db_slug = '') 
       .then(item => ({ msg: "item saved to database", status: true })),
     processImg()
   ]).then(result => result.reduce((acc, curr) => Object.assign(acc, curr), {}));
+
+
+
+  process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+    // application specific logging, throwing an error, or other logic here
+  });
+
+  // return data.save()
+  // .then(item => ({ msg: "item saved to database", status: true }))
+  // .catch(err => ({ msg: "unable to save to database", status: false }));
+}
+
+module.exports.updateProfileData = (formData, userFile, filename, db_slug ) => {
+  
+  if (!db_slug) return false;
+
+  let db_name = db_slug + '-' + collection;
+  let User = createModelForName(db_name); // Create the db model.
+  
+  let difference = {};
+
+  console.log('formData - ',formData);
+  // console.log('filename',filename);
+  // let data = new User(formData);
+
+  let getEncrypt = () => {
+    return new Promise((resolve, reject) => {
+      if (!formData.password ) resolve();
+      else{
+        bcrypt.genSalt(10, (err, salt) => {
+          if (err) reject(err);
+          bcrypt.hash(formData.password, salt, (err, hash) => {
+            if (err) reject(err);
+            formData.password = hash;
+            resolve();
+          });
+        })
+      } 
+    })
+  }
+
+  let processImg = () =>{
+    return new Promise((resolve, reject) => {
+      if (!userFile) resolve();
+      else{
+        let path1 = Path.join(__dirname, '..', 'public', db_slug);
+        let path2 = Path.join(__dirname, '..', 'public', db_slug, 'profile_img/');
+        // console.log('path', path2);
+
+        if (!FS.existsSync(path1)) {
+          // console.log('Create path1');
+          FS.mkdirSync(path1, (err)=>{
+            if (err) { reject(err); }
+          });
+
+        }
+        if (!FS.existsSync(path2)) {
+          // console.log('Create path2');
+              FS.mkdirSync(path2, (err)=>{
+                if (err) { reject(err); }
+              });
+        }
+        userFile.mv(path2 + filename, (err) => {
+          if (err) {
+            // console.log('error - ', err)
+            reject(err);            
+          }
+          resolve();
+        });
+      }
+    })
+
+  }
+  // console.log('slug ', formData.slug);
+
+  let findChanges = (db_data, form_data) =>{
+    // console.log('dob before', db_data['dob']);
+    // db_data['dob'] = new Date(db_data['dob']).getTime();
+    // console.log('dob after', db_data['dob']);
+    // form_data['dob'] = new Date(form_data['dob']).getTime();
+    // console.log('before difference = ', difference);    
+    
+    let a = Object.keys(form_data);
+    // let b = Object.keys(form_data);
+    let keyDiff = a.filter((key)=>{
+      // console.log(key, '= ', db_data[key], '!==', form_data[key], " | ", typeof db_data[key], '!==', typeof form_data[key]);
+      if ( (key === 'dob' || key === 'dom') ){
+        if( (""+db_data[key]) != (""+form_data[key]) ){
+        // console.log(key, '= ', ("" + db_data[key]), '!==', ("" + form_data[key]), " | ", typeof ("" + db_data[key]), '!==', typeof ("" + form_data[key]));        
+        // console.log('innn', ("" + db_data[key]) != ("" + form_data[key]) );
+          db_data[key] = form_data[key];
+          difference[key] = form_data[key];
+          return true;
+        }
+      } else if (typeof db_data[key] == 'object' && typeof form_data[key] == 'object' ){
+        // difference[key] = '';
+        let temp_diff = findChanges(db_data[key], form_data[key]);
+        // console.log('temp_diff', temp_diff, ' | ', Object.keys(temp_diff).length);
+        if (Object.keys(temp_diff).length > 0 ){
+          db_data[key] = temp_diff
+          difference[key] = temp_diff
+        }
+
+      } else if ( db_data[key] != form_data[key] ){
+        db_data[key] = form_data[key]
+        difference[key] = form_data[key]
+        return true;
+      }
+      return false;
+    });
+    // console.log('difference = ', difference);    
+    // console.log('difference key ', keyDiff);
+    return db_data
+  }
+
+  let update_db = () => {
+    return new Promise((resolve, reject) => {
+      User.findOne({ slug: formData.slug }, { approved_on: 0, approved_by_name: 0, social_ids: 0, family: 0, job: 0, education: 0, dnd: 0, residential_address: 0, permanent_address: 0, social_links: 0, languages: 0, is_phone_verified: 0, activation_key: 0, registered_on: 0, user_from: 0, is_email_verified: 0, last_update: 0, __v:0}, (err, data)=>{
+        if(err) return reject();
+        // db_data = data;
+        // data.fullname = 'abc';
+        // formData['_id'] = data._id;
+        console.log('db_data 1', data);
+        data = findChanges(data,formData);
+        console.log('db_data 2', data);
+        console.log('diff', difference);
+        // data = 
+        return data.save();
+      })
+    })
+  }
+
+  return Promise.all([
+    getEncrypt(),
+    update_db().then(() => ({ msg: "profile updated successfully", status: true })).catch(() => ({ msg: "unable to update", status: false })),
+    // processImg().then(() => ({ msg: "file saved successfully", status: true })),
+    // findChanges().then((count) => ({ msg: count+" - changes logged", status: true }))
+  ]).then(result => result.reduce((acc, curr) => Object.assign(acc, curr), {}))
+  .catch(err => ({ error:err }));
 
 
 

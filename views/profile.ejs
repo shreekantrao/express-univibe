@@ -1,7 +1,8 @@
 <% 
-    data = JSON.stringify(data);
-    data = JSON.parse(data);
-%>        
+    <!-- data = JSON.stringify(data); -->
+    <!-- data = JSON.parse(data); -->
+%> 
+     
         <!-- page content -->
         <div class="right_col" id="pagecode_<%=page_Code%>" role="main">
           <div class="">
@@ -29,9 +30,8 @@
                 <div class="x_panel">
                   <div class="x_title">
                     <h2>User Report <small>Activity report</small></h2>
-                    <!-- <ul class="nav navbar-right panel_toolbox">
-                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                      </li>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <!-- <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
@@ -40,10 +40,9 @@
                           <li><a href="#">Settings 2</a>
                           </li>
                         </ul>
-                      </li>
-                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-                      </li>
-                    </ul> -->
+                      </li> -->
+                      <li><a href="/network/list"><i class="fa fa-close"></i></a></li>
+                    </ul>
                     <div class="clearfix"></div>
                   </div>
                   <div class="x_content">
@@ -52,7 +51,7 @@
                       <div class="profile_img">
                         <div id="crop-avatar">
                           <!-- Current avatar -->
-                          <img onerror="this.src='/static/images/user.jpg'" class="img-responsive avatar-view" src="/static/images/user.jpg" alt="Profile avatar"
+                          <img onerror="this.src='/static/images/user.jpg'" class="img-responsive avatar-view" src="/static<%= data.profile_picture %>" alt="Profile avatar"
                             title="Profile avatar" id="profileimg">
                           <div class="upload_i">
                             <i class="fa fa-upload fa-2x"></i>
@@ -151,13 +150,13 @@
                                 </div>
                                 <div class="x_content">
                                   <br />
-                                  <form class="form-horizontal form-label-left" method="post">
+                                  <form class="form-horizontal form-label-left" id="profileeditform" enctype="multipart/form-data">
 
                                     <!-- Full name -->
                                     <div class="item form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Full name<span class="required">*</span></label>
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Full name<span class="required">*</span></label>
                                       <div class="col-md-2 col-sm-2 col-xs-12">
-                                        <select class="form-control" id="salutation" value="<%= data.salutation %>">
+                                        <select class="form-control" id="salutation" name="salutation" value="<%= data.salutation %>">
                                           <option disabled>Salutation</option>
                                           <option value="Mr">Mr</option>
                                           <option value="Mrs">Mrs</option>
@@ -165,53 +164,52 @@
                                           <option value="Dr">Dr</option>
                                         </select>
                                       </div>
-                                      <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <input type="text" class="form-control" placeholder="Full name" id="fullname" value="<%= data.fullname %>">
-                                        <input type="hidden" id="slug" value="<%= data.slug %>">
+                                      <div class="col-md-5 col-sm-5 col-xs-12">
+                                        <input type="text" class="form-control" placeholder="Full name" id="fullname" name="fullname" value="<%= data.fullname %>" minlength="2" required>
+                                        <input type="hidden" id="slug" name="slug" value="<%= data.slug %>">
                                       </div>
                                     </div>
 
                                     <!-- email -->
-                                    <div class="item form-group" id="email_check_div">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Email<span class="required">*</span></label>
-                                      <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <input type="email" id="emailid" class="form-control" value="<%= data.email %>" placeholder="Email" data-validate-linked='email'>
-                                        <input type="hidden" id="email" class="form-control" name="email" value="<%= data.email %>" required="required" data-validate-linked='email'>
-
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Email<span class="required">*</span></label>
+                                      <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <!-- <input type="email" id="emailid"  value="<%= data.email %>" placeholder="Email" data-validate-linked='email'> -->
+                                        <input type="email" id="email" class="form-control" name="email" value="<%= data.email %>" required="required" placeholder="Email">
                                         <!-- <input type="email" id="email" name="email" value="<%= data.email %>" required="required" class="form-control" placeholder="Email"> -->
                                       </div>
                                       <div class="col-md-1 col-sm-1 col-xs-12">
                                         <% if( data.is_email_verified === 'y' ) { %>
-                                        <i class="fa fa-check-circle-o email-verified" aria-hidden="true"></i>
+                                        <i title="Verified" class="fa fa-check-circle-o email-verified" aria-hidden="true"></i>
                                         <% } else { %>
-                                        <i class="fa fa-times-circle-o email-not-verified" aria-hidden="true"></i>
+                                        <i title="Not verified" class="fa fa-times-circle-o email-not-verified" aria-hidden="true"></i>
                                         <% } %>
                                       </div>
                                     </div>
 
                                     <!-- Phone -->
                                     <div class="item form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Phone<span class="required">*</span></label>
-                                      <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <input type="tel" id="ph_number" name="ph_number" value="<%= data.ph_number %>" required="required" data-validate-length-range="8,20" class="form-control" >
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Phone<span class="required">*</span></label>
+                                      <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <input type="tel" id="ph_number" name="ph_number" value="<%= data.ph_number %>" required="required" class="form-control" >
                                         <input type="hidden" id="ph_country" name="ph_country" class="form-control" value="<%= data.ph_country %>" >
                                         <input type="hidden" id="temp_number" value="<%= data.ph_country +''+ data.ph_number %>">
                                       </div>
                                       <div class="col-md-1 col-sm-1 col-xs-12">
                                         <% if( data.is_phone_verified === 'y' ) { %>
-                                        <i class="fa fa-check-circle-o email-verified" aria-hidden="true"></i>
+                                        <i title="Verified" class="fa fa-check-circle-o email-verified" aria-hidden="true"></i>
                                         <% } else { %>
-                                        <i class="fa fa-times-circle-o email-not-verified" aria-hidden="true"></i>
+                                        <i title="Not verified" class="fa fa-times-circle-o email-not-verified" aria-hidden="true"></i>
                                         <% } %>
                                       </div>                        
                                     </div>
 
                                     <!-- Date of Birth -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Birth<span class="required">*</span></label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <div class='input-group date' id='myDatepicker_dob' data-date="<%= data.dob %>" data-date-format="dd-mmm-yyyy">
-                                            <input type='text' class="form-control" readonly="readonly" id="dob" value="<%= data.dob %>">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Date of Birth<span class="required">*</span></label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <div class='input-group date' id='myDatepicker_dob'  data-date-format="dd-mmm-yyyy">
+                                            <input type='text' id="dob" name="dob" class="form-control" readonly="readonly" savedvalue="<%= data.dob %>">
                                             <span class="input-group-addon">
                                                <span class="glyphicon glyphicon-calendar"></span>
                                             </span>
@@ -221,10 +219,11 @@
 
                                     <!-- Profile pic -->
                                     <div style="height:0px;overflow:hidden">
-                                      <input type="file" id="profilepic" name="profilepic" accept="image/*">
+                                      <input type="file" id="profilepic" name="profilepic" value="<%= data.profile_picture %>" accept="image/*">
+                                      <input type="hidden" id="oldprofilepic" name="oldprofilepic" value="<%= data.profile_picture %>" >
                                     </div>
                                     <!-- <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Profile picture<span class="required">*</span></label>
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Profile picture<span class="required">*</span></label>
                                       <div class="col-md-8 col-sm-8 col-xs-12">
                                         <input type='text' class="form-control" id="profile_picture" value="<%= data.profile_picture %>" />
                                       </div>
@@ -234,66 +233,82 @@
                                     <div class="ln_solid"></div>
 
                                     <!-- Batch -->
-                                    <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Batch<span class="required">*</span></label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <select class="form-control" id="batch" value="<%= data.batch %>">
-                                          <!-- <option value="1999">1999</option>
-                                          <option value="2000">2000</option>
-                                          <option value="2001">2001</option>
-                                          <option value="2002">2002</option>
-                                          <option value="2003">2003</option>
-                                          <option value="2004">2004</option>
-                                          <option value="2005">2005</option>
-                                          <option value="2006">2006</option> -->
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Batch<span class="required">*</span></label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <select class="form-control" id="batch" name="batch" placeholder="Full name" savedvalue="<%= data.batch %>">
+                                          <option value="_" selected >Select batch</option>
+                                          <!-- <option value="1" >test batch</option> -->
                                         </select>
                                       </div>
                                     </div>
 
                                     <!-- Course -->
-                                    <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Course<span class="required">*</span></label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <select class="form-control" id="course" value="<%= data.course %>">
-                                          <!-- <option value="BSC">BSC</option>
-                                          <option value="MSC">MSC</option>
-                                          <option value="BBA">BBA</option>
-                                          <option value="MBA">MBA</option>
-                                          <option value="BScIT">BScIT</option>
-                                          <option value="CA">CA</option> -->
-                                        </select>
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Course<span class="required">*</span></label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <select class="form-control" id="course" name="course" savedvalue="<%= data.course %>">
+                                          <option value="_" selected>Select course</option>
+                                          <!-- <option value="1" >test batch</option> -->
+                                          </select>
                                       </div>
                                     </div>
 
                                     <!-- Memship ID -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Membership ID</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <input id="membership_id" value="<%= data.membership_id %>" type="text" class="form-control" placeholder="Membership ID">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Membership ID</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <input id="membership_id" name="membership_id" value="<%= data.membership_id %>" type="text" class="form-control" placeholder="Membership ID">
                                       </div>
                                     </div>
 
                                     <!-- Hostel -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Hostel</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <input id="hostel" value="<%= data.hostel %>" type="text" class="form-control" placeholder="Hostel">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Hostel</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <input id="hostel" name="hostel" value="<%= data.hostel %>" type="text" class="form-control" placeholder="Hostel">
                                       </div>
                                     </div>
 
                                     <!-- Location -->
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Location<span class="required">*</span></label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <!-- <label class="control-label" style="font-weight: normal;"><%= data.location.address %></label> -->
+                                        <input id="address" name="address" value="<%= data.location.address %>" type="text" class="form-control" required minlength="3" placeholder="Address">                              
+                                      </div>
+                                    </div>
+                                    <!-- city -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Location<span class="required">*</span></label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <label class="control-label" style="font-weight: normal;"><%= data.location %></label>
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">City</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <!-- <label class="control-label" style="font-weight: normal;"><%= data.location.address %></label> -->
+                                        <input id="city" name="city" value="<%= data.location.city %>" type="text" readonly="readonly" class="form-control" placeholder="City">                              
+                                      </div>
+                                    </div>
+                                    <!-- state -->
+                                    <div class="form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">State</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <!-- <label class="control-label" style="font-weight: normal;"><%= data.location.address %></label> -->
+                                        <input id="state" name="state" value="<%= data.location.state %>" type="text" readonly="readonly" class="form-control" placeholder="State">                              
+                                      </div>
+                                    </div>
+                                    <!-- country -->
+                                    <div class="form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Country</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <!-- <label class="control-label" style="font-weight: normal;"><%= data.location.address %></label> -->
+                                        <input id="country" name="country" value="<%= data.location.country %>" type="text" readonly="readonly" class="form-control" placeholder="Country">                              
                                       </div>
                                     </div>
 
                                     <!-- Lat & Long -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Lat & Long</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <label class="control-label" style="font-weight: normal;"><%= data.latnlong %></label>
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Lat & Long</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <!-- <label class="control-label" style="font-weight: normal;"><%= data.latnlong %></label> -->
+                                        <input id="latnlong" name="latnlong" value="<%= data.location.latnlong %>" type="text" readonly="readonly" class="form-control" placeholder="Lat n Long">
                                       </div>
                                     </div>
 
@@ -301,53 +316,59 @@
                                     <div class="ln_solid"></div>
 
                                     <!-- Profile line -->
-                                    <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Profile line</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <input id="profile_line" value="<%= data.profile_line %>" type="text" class="form-control" placeholder="Doctor at AIMS">
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Profile line</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <input id="profile_line" name="profile_line" value="<%= data.profile_line %>" type="text" class="form-control" placeholder="Doctor at AIMS" minlength="10">
                                       </div>
                                     </div>
 
                                     <!-- Summary -->
-                                    <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Summary</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <textarea id="summary" value="<%= data.summary %>" class="form-control" rows="3" placeholder="Summary"></textarea>
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Summary</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <textarea id="summary" name="summary" value="<%= data.summary %>" class="form-control" rows="3" placeholder="Summary" minlength="20"></textarea>
                                       </div>
                                     </div>
 
                                     <!-- Aspiration -->
-                                    <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Aspiration</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <textarea id="aspiration" value="<%= data.aspiration %>" class="form-control" rows="3" placeholder="Aspiration"></textarea>
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Aspiration</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <textarea id="aspirations" name="aspirations" value="<%= data.aspiration %>" class="form-control" rows="3" placeholder="Aspiration" minlength="20"></textarea>
                                       </div>
                                     </div>
 
                                     <!-- Date of Marriage -->
-                                    <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Marriage</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <div class='input-group date' id='myDatepicker2'>
-                                            <input type='text' value="<%= data.dom %>" class="form-control" />
-                                            <span class="input-group-addon">
-                                               <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Date of Marriage</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <div class='input-group date' id='myDatepicker_dom'>
+                                          <input type='text' id="dom" name="dom" value="" class="form-control" readonly="readonly" savedvalue="<%= data.dom %>" minlength="20">
+                                          <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                          </span>
                                         </div>
                                       </div>
                                     </div>
 
                                     <!-- Gender -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Gender</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Gender</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="radio">
-                                          <% if(data.gender === 'm') { %>
-                                          <label><input type="radio" class="flat" name="gender"> Male </label>
-                                          <% } else if(data.gender === 'f') { %>
-                                          <label><input type="radio" class="flat" name="gender"> Female </label>
+                                          <% if(data.gender == 1) { %>
+                                          <label><input type="radio" class="flat" value="1" name="gender"  checked="checked"> Male </label>
+                                          <label><input type="radio" class="flat" value="2" name="gender"> Female </label>
+                                          <label><input type="radio" class="flat" value="3" name="gender"> Other </label>
+                                          <% } else if(data.gender == 2) { %>
+                                            <label><input type="radio" class="flat" value="1" name="gender"> Male </label>
+                                            <label><input type="radio" class="flat" value="2" name="gender" checked="checked"> Female </label>
+                                            <label><input type="radio" class="flat" value="3" name="gender"> Other </label>
                                           <% } else { %>
-                                          <label><input type="radio" class="flat" name="gender"> Other </label>
+                                            <label><input type="radio" class="flat" value="1" name="gender"> Male </label>
+                                            <label><input type="radio" class="flat" value="2" name="gender"> Female </label>
+                                            <label><input type="radio" class="flat" value="3" name="gender" checked="checked"> Other </label>
                                           <% } %>
                                         </div>
                                       </div>
@@ -356,29 +377,29 @@
                                     <h2>Password <!-- <small>different form elements</small> --></h2>
                                     <div class="ln_solid"></div>
 
-                                    <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">New Password</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <input id="password" type="password" class="form-control" placeholder="New Password">
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">New Password</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <input id="password" name="password" type="password" class="form-control" placeholder="New Password" minlength="6">
                                       </div>
                                     </div>
 
                                     <!-- Re type Password -->
-                                    <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Re-type</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <input id="repassword" type="password" class="form-control" placeholder="Re-type Password">
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Re-type</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <input id="repassword" name="repassword" type="password" class="form-control" placeholder="Re-type Password" minlength="6">
                                       </div>
                                     </div>
 
                                     <!-- Temp Password -->
-                                    <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Temparary Password</label>
+                                    <div class="item form-group">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Temparary Password</label>
                                       <div class="col-md-1 col-sm-1 col-xs-12" style="padding-top: 5px;">
-                                            <input id="temp-pass-check" type="checkbox" class="js-switch" />
+                                            <input id="temp-pass-check" name="temp-pass-check" type="checkbox" class="js-switch" />
                                       </div>
-                                      <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <input id="temp-pass-text" type="text" disabled="disabled" class="form-control" placeholder="Temparary Password">
+                                      <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <input id="temp-pass-text" name="temp_password" type="text" disabled="disabled" class="form-control" placeholder="Temparary Password" minlength="6">
                                       </div>
                                     </div>                      
 
@@ -387,36 +408,36 @@
 
                                     <!-- User Status -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">User Status</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <select class="form-control" id="user_status">
-                                          <option <%= (data.user_status==1)?'selected="selected"':'' %> >Pending</option>
-                                          <option <%= (data.user_status==2)?'selected="selected"':'' %> >Approved</option>
-                                          <option <%= (data.user_status==3)?'selected="selected"':'' %> >Rejected</option>
-                                          <option <%= (data.user_status==4)?'selected="selected"':'' %> >Suspend</option>
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">User Status</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <select class="form-control" id="user_status" name="user_status">
+                                          <option value="1" <%= (data.user_status==1)?'selected="selected"':'' %> >Pending</option>
+                                          <option value="2" <%= (data.user_status==2)?'selected="selected"':'' %> >Approved</option>
+                                          <option value="3" <%= (data.user_status==3)?'selected="selected"':'' %> >Rejected</option>
+                                          <option value="4" <%= (data.user_status==4)?'selected="selected"':'' %> >Suspend</option>
                                         </select>
                                       </div>
                                     </div>
 
                                     <!-- User type -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">User Type</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <select class="form-control" id="user_type">
-                                          <option <%= (data.user_type==6)?'selected="selected"':'' %> >Student</option>
-                                          <option <%= (data.user_type==5)?'selected="selected"':'' %> >Alumni</option>
-                                          <option <%= (data.user_type==4)?'selected="selected"':'' %> >Faculty</option>
-                                          <option <%= (data.user_type==3)?'selected="selected"':'' %> >Alcom</option>
-                                          <option <%= (data.user_type==2)?'selected="selected"':'' %> >College Admin</option>
-                                          <option <%= (data.user_type==1)?'selected="selected"':'' %> >Administrator</option>
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">User Type</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <select class="form-control" id="user_type" name="user_type">
+                                          <option value="1" <%= (data.user_type==1)?'selected="selected"':'' %> >Student</option>
+                                          <option value="2" <%= (data.user_type==2)?'selected="selected"':'' %> >Alumni</option>
+                                          <option value="3" <%= (data.user_type==3)?'selected="selected"':'' %> >Faculty</option>
+                                          <option value="4" <%= (data.user_type==4)?'selected="selected"':'' %> >Alcom</option>
+                                          <option value="5" <%= (data.user_type==5)?'selected="selected"':'' %> >College Admin</option>
+                                          <option value="6" <%= (data.user_type==6)?'selected="selected"':'' %> >Administrator</option>
                                         </select>
                                       </div>
                                     </div>
 
                                     <!-- User From -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">User From</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">User From</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
                                         <select class="form-control" disabled="disabled">
                                           <option <%= (data.user_from==1)?'selected="selected"':'' %> >Registration</option>
                                           <option <%= (data.user_from==2)?'selected="selected"':'' %> >Admin</option>
@@ -430,33 +451,33 @@
 
                                     <!-- Registered on -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Registered on</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <label class="control-label" style="font-weight: normal;"><%= data.registered_on %></label>
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Registered on</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <label class="control-label" style="font-weight: normal;" id="registered_on" savedvalue="<%= data.registered_on %>"></label>
                                       </div>
                                     </div>  
 
                                     <!-- Approved on -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Approved on</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <label class="control-label" style="font-weight: normal;"><%= data.approved_on %></label>
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Approved on</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <label class="control-label" style="font-weight: normal;" id="approved_on" savedvalue="<%= data.approved_on %>"></label>
                                       </div>
                                     </div>                      
 
                                     <!-- Approved by -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Approved by</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Approved by</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;"><%= data.approved_by_name %></label>
                                       </div>
                                     </div>                      
 
                                     <!-- Last updated -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Last updated</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <label class="control-label" style="font-weight: normal;"><%= data.last_update %></label>
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Last updated</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <label class="control-label" style="font-weight: normal;" id="last_update" savedvalue="<%= data.last_update %>"></label>
                                       </div>
                                     </div>
 
@@ -465,56 +486,56 @@
 
                                     <!-- Entrepreneur -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Entrepreneur</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
-                                        <input id="entrepreneur" <%= (data.entrepreneur)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Entrepreneur</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                                        <input id="entrepreneur" name="entrepreneur" <%= (data.entrepreneur)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>
 
                                     <!-- Public profile -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Public Profile</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
-                                        <input id="public_profile" <%= (data.public_profile)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Public Profile</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                                        <input id="public_profile" name="public_profile" <%= (data.public_profile)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>
 
                                     <!-- Donation status -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Donation Status</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
-                                        <input id="donation_status" <%= (data.donation_status)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Donation Status</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                                        <input id="donation_status" name="donation_status" <%= (data.donation_status)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>
 
                                     <!-- Renouwned Alumni -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Renowned_Alumni</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
-                                        <input id="renowned_alumni" <%= (data.renowned_alumni)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Renowned_Alumni</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                                        <input id="renowned_alumni" name="renowned_alumni" <%= (data.renowned_alumni)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>  
 
                                     <!-- Mentorship -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Mentorship</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12" style="padding-top: 5px;">
-                                        <input id="mentorship" <%= (data.mentorship)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Mentorship</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12" style="padding-top: 5px;">
+                                        <input id="mentorship" name="mentorship" <%= (data.mentorship)?'checked="checked"':'' %> type="checkbox" class="js-switch" placeholder="Temparary Password">
                                       </div>
                                     </div>
                                     
                                     <!-- DND email -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Email notification - (DND)</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">Email notification - (DND)</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;">Yes</label>
                                       </div>
                                     </div>
 
                                     <!-- DND SMS -->
                                     <div class="form-group">
-                                      <label class="control-label col-md-3 col-sm-3 col-xs-12">SMS notification - (DND)</label>
-                                      <div class="col-md-8 col-sm-8 col-xs-12">
+                                      <label class="control-label col-md-2 col-sm-2 col-xs-12">SMS notification - (DND)</label>
+                                      <div class="col-md-7 col-sm-7 col-xs-12">
                                         <label class="control-label" style="font-weight: normal;">No</label>
                                       </div>
                                     </div>                      
@@ -522,7 +543,7 @@
                                     <div class="form-group">
                                       <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-3">
                                         <button type="button" class="btn btn-primary">Cancel</button>
-                                        <button type="reset" class="btn btn-primary">Reset</button>
+                                        <!-- <button type="reset" class="btn btn-primary">Reset</button> -->
                                         <button type="submit" class="btn btn-success">Submit</button>
                                       </div>
                                     </div>

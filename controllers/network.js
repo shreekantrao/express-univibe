@@ -82,8 +82,24 @@ module.exports = {
         try{
             let db_slug = req.cookies['siteHeader'].db_slug;
             let check = await network.checkemailavailable(req.body.email, req.body.slug, db_slug);
-            console.log('check',check)
-            res.send((check.data)?false:true);
+            // console.log('check',check)
+            setTimeout(() => {
+                res.send((check.data)?'"Already taken."':true);
+            }, 5000);
+        } catch(e){
+            next(e);
+        }
+    },
+
+    checkphoneavailable : async (req, res, next) => {
+        try{
+            let db_slug = req.cookies['siteHeader'].db_slug;
+            let ph_number = parseInt(req.body.ph_number.replace('-', '').replace(' ', '').trim());
+            let check = await network.checkphoneavailable(req.body.ph_country, ph_number, req.body.slug, db_slug);
+            // console.log('check',check)
+            setTimeout(() => {
+                res.send((check.data)?'"Already taken."':true);
+            }, 5000);
         } catch(e){
             next(e);
         }
@@ -188,6 +204,100 @@ module.exports = {
             
             // return res.json(req.body);
             let data = await network.addProfileData(transformer(formData), userFile, filename, db_slug)
+            console.log('retrun from model',data);
+            if (data.status) {
+                let notify = [];
+                notify.push({ title: "Notification", type: "notice", text: "New Profile successfully created." });
+                req.session.notify = notify;
+                return res.redirect('/network/add');
+            }else{
+                let notify = [];
+                notify.push({ title: "Notification", type: "alert", text: "New Profile could not be created." });
+                req.session.notify = notify;
+                return res.redirect('/network/add');
+            }
+        } catch (e) {
+            // next(e);
+            throw e;
+        }
+    },
+
+    updateProfileData: async(req, res, next) => {
+        try {
+            let formData = req.body;
+            let userFile = req.files.profilepic;
+            let filename = '';
+            let db_slug = req.cookies['siteHeader'].db_slug;
+            console.log('controller formData', formData);
+            console.log('controller formFile', userFile);
+            
+            // check for mandatory fields
+            if( formData.salutation===''||
+                formData.fullname===''||
+                formData.email===''||
+                formData.slug===''||
+                formData.ph_number===''||
+                formData.batch===''||
+                formData.course===''||
+                formData.address===''){
+                    let notify = [];
+                    notify.push({ title: "Notification", type: "notice", text: "Your form is not properly filled." });
+                    req.session.notify = notify;
+                    console.log('Form not filled properly.');
+                    // return res.redirect('/network/add');
+            }    
+            
+            const processImg = (name) => {
+                if (!userFile){
+                    filename = '/' + db_slug +'/lego/' + Math.floor((Math.random() * 10) + 1) + '.jpg';
+                    return filename;
+                }else{
+                    filename = name.toLowerCase().replace(' ', '') +'_'+ new Date().getTime() + '.' + userFile.name.split('.').pop();
+                    return '/' + db_slug + '/profile_img/' + filename;
+                } 
+            }    
+
+            const transformer = (doc) => {
+                return {
+            
+                    email:                          doc.email,
+                    slug:                           doc.slug,
+                    password:                       doc.password,
+                    temp_password:                  doc.temp_password||'',
+                    user_status:                    parseInt(doc.user_status),
+                    user_type:                      parseInt(doc.user_type),
+                    salutation:                     doc.salutation,
+                    fullname:                       doc.fullname,
+                    ph_country:                     doc.ph_country,
+                    ph_number:                      parseInt( doc.ph_number.replace('-','').replace(' ','').trim() ),
+                    location:{
+                        address:                    doc.address,
+                        city:                       doc.city,
+                        state:                      doc.state,
+                        country:                    doc.country,
+                        latnlong:                   doc.latnlong
+                    },
+                    dob:                            (doc.dob?new Date(doc.dob):null),
+                    batch:                          doc.batch,
+                    course:                         doc.course,
+                    gender:                         parseInt(doc.gender),
+                    membership_id:                  doc.membership_id,
+                    hostel:                         doc.hostel,
+                    profile_line:                   doc.profile_line,
+                    summary:                        doc.summary,
+                    aspirations:                    doc.aspirations,
+                    dom:                            (doc.dom?new Date(doc.dom):null),
+                    entrepreneur:                   (doc.entrepreneur=='on'?true:false),
+                    public_profile:                 (doc.public_profile=='on'?true:false),
+                    donation_status:                (doc.donation_status=='on'?true:false),
+                    renowned_alumni:                (doc.renowned_alumni=='on'?true:false),
+                    mentorship:                     (doc.mentorship=='on'?true:false),
+                    profile_picture:                doc.oldprofilepic || processImg(doc.fullname)
+                };
+            }
+            
+            // return res.json(req.body);
+            let data = await network.updateProfileData(transformer(formData), userFile, filename, db_slug)
             console.log('retrun from model',data);
             if (data.status) {
                 let notify = [];

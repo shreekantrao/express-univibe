@@ -63,10 +63,23 @@ router.post('/add', function(req, res) {
 	// res.render('page', {"page_Code":"profile_add","page_Title":"Add New Profile"});
 	network.addProfileData(req, res);
 });
+
+// --- Update Profile page --- //
+router.post('/update', function(req, res) {
+	// res.render('page', {"page_Code":"profile_add","page_Title":"Add New Profile"});
+	network.updateProfileData(req, res);
+});
+
 // --- Ajax call to check email exist --- //
 router.post('/checkemailavailable', function(req, res, next) {
 	// res.render('page', {"page_Code":"profile_add","page_Title":"Add New Profile"});
 	network.checkemailavailable(req, res, next);
+});
+
+// --- Ajax call to check phone exist --- //
+router.post('/checkphoneavailable', function(req, res, next) {
+	// res.render('page', {"page_Code":"profile_add","page_Title":"Add New Profile"});
+	network.checkphoneavailable(req, res, next);
 });
 
 module.exports = router;
