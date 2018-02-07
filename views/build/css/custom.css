@@ -5310,8 +5310,8 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
     padding-top:4px;
     display:inline-block;
     position:absolute;
-    top:0px;
-    right:0px;
+    top:26px;
+    right:26px;
     transition:ease 0.25s all;
     -webkit-transform:translate(50%, -50%);
     transform:translate(50%, -50%);

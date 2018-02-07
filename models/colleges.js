@@ -6,10 +6,10 @@ mongoose.Promise = global.Promise;
 // User Schema
 const CollegesSchema = mongoose.Schema({
 
-  name: { type: String, required: true },
-  slug: { type: String, required: true },
-  db_slug: { type: String, required: false },
-  domain: { type: String },
+  name: { type: String, required: true, unique: true, index: true },
+  slug: { type: String, required: true, unique: true, index: true },
+  db_slug: { type: String, required: false, unique: true, index: true },
+  domain: { type: String, default: null },
   registered_date: { type: Date, default: Date.now },
   last_updated: { type: Date, default: Date.now },
   long_name: { type: String, required: true },
@@ -59,19 +59,17 @@ const CollegesSchema = mongoose.Schema({
 
 });
 
+// Generate a Unique Index only if Domain value is a sting. Thatwhy pass null if no Domain available.
+CollegesSchema.index( { domain: 1 }, { unique: true, partialFilterExpression: { domain: { $type: "string" } } } );
+
 // This is call only before save
-CollegesSchema.pre('save', function (next) {
-  // console.log('db slug ',this.db_slug);
-  // console.log('slug ',this.slug);
-  this.db_slug = this.slug;
-  next();
-});
+CollegesSchema.pre('save', function (next) { this.db_slug = this.slug; next(); });
+
 // This will be called only when UPDATE is fired
-CollegesSchema.pre('update', function () {
-  this.last_updated = Date.now();
-});
+CollegesSchema.pre('update', function () { this.last_updated = Date.now(); next(); });
+
 // This will be called only when FIND is fired
-CollegesSchema.pre('find', function () {
+CollegesSchema.pre('find', function () { 
   // console.log( mongoose.Query); // true
   // console.log(this instanceof mongoose.Query); // true
 });
@@ -102,6 +100,7 @@ module.exports.getSiteHeader = (query) => {
 
 module.exports.createNewCollege = function(collegeData){
   var data = new colleges(collegeData);
+  // console.log('Data object - ', data);
   return data.save()
     .then(item => ({success: true, msg: "item saved to database", slug: collegeData.slug }))
     .catch(err => ({success: false, msg: "unable to save to database", error: err }));
@@ -116,6 +115,18 @@ module.exports.checkCollegeNameExists = (name, slug)=>{
   ]).then(result => result.reduce((acc,curr) =>
     Object.assign(acc,curr),{})
   );
+}
+
+module.exports.checkDomainAvailable = (domain, slug)=>{
+  // console.log('model -',domain);
+  let query = {};
+  query["domain"] = domain;
+  if (slug) query["slug"] = { $ne: slug };
+  console.log('model query -',query);
+
+  return colleges.count(query)
+    .then(count => ({ success: true, count: count }))
+    .catch(err => ({ success: false, count: err }));
 }
 
 module.exports.getCollegeData = (slug)=>{

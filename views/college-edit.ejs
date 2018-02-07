@@ -40,7 +40,8 @@
             <!-- Smart Wizard -->
             <!-- <h2>Example: Vertical Style</h2> -->
             <!-- Tabs -->
-            <form method="post" action="/colleges/editone" novalidate>
+            <form method="post" action="/colleges/editone" id="collegeeditform" >
+
               <div id="wizard_college_edit" class="form_wizard wizard_verticle">
                 <ul class="list-unstyled wizard_steps">
                   <li>
@@ -83,68 +84,87 @@
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input type="text" id="name" name="name" value="<%-data.name%>" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe college" data-validate-length-range="3,15" readonly="readonly">
+                        <input type="text" value="<%-data.name%>" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe college" readonly="readonly">
                       </div>
                     </div>
+
                     <!-- slug -->
                     <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3" for="slug">Default URL</label>
                       <div class="col-md-3 col-sm-3">
-                        <input type="text" id="slug" name="slug" value="<%-data.slug%>" class="form-control col-md-7 col-xs-12" placeholder="univibe-college" required="required" readonly="readonly" >
+                        <input type="text" id="slug" value="<%-data.slug%>" class="form-control col-md-7 col-xs-12" placeholder="univibe-college" required="required" readonly="readonly" >
                       </div>
                       <label class="control-label col-md-2 col-sm-2" style="text-align: left;">.univibe.com</label>
                     </div>
+
                     <!-- domain -->
                     <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3" for="domain">Domain</label>
                       <div class="col-md-5 col-sm-5">
-                        <input type="url" id="domain" name="domain" value="<%-data.domain%>" class="form-control col-md-7 col-xs-12" placeholder="univibealumni.com" data-validation="url">
+                        <input type="text" id="domain" name="domain" value="<%-data.domain%>" class="form-control col-md-7 col-xs-12" placeholder="univibealumni.com">
                       </div>
                     </div>
+
                     <!-- long_name -->
                     <div class="form-group field">
                       <label for="middle-name" class="control-label col-md-3 col-sm-3" for="long_name">College Long Name
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input id="long_name" name="long_name" value="<%-data.long_name%>" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni Assosiation"
-                          type="text" data-validate-length-range="5,25" data-validate-words="2">
+                        <input id="long_name" name="long_name" value="<%-data.long_name%>" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni Assosiation" type="text">
                       </div>
                     </div>
+
                     <!-- short_name -->
                     <div class="form-group field">
                       <label for="middle-name" class="control-label col-md-3 col-sm-3" for="short_name">College Short Name
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input id="short_name" name="short_name" value="<%-data.short_name%>" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni"
-                          type="text" data-validate-length-range="5,15">
+                        <input id="short_name" name="short_name" value="<%-data.short_name%>" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni" type="text">
                       </div>
                     </div>
+
                     <!-- establishment_year -->
                     <div class="form-group field">
                       <label for="middle-name" class="control-label col-md-3 col-sm-3" for="establishment_year">Establishment Year
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input id="establishment_year" required="required" value="<%-data.establishment_year%>" class="form-control col-md-7 col-xs-12" type="number" data-validate-minmax="1900,2020">
+                        <input id="establishment_year" name="establishment_year" required="required" value="<%-data.establishment_year%>" class="form-control col-md-7 col-xs-12" type="number" >
                       </div>
                     </div>
+
                     <!-- registered_date -->
                     <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3">Created date</label>
                       <div class="col-md-5 col-sm-5">
-                        <input readonly="readonly" value="<%-new Date(data.registered_date).toLocaleDateString()%>" class="form-control col-md-7 col-xs-12" type="text">
+                        <input readonly="readonly" id="registered_date" value="" savedvalue="<%-new Date(data.registered_date).toLocaleDateString()%>" class="form-control col-md-7 col-xs-12" type="text">
                       </div>
                     </div>
+                    
                     <!-- last_updated -->
                     <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3">Last Edited</label>
                       <div class="col-md-5 col-sm-5">
-                        <input readonly="readonly" value="<%-new Date(data.last_updated).toLocaleDateString()%>" class="form-control col-md-7 col-xs-12" type="text">
+                        <input readonly="readonly" id="last_updated" value="" savedvalue="<%-new Date(data.last_updated).toLocaleDateString()%>" class="form-control col-md-7 col-xs-12" type="text">
                       </div>
                     </div>
 
+                    <!-- Status -->
+                    <div class="form-group field">
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Batch
+                        <!-- <span class="required">*</span> -->
+                      </label>
+                      <div class="col-md-5 col-sm-5 col-xs-12">
+                        <select class="form-control" id="status" name="status" value="" <%= (data.status==0)?'disabled="disabled"':'' %> >
+                          <!-- <option value="0" <%= (data.status==0)?'selected="selected"':'' %> >Processing</option> -->
+                          <option value="1" <%= (data.status==1)?'selected="selected"':'' %> >Unpublished</option>
+                          <option value="2" <%= (data.status==2)?'selected="selected"':'' %> >Published</option>
+                          <option value="3"<%= (data.status==3)?'selected="selected"':'' %> >Suspended</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -159,7 +179,7 @@
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input type="file" id="Favicon" name="favicon" value="<%-data.favicon%>" required="required" class="form-control col-md-7 col-xs-12">
+                        <input type="file" id="Favicon" name="favicon" value="<%-data.favicon%>" required="required" accept="image/*" class="form-control col-md-7 col-xs-12">
                       </div>
                     </div>
                     <!-- Logo large -->
@@ -168,7 +188,7 @@
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input type="file" id="logo_l" name="logo_l" value="<%-data.logo_l%>" required="required" class="form-control col-md-7 col-xs-12">
+                        <input type="file" id="logo_l" name="logo_l" value="<%-data.logo_l%>" required="required" accept="image/*" class="form-control col-md-7 col-xs-12">
                       </div>
                     </div>
                     <!-- Logo small -->
@@ -177,19 +197,23 @@
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input type="file" id="logo_s" name="logo_s" value="<%-data.logo_s%>" required="required" class="form-control col-md-7 col-xs-12" >
+                        <input type="file" id="logo_s" name="logo_s" value="<%-data.logo_s%>" required="required" accept="image/*" class="form-control col-md-7 col-xs-12" >
                       </div>
                     </div>
                     <!-- footer_text -->
                     <div class="form-group field">
-                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Footer text</label>
+                      <label for="middle-name" class="control-label col-md-3 col-sm-3">Footer text
+                        <span class="required">*</span>                        
+                      </label>
                       <div class="col-md-5 col-sm-5">
                         <input id="footer_text" name="footer_text" value="<%-data.footer_text%>" class="form-control col-md-7 col-xs-12" type="text" required="required">
                       </div>
                     </div>
                     <!-- button_color -->
                     <div class="form-group field">
-                      <label class="control-label col-md-3 col-sm-3">Button color</label>
+                      <label class="control-label col-md-3 col-sm-3">Button color
+                        <span class="required">*</span>                        
+                      </label>
                       <div class="col-md-5 col-sm-5">
                         <div class="input-group college_color">
                           <input type="text" id="button_color" name="button_color" value="<%-data.theme_color.button_color%>" class="form-control" required="required">
@@ -201,7 +225,9 @@
                     </div>
                     <!-- navigation_color -->
                     <div class="form-group field">
-                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Navigation color</label>
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Navigation color
+                        <span class="required">*</span>                        
+                      </label>
                       <div class="col-md-5 col-sm-5">
                         <div class="input-group college_color">
                           <input type="text" id="navigation_color" name="navigation_color" value="<%-data.theme_color.navigation_color%>" class="form-control" required="required">
@@ -213,7 +239,9 @@
                     </div>
                     <!-- link_color -->
                     <div class="form-group field">
-                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Link color</label>
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Link color
+                        <span class="required">*</span>                        
+                      </label>
                       <div class="col-md-5 col-sm-5">
                         <div class="input-group college_color">
                           <input type="text" id="link_color" name="link_color" value="<%-data.theme_color.link_color%>" class="form-control" required="required">
@@ -225,7 +253,9 @@
                     </div>
                     <!-- tab_color -->
                     <div class="form-group field">
-                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Tab color</label>
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Tab color
+                        <span class="required">*</span>                        
+                      </label>
                       <div class="col-md-5 col-sm-5">
                         <div class="input-group college_color">
                           <input type="text" id="tab_color" name="tab_color" value="<%-data.theme_color.tab_color%>" class="form-control" required="required">
@@ -237,9 +267,11 @@
                     </div>
                     <!-- progress_bar_color -->
                     <div class="form-group field">
-                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Progress color</label>
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Progress color
+                        <span class="required">*</span>                        
+                      </label>
                       <div class="col-md-5 col-sm-5">
-                        <div class="input-group demo2">
+                        <div class="input-group college_color">
                           <input type="text" id="progress_bar_color" name="progress_bar_color" value="<%-data.theme_color.progress_bar_color%>" class="form-control" required="required">
                           <span class="input-group-addon">
                             <i></i>
@@ -253,7 +285,7 @@
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input id="theme_id" name="theme_id" class="date-picker form-control col-md-7 col-xs-12" type="text">
+                        <input id="theme_id" name="theme_id" required="required" class="form-control col-md-7 col-xs-12" type="text">
                       </div>
                     </div>
 
@@ -367,7 +399,7 @@
                     <!-- international_insta_mojo_token -->
                     <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3" for="first-name">International Insta Mojo Token
-                        <span class="required">*</span>
+                        <!-- <span class="required">*</span> -->
                       </label>
                       <div class="col-md-5 col-sm-5">
                         <input type="text" id="international_insta_mojo_token" name="international_insta_mojo_token" value="<%-data.international_insta_mojo_token%>" class="form-control col-md-7 col-xs-12">
@@ -376,7 +408,7 @@
 
                     <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3" for="last-name">International Insta Mojo key
-                        <span class="required">*</span>
+                        <!-- <span class="required">*</span> -->
                       </label>
                       <div class="col-md-5 col-sm-5">
                         <input type="text" id="international_insta_mojo_key" name="international_insta_mojo_key" value="<%-data.international_insta_mojo_key%>" class="form-control col-md-7 col-xs-12">

@@ -2142,7 +2142,7 @@ function init_PNotify() {
 			nonblock: {
 				nonblock: true
 			},
-			styling: 'bootstrap3',
+			// styling: 'bootstrap3',
 			hide: true
 		});
 	});
@@ -5456,17 +5456,17 @@ $(document).ready(function () {
 
 	if ($("#pagecode_college-add").exists()) {
 		init_SmartWizard_add();
-		init_validator();
+		// init_validator();
 	}
 	if ($("#pagecode_college-edit").exists()) {
 		init_SmartWizard_edit();
 		init_ColorPicker();
-		init_validator();
+		// init_validator();
 	}
 
 	if ($("#pagecode_companies").exists()) {
 		init_companiesTablePagination();
-		init_validator();
+		// init_validator();
 	}
 	if ($("#pagecode_industries").exists()) {
 		init_industriesTablePagination();
@@ -5495,7 +5495,10 @@ $(document).ready(function () {
 
 });
 
-//#################### Shrikant Rao ###############
+// #####################################################
+// ############## Shrikant Global functions ############
+// #####################################################
+
 // This will be used to store pagination data
 const pagination_data = [];
 // convert date to "minutes/hours ago | Monday/Tuesday"
@@ -5544,307 +5547,318 @@ function dateFormater(date2Show, show='datetime') {
 	else
 		return date2Show.toLocaleString("en-in", { day: "numeric", month: "short", year: "numeric", hour: '2-digit', minute: '2-digit' });
 }
+
+function generateCollegeSlug(Text = '') {
+	return Text.trim().toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '');
+}
+
+function convertToSlug(Text) {
+	return Text.trim().toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
+}
+
 // ############### Bootstrap table js #################
+/* {
+	var $table = $('#table'),
+		$remove = $('#remove'),
+		selections = [];
 
-var $table = $('#table'),
-	$remove = $('#remove'),
-	selections = [];
-
-function initTable() {
-	$table.bootstrapTable({
-		height: getHeight(),
-		columns: [{
-			field: 'state',
-			checkbox: true,
-			align: 'center',
-			valign: 'middle'
-		}, {
-			title: 'Full Name',
-			field: 'fullname',
-			align: 'center',
-			valign: 'middle',
-			sortable: true,
-			footerFormatter: totalNameFormatter
-		}, {
-			field: 'email',
-			title: 'Email',
-			sortable: true,
-			editable: false,
-			align: 'center',
-			footerFormatter: totalTextFormatter
-		}, {
-			field: 'registration_type',
-			title: 'Type',
-			sortable: true,
-			align: 'center',
-			footerFormatter: totalTextFormatter
-		}, {
-			field: 'registered_on',
-			title: 'Registered on',
-			sortable: true,
-			align: 'center',
-			footerFormatter: totalTextFormatter
-		}, {
-			field: 'course',
-			title: 'Course',
-			sortable: true,
-			align: 'center',
-			footerFormatter: totalTextFormatter
-		}, {
-			field: 'batch',
-			title: 'Batch',
-			sortable: true,
-			align: 'center',
-			footerFormatter: totalTextFormatter
-		}, {
-			field: 'operate',
-			title: 'Action',
-			align: 'center',
-			events: operateEvents,
-			formatter: operateFormatter
-		}]
-	});
-	// sometimes footer render error.
-	setTimeout(function () {
-		$table.bootstrapTable('resetView');
-	}, 200);
-	$table.on('check.bs.table uncheck.bs.table ' +
-		'check-all.bs.table uncheck-all.bs.table',
-		function () {
-			$remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
-
-			// save your data, here just save the current page
-			selections = getIdSelections();
-			// push or splice the selections if you want to save all data selections
+	function initTable() {
+		$table.bootstrapTable({
+			height: getHeight(),
+			columns: [{
+				field: 'state',
+				checkbox: true,
+				align: 'center',
+				valign: 'middle'
+			}, {
+				title: 'Full Name',
+				field: 'fullname',
+				align: 'center',
+				valign: 'middle',
+				sortable: true,
+				footerFormatter: totalNameFormatter
+			}, {
+				field: 'email',
+				title: 'Email',
+				sortable: true,
+				editable: false,
+				align: 'center',
+				footerFormatter: totalTextFormatter
+			}, {
+				field: 'registration_type',
+				title: 'Type',
+				sortable: true,
+				align: 'center',
+				footerFormatter: totalTextFormatter
+			}, {
+				field: 'registered_on',
+				title: 'Registered on',
+				sortable: true,
+				align: 'center',
+				footerFormatter: totalTextFormatter
+			}, {
+				field: 'course',
+				title: 'Course',
+				sortable: true,
+				align: 'center',
+				footerFormatter: totalTextFormatter
+			}, {
+				field: 'batch',
+				title: 'Batch',
+				sortable: true,
+				align: 'center',
+				footerFormatter: totalTextFormatter
+			}, {
+				field: 'operate',
+				title: 'Action',
+				align: 'center',
+				events: operateEvents,
+				formatter: operateFormatter
+			}]
 		});
-	$table.on('expand-row.bs.table', function (e, index, row, $detail) {
-		if (index % 2 == 1 && 0) {
-			$detail.html('Loading from ajax request...');
-			$.get('LICENSE', function (res) {
-				$detail.html(res.replace(/\n/g, '<br>'));
+		// sometimes footer render error.
+		setTimeout(function () {
+			$table.bootstrapTable('resetView');
+		}, 200);
+		$table.on('check.bs.table uncheck.bs.table ' +
+			'check-all.bs.table uncheck-all.bs.table',
+			function () {
+				$remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
+
+				// save your data, here just save the current page
+				selections = getIdSelections();
+				// push or splice the selections if you want to save all data selections
 			});
-		}
-	});
-	$table.on('all.bs.table', function (e, name, args) {
-		console.log(name, args);
-	});
-	$remove.click(function () {
-		var ids = getIdSelections();
-		$table.bootstrapTable('remove', {
-			field: 'id',
-			values: ids
-		});
-		$remove.prop('disabled', true);
-	});
-	$(window).resize(function () {
-		$table.bootstrapTable('resetView', {
-			height: getHeight()
-		});
-	});
-}
-
-function getIdSelections() {
-	return $.map($table.bootstrapTable('getSelections'), function (row) {
-		return row.id
-	});
-}
-
-function responseHandler(res) {
-	$.each(res.rows, function (i, row) {
-		row.state = $.inArray(row.id, selections) !== -1;
-	});
-	return res;
-}
-
-function detailFormatter(index, row) {
-	console.log(index);
-	var html = [];
-	$.each(row, function (key, value) {
-		html.push('<p class="form-control-static"><b>' + key + ':</b> ' + value + '</p>');
-	});
-	return html.join('');
-}
-
-function operateFormatter(value, row, index) {
-	return [
-		'<a class="edit" href="javascript:void(0)" title="Like">',
-		'<i class="glyphicon glyphicon-edit"></i>',
-		'</a>  ',
-		'<a class="remove" href="javascript:void(0)" title="Remove" data-toggle="confirmation" data-title="Sure Delete?" >',
-		'<i class="glyphicon glyphicon-remove"></i>',
-		'</a>'
-	].join('');
-}
-
-window.operateEvents = {
-	'click .edit': function (e, value, row, index) {
-		alert('You click like action, row: ' + JSON.stringify(row));
-		$('#userform').show();
-		$('#userform input[id=first-name2]').val('Hello World!');
-		$('#usertable').slideToggle("slow");
-	},
-	'click .remove': function (e, value, row, index) {
-		// alert('You click remove action, row: ' + JSON.stringify(row));
-		// $table.bootstrapTable('remove', {
-		// 		field: 'id',
-		// 		values: [row.id]
-		// });
-		removeRow(row.id);
-	}
-};
-
-function totalTextFormatter(data) {
-	return 'Total';
-}
-
-function totalNameFormatter(data) {
-	return data.length;
-}
-
-function totalPriceFormatter(data) {
-	var total = 0;
-	$.each(data, function (i, row) {
-		total += +(row.price.substring(1));
-	});
-	return '$' + total;
-}
-
-function getHeight() {
-	return $(window).height() - $('h1').outerHeight(true);
-}
-
-$(function () {
-	var scripts = [
-			location.search.substring(1) || '/assets/vendors/bootstrap-table/src/bootstrap-table.js',
-			'/assets/vendors/bootstrap-table/src/bootstrap-table-export.js',
-			'/assets/vendors/bootstrap-table/src/tableExport.js',
-			'/assets/vendors/bootstrap-table/src/bootstrap-table-editable.js',
-			'/assets/vendors/bootstrap-table/src/bootstrap-editable.js'
-		],
-		eachSeries = function (arr, iterator, callback) {
-			callback = callback || function () {};
-			if (!arr.length) {
-				return callback();
-			}
-			var completed = 0;
-			var iterate = function () {
-				iterator(arr[completed], function (err) {
-					if (err) {
-						callback(err);
-						callback = function () {};
-					} else {
-						completed += 1;
-						if (completed >= arr.length) {
-							callback(null);
-						} else {
-							iterate();
-						}
-					}
+		$table.on('expand-row.bs.table', function (e, index, row, $detail) {
+			if (index % 2 == 1 && 0) {
+				$detail.html('Loading from ajax request...');
+				$.get('LICENSE', function (res) {
+					$detail.html(res.replace(/\n/g, '<br>'));
 				});
-			};
-			iterate();
-		};
-
-	eachSeries(scripts, getScript, initTable);
-});
-
-function getScript(url, callback) {
-	var head = document.getElementsByTagName('head')[0];
-	var script = document.createElement('script');
-	script.src = url;
-
-	var done = false;
-	// Attach handlers for all browsers
-	script.onload = script.onreadystatechange = function () {
-		if (!done && (!this.readyState ||
-				this.readyState == 'loaded' || this.readyState == 'complete')) {
-			done = true;
-			if (callback)
-				callback();
-
-			// Handle memory leak in IE
-			script.onload = script.onreadystatechange = null;
-		}
-	};
-
-	head.appendChild(script);
-
-	// We handle everything using the script element injection
-	return undefined;
-}
-
-function removeRow(ids) {
-
-	// return false;
-	// var selects = $('#users-table').bootstrapTable('getSelections');
-	// 		ids = $.map(selects, function (row) {
-	// 				return row.id;
-	// 		});
-
-	var url = '/users/delete';
-	// var data = 'userID=' + ids.join(',');
-	var data = 'userID=' + ids;
-	// alert('post data - '+data);
-	$.ajax({
-		url: url,
-		data: data,
-		cache: false,
-		error: function (e) {
-			alert('Error - ' + e);
-		},
-		success: function () {
-			alert('Delect success');
-			var idds = getIdSelections();
-			console.log('ids are - ' + idds);
+			}
+		});
+		$table.on('all.bs.table', function (e, name, args) {
+			console.log(name, args);
+		});
+		$remove.click(function () {
+			var ids = getIdSelections();
 			$table.bootstrapTable('remove', {
 				field: 'id',
 				values: ids
 			});
-		}
-	});
-}
+			$remove.prop('disabled', true);
+		});
+		$(window).resize(function () {
+			$table.bootstrapTable('resetView', {
+				height: getHeight()
+			});
+		});
+	}
 
-function bst_DeleteButton(oBtn) {
-	alert(oBtn);
-	var options = {
-		title: "Are you really sure you want to delete all the checked rows?",
-		singleton: true,
-		popout: true,
-		btnOkClass: "btn-xs btn-danger",
-		btnOkIcon: "glyphicon glyphicon-trash",
-		btnOkLabel: "Delete",
-		btnCancelLabel: "Cancel",
-		placement: "auto right",
-		onConfirm: function () {
-			var $div = $(this).closest('div.bootstrap-table'),
-				$table = $div.find('table.table'),
-				$rows = $table.find(':checked'),
-				ids = $.map($rows, function (row) {
-					return row.value
-				});
+	function getIdSelections() {
+		return $.map($table.bootstrapTable('getSelections'), function (row) {
+			return row.id
+		});
+	}
 
-			ajax_call('?MODE=jqload&alias=' + $table.data('alias') + '&action=bst_remove&id=' + ids.toString(),
-				'DELETE',
-				null,
-				function (response) {
-					gg_jqresponse(response);
-					if (response.success) {
-						gg_checkrefresh();
-					}
-				}
-			);
+	function responseHandler(res) {
+		$.each(res.rows, function (i, row) {
+			row.state = $.inArray(row.id, selections) !== -1;
+		});
+		return res;
+	}
+
+	function detailFormatter(index, row) {
+		console.log(index);
+		var html = [];
+		$.each(row, function (key, value) {
+			html.push('<p class="form-control-static"><b>' + key + ':</b> ' + value + '</p>');
+		});
+		return html.join('');
+	}
+
+	function operateFormatter(value, row, index) {
+		return [
+			'<a class="edit" href="javascript:void(0)" title="Like">',
+			'<i class="glyphicon glyphicon-edit"></i>',
+			'</a>  ',
+			'<a class="remove" href="javascript:void(0)" title="Remove" data-toggle="confirmation" data-title="Sure Delete?" >',
+			'<i class="glyphicon glyphicon-remove"></i>',
+			'</a>'
+		].join('');
+	}
+
+	window.operateEvents = {
+		'click .edit': function (e, value, row, index) {
+			alert('You click like action, row: ' + JSON.stringify(row));
+			$('#userform').show();
+			$('#userform input[id=first-name2]').val('Hello World!');
+			$('#usertable').slideToggle("slow");
+		},
+		'click .remove': function (e, value, row, index) {
+			// alert('You click remove action, row: ' + JSON.stringify(row));
+			// $table.bootstrapTable('remove', {
+			// 		field: 'id',
+			// 		values: [row.id]
+			// });
+			removeRow(row.id);
 		}
 	};
-	if ($(oBtn).confirmation) {
-		$(oBtn).confirmation('destroy');
+
+	function totalTextFormatter(data) {
+		return 'Total';
 	}
-	$(oBtn).confirmation(options);
-	$(oBtn).confirmation('show');
-	return false;
-}
 
-// ############### Network list Pagination js #################
+	function totalNameFormatter(data) {
+		return data.length;
+	}
 
+	function totalPriceFormatter(data) {
+		var total = 0;
+		$.each(data, function (i, row) {
+			total += +(row.price.substring(1));
+		});
+		return '$' + total;
+	}
+
+	function getHeight() {
+		return $(window).height() - $('h1').outerHeight(true);
+	}
+
+	$(function () {
+		var scripts = [
+				location.search.substring(1) || '/assets/vendors/bootstrap-table/src/bootstrap-table.js',
+				'/assets/vendors/bootstrap-table/src/bootstrap-table-export.js',
+				'/assets/vendors/bootstrap-table/src/tableExport.js',
+				'/assets/vendors/bootstrap-table/src/bootstrap-table-editable.js',
+				'/assets/vendors/bootstrap-table/src/bootstrap-editable.js'
+			],
+			eachSeries = function (arr, iterator, callback) {
+				callback = callback || function () {};
+				if (!arr.length) {
+					return callback();
+				}
+				var completed = 0;
+				var iterate = function () {
+					iterator(arr[completed], function (err) {
+						if (err) {
+							callback(err);
+							callback = function () {};
+						} else {
+							completed += 1;
+							if (completed >= arr.length) {
+								callback(null);
+							} else {
+								iterate();
+							}
+						}
+					});
+				};
+				iterate();
+			};
+
+		eachSeries(scripts, getScript, initTable);
+	});
+
+	function getScript(url, callback) {
+		var head = document.getElementsByTagName('head')[0];
+		var script = document.createElement('script');
+		script.src = url;
+
+		var done = false;
+		// Attach handlers for all browsers
+		script.onload = script.onreadystatechange = function () {
+			if (!done && (!this.readyState ||
+					this.readyState == 'loaded' || this.readyState == 'complete')) {
+				done = true;
+				if (callback)
+					callback();
+
+				// Handle memory leak in IE
+				script.onload = script.onreadystatechange = null;
+			}
+		};
+
+		head.appendChild(script);
+
+		// We handle everything using the script element injection
+		return undefined;
+	}
+
+	function removeRow(ids) {
+
+		// return false;
+		// var selects = $('#users-table').bootstrapTable('getSelections');
+		// 		ids = $.map(selects, function (row) {
+		// 				return row.id;
+		// 		});
+
+		var url = '/users/delete';
+		// var data = 'userID=' + ids.join(',');
+		var data = 'userID=' + ids;
+		// alert('post data - '+data);
+		$.ajax({
+			url: url,
+			data: data,
+			cache: false,
+			error: function (e) {
+				alert('Error - ' + e);
+			},
+			success: function () {
+				alert('Delect success');
+				var idds = getIdSelections();
+				console.log('ids are - ' + idds);
+				$table.bootstrapTable('remove', {
+					field: 'id',
+					values: ids
+				});
+			}
+		});
+	}
+
+	function bst_DeleteButton(oBtn) {
+		alert(oBtn);
+		var options = {
+			title: "Are you really sure you want to delete all the checked rows?",
+			singleton: true,
+			popout: true,
+			btnOkClass: "btn-xs btn-danger",
+			btnOkIcon: "glyphicon glyphicon-trash",
+			btnOkLabel: "Delete",
+			btnCancelLabel: "Cancel",
+			placement: "auto right",
+			onConfirm: function () {
+				var $div = $(this).closest('div.bootstrap-table'),
+					$table = $div.find('table.table'),
+					$rows = $table.find(':checked'),
+					ids = $.map($rows, function (row) {
+						return row.value
+					});
+
+				ajax_call('?MODE=jqload&alias=' + $table.data('alias') + '&action=bst_remove&id=' + ids.toString(),
+					'DELETE',
+					null,
+					function (response) {
+						gg_jqresponse(response);
+						if (response.success) {
+							gg_checkrefresh();
+						}
+					}
+				);
+			}
+		};
+		if ($(oBtn).confirmation) {
+			$(oBtn).confirmation('destroy');
+		}
+		$(oBtn).confirmation(options);
+		$(oBtn).confirmation('show');
+		return false;
+	}
+} */
+
+// #####################################################
+// ############### Network list Pagination js ##########
+// #####################################################
 
 async function init_networkPagination(time = 1, page_no = 1, alphabet = $("#alphabet").val()) {
 	let callagain = true;
@@ -5880,7 +5894,6 @@ async function init_networkPagination(time = 1, page_no = 1, alphabet = $("#alph
 	}, time);
 
 };
-
 
 function networkPagination(page_no, alphabet) {
 	// let dataRow = null;
@@ -6013,7 +6026,10 @@ if ($("#pagecode_network").exists()) {
 	});
 }
 
-// ############### Profile edit page #################
+// #####################################################
+// ################ Profile edit page ##################
+// #####################################################
+
 if ($("#pagecode_profile").exists()) {
 
 	// --- temp password on/off --- //
@@ -6286,7 +6302,10 @@ if ($("#pagecode_profile").exists()) {
 	});
 }
 
-// ############### Profile add page #################
+// #####################################################
+// ################# Profile add page ##################
+// #####################################################
+
 if ($("#pagecode_profile_add").exists()) {
 
 	// --- Phone country pick --- //
@@ -6396,248 +6415,121 @@ if ($("#pagecode_profile_add").exists()) {
 	});
 }
 
-// ############### College Detail page #################
-/* SMART WIZARD ADD */
-function init_SmartWizard_add() {
-	console.log('init_SmartWizard_add');
-	if (typeof ($.fn.smartWizard) === 'undefined') {
-		return;
-	}
+// #####################################################
+// ############### College Pagination js ###############
+// #####################################################
 
-	// $('#wizard_college_add').smartWizard({
-	// 	transitionEffect: 'slide',
-	// 	// buttonOrder: ['next','prev','finish'],
-	// 	labelFinish: 'Save',
-	// 	enableFinishButton: true,
+async function init_collegeTablePagination(time = 1, page_no = 1) {
+	let callagain = true;
+	setTimeout(async function () {
 
-	// });
-
-	// $('.buttonNext').addClass('btn btn-success disabled');
-	// $('.buttonPrevious').addClass('btn btn-primary disabled');
-	// $('.buttonFinish').addClass('btn btn-default save-college');
-
-};
-
-/* SMART WIZARD EDIT */
-function init_SmartWizard_edit() {
-	console.log('init_SmartWizard_edit');
-	if (typeof ($.fn.smartWizard) === 'undefined') {
-		return;
-	}
-
-	$('#wizard_college_edit').smartWizard({
-		transitionEffect: 'slide',
-		// buttonOrder: ['next','prev','finish'],
-		labelFinish: 'Save',
-		enableFinishButton: true,
-
-	});
-
-	$('.buttonNext').addClass('btn btn-success');
-	$('.buttonPrevious').addClass('btn btn-primary');
-	$('.buttonFinish').addClass('btn btn-default save-college');
-
-};
-// --- convert to slug --- //
-if ($("#pagecode_college-add").exists()) {
-
-	$("#name")
-		.keyup(function () {
-			$("#slug").val(generateCollegeSlug(this.value)); //+'.univibe.com');
-		})
-		.blur(function () {
-			$("#slug").val(generateCollegeSlug(this.value)); //+'.univibe.com');
-			$.ajax({
-				url: "/colleges/checkcollegename/", // + generateCollegeSlug(this.value),
-				type: "POST",
-				data: {
-					'name': this.value,
-					'slug': generateCollegeSlug(this.value)
-				},
-				beforeSend: function () {
-					// show loading
-					$("#name").addClass('checkingTextbox');
-					validator = new FormValidator();
-					validator.settings.classes.bad = 'error';
-				},
-				success: function (data) {
-					// check data and show msg
-					$("#name").removeClass('checkingTextbox');
-					console.log(data.count);
-					if (data.name > 0 && data.slug > 0)
-						$("#slug").val('');
-				},
-				error: function () {
-					// plz try later
-				}
-			});
-		});
-
-}
-
-function generateCollegeSlug(Text) {
-	return Text.trim().toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '');
-}
-
-function convertToSlug(Text) {
-	return Text.trim().toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
-}
-
-
-/* ### This is old validator and needs to be romved ### */
-/* --- VALIDATOR --- */
-function init_validator() {
-
-	if (typeof (validator) === 'undefined') {
-		// return;
-	}
-	console.log('init_validator');
-
-	// initialize the validator
-	var validator = new FormValidator(),
-		$form = $('form');
-
-	document.forms[0].addEventListener('blur', function (e) {
-		validator.checkField.call(validator, e.target)
-	}, true);
-
-	document.forms[0].addEventListener('input', function (e) {
-		validator.checkField.call(validator, e.target);
-	}, true);
-
-	document.forms[0].addEventListener('change', function (e) {
-		validator.checkField.call(validator, e.target)
-	}, true);
-
-	document.forms[0].onsubmit = function (e) {
-		var submit = true,
-			validatorResult = validator.checkAll(this);
-
-		console.log(validatorResult);
-		return !!validatorResult.valid;
-	};
-
-};
-/* ### This is old validator and needs to be romved ### */
-
-// ############### College Pagination js #################
-
-// var alphabet = $("#alphabet").val();
-// var refreshIntervalId = null;
-function init_collegeTablePagination() {
-	var refreshIntervalId = null;
-	let page_no = 1;
-	collegeTablePagination(page_no, refreshIntervalId);
-	console.log('out if refreshIntervalId', refreshIntervalId);
-
-	if (refreshIntervalId === null) {
-		console.log('in if refreshIntervalId', refreshIntervalId);
-		refreshIntervalId = setInterval(function () {
-			page_no++;
-			collegeTablePagination(page_no, refreshIntervalId);
-			//$("#overlay").hide();
-			if (page_no >= 10) { // change this to 10 page
-				console.log(page_no);
-				clearInterval(refreshIntervalId);
+		if (page_no == 1) {
+			time = 2000;
+			// if (alphabet != '') alphabet = '/' + alphabet;
+		}
+		let data = await collegeTablePagination(page_no);
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{
+			$("#collegeTableBody").append(collegeListTemplating(data));
+			if (data.searched_total <= data.pagesize * page_no) {
+				$("tr#msgbar td").html('That\'s all.');
+				callagain = false;
+			} else if (page_no == 10) {
+				$("#msgbar td").html("Didn\'t find what you are looking? Please try searching.");
+				callagain = false;
 			}
-		}, 1000);
-	}
+		} else if (data.total == 0 || (data.rows.length == 0 && page_no == 1)) {
+			$("#msgbar td").html('No data found.');
+			callagain = false;
+		} else {
+			$("#msgbar").html('That\'s all.');
+			callagain = false;
+		}
+		page_no++;
+		if (page_no <= 10 && callagain)	// change this to 10 page
+			init_networkPagination(time, page_no);
+	}, time);
 
-}
+};
 
-function collegeTablePagination(page_no, refreshIntervalId) {
-	console.log('refreshIntervalId 1', refreshIntervalId);
-	if (refreshIntervalId === null || refreshIntervalId != false)
-		$.ajax({
-			url: "/colleges/page/" + page_no,
-			type: "GET",
-			beforeSend: function () {
-				if (page_no == 1)
-					$("#data-container").remove('profile_details');
-				$("#overlay").html("Loading more...");
-				$("#overlay").show();
-			},
-			success: function (data) {
-				$("#dummyrow").hide();
-				// $("#network_total").html(' - Total '+data.total);
-				// $("#search_total").html('Showing '+data.searched_total);
-				$("#collegeTableBody").append(eachCollegeRow(data, page_no));
-				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
-					console.log('refreshIntervalId 2', refreshIntervalId);
-					clearInterval(refreshIntervalId);
-					// console.log('refreshIntervalId 3',refreshIntervalId);				
-					refreshIntervalId = false;
-					// console.log('refreshIntervalId 4',refreshIntervalId);				
-				} //else{refreshIntervalId = true;}
-			},
-			error: function () {
-				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
-				clearInterval(refreshIntervalId);
+function collegeTablePagination(page_no) {
+	// let dataRow = null;
+	return $.ajax({
+		url: "/colleges/page/" + page_no,
+		type: "GET",
+		beforeSend: function () {
+			if (page_no == 1)
+				$("#collegeTableBody").html('');
+			$("tr#msgbar td").html("Loading page no- " + page_no);
+			// $("#msgbar").show();
+		},
+		success: function (data) {
+			// $("#msgbar").hide();
+			if (page_no == 1) {
+				$("#network_total").html(' - Total ' + data.total);
+				$("#search_total").html('Showing ' + data.searched_total);
 			}
-		});
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
+		},
+		error: function () {
+			$("#msgbar td").html("Something went wrong.");
+		}
+	})
+		.then(data => data);
+	// .catch(error=>error);
 }
 
-function eachCollegeRow(data, page_no) {
+function collegeListTemplating(data) {
 	var html = '';
 	// console.log('total',data.total);
 	// console.log('row size',data.rows.length);
-	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
-	{
-		//alert("data hei");
-		$.each(data.rows, function (index, item) {
-			//html += '<li>'+index+' - '+ item.email +'</li>';
-			html += '<tr>' +
-				'<td>';
-			html += (item.status === 0) ? '<i class="fa fa-cogs" title="Processing"></i>' : (item.status === 1) ? '<i class="fa fa-pause" title="Unpublished"></i>' : (item.status === 2) ? '<i class="fa fa-play" title="Published"></i>' : '<i class="fa fa-stop" title="Suspend"></i>'
-			html += '</td>' +
-				'<td><img src="' + item.logo_s + '" class="avatar" alt="Avatar" style="height: 54px;width: 54px;"></td>' +
-				'<td>' +
-				'<a>' + item.name + '</a>' +
-				'<br /><small>Created ' + new Date(item.registered_date).toLocaleDateString() + '</small>' +
-				'<br /><small>Updated ' + new Date(item.last_updated).toLocaleDateString() + '</small>' +
-				'</td>' +
-				'<td>' +
-				'<ul class="list-inline">' +
-				'<li>' +
-				'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
-				'</li>' +
-				'<li>' +
-				'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
-				'</li>' +
-				'<li>' +
-				'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
-				'</li>' +
-				'<li>' +
-				'<img src="/assets/build/images/user.jpg" class="avatar" alt="Avatar">' +
-				'</li>' +
-				'</ul>' +
-				'</td>' +
-				'<td class="project_progress">' +
-				'<div class="progress progress_sm">' +
-				'<div class="progress-bar bg-green" role="progressbar" data-transitiongoal="57"></div>' +
-				'</div>' +
-				'<small>57% Complete</small>' +
-				'</td>' +
-				'<td>' +
-				'<button type="button" class="btn btn-success btn-xs">Publish</button>' +
-				'</td>' +
-				'<td>' +
-				'<a href="/colleges/' + item.slug + '" class="btn btn-primary btn-xs" title="View"><i class="fa fa-eye"></i></a>' +
-				'<a href="/colleges/' + item.slug + '/edit" class="btn btn-info btn-xs" title="Edit"><i class="fa fa-pencil"></i></a>' +
-				'<a data-popup-open="' + item.name + '|' + item.slug + '" href="#" class="btn btn-danger btn-xs" title="Delete"><i class="fa fa-trash-o"></i></a>' +
-				'</td>' +
-				'</tr>';
-		});
-		if (page_no == 10)
-			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
-	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no colleges.</td></tr>';
-		console.log('No data found');
-	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
-		console.log('Thats all');
-		clearInterval(refreshIntervalId);
-	}
+
+	//alert("data hei");
+	$.each(data.rows, function (index, item) {
+		//html += '<li>'+index+' - '+ item.email +'</li>';
+		html += '<tr>' +
+			'<td>';
+		html += (item.status === 0) ? '<i class="fa fa-cogs" title="Processing"></i>' : (item.status === 1) ? '<i class="fa fa-pause" title="Unpublished"></i>' : (item.status === 2) ? '<i class="fa fa-play" title="Published"></i>' : '<i class="fa fa-stop" title="Suspend"></i>'
+		html += '</td>' +
+			'<td><img src="' + item.logo_s + '" class="avatar" alt="Avatar" style="height: 54px;width: 54px;"></td>' +
+			'<td>' +
+			'<a>' + item.name + '</a>' +
+			'<br /><small>Created ' + new Date(item.registered_date).toLocaleDateString() + '</small>' +
+			'<br /><small>Updated ' + new Date(item.last_updated).toLocaleDateString() + '</small>' +
+			'</td>' +
+			'<td>' +
+			'<ul class="list-inline">' +
+			'<li>' +
+			'<img src="/assets/build/images/user.jpg" onerror="this.src=\'/static/images/user.jpg\'" class="avatar" alt="Avatar">' +
+			'</li>' +
+			'<li>' +
+			'<img src="/assets/build/images/user.jpg" onerror="this.src=\'/static/images/user.jpg\'" class="avatar" alt="Avatar">' +
+			'</li>' +
+			'<li>' +
+			'<img src="/assets/build/images/user.jpg" onerror="this.src=\'/static/images/user.jpg\'" class="avatar" alt="Avatar">' +
+			'</li>' +
+			'<li>' +
+			'<img src="/assets/build/images/user.jpg" onerror="this.src=\'/static/images/user.jpg\'" class="avatar" alt="Avatar">' +
+			'</li>' +
+			'</ul>' +
+			'</td>' +
+			'<td class="project_progress">' +
+			'<div class="progress progress_sm">' +
+			'<div class="progress-bar bg-green" role="progressbar" data-transitiongoal="57"></div>' +
+			'</div>' +
+			'<small>57% Complete</small>' +
+			'</td>' +
+			'<td>' +
+			'<button type="button" class="btn btn-success btn-xs">Publish</button>' +
+			'</td>' +
+			'<td>' +
+			'<a href="/colleges/details/' + item.slug + '" class="btn btn-primary btn-xs" title="View"><i class="fa fa-eye"></i></a>' +
+			'<a href="/colleges/edit/' + item.slug + '" class="btn btn-info btn-xs" title="Edit"><i class="fa fa-pencil"></i></a>' +
+			'<a data-popup-open="' + item.name + '|' + item.slug + '" href="#" class="btn btn-danger btn-xs" title="Delete"><i class="fa fa-trash-o"></i></a>' +
+			'</td>' +
+			'</tr>';
+	});
 	// html += '</ul>';
 	return html;
 }
@@ -6682,9 +6574,231 @@ if ($("#pagecode_colleges").exists()) {
 
 }
 
-// ############### Companies Pagination js #################
+// #####################################################
+// ################ College Add page ###################
+// #####################################################
 
-function init_companiesTablePagination() {
+/* SMART WIZARD ADD */
+function init_SmartWizard_add() {
+	console.log('init_SmartWizard_add');
+	if (typeof ($.fn.smartWizard) === 'undefined') {
+		return;
+	}
+};
+
+
+if ($("#pagecode_college-add").exists()) {
+
+
+	$("#name")
+		.keyup(function () {
+			$("#slug").val(generateCollegeSlug(this.value)); //+'.univibe.com');
+		})
+		.blur(function () {
+			$("#slug").val(generateCollegeSlug(this.value)); //+'.univibe.com');
+		});
+
+	
+	$("#collegeaddform").validate({
+		errorClass: "alert",
+		errorElement: "div",
+		errorPlacement: ($error, $element) => $error.appendTo($element.closest(".form-group")),
+		highlight: (e) => $(e).parent().closest('.form-group').addClass('bad'),
+		unhighlight: (e) => $(e).parent().closest('.form-group').removeClass('bad'),
+		rules: {
+			name: {
+				remote: {
+					url: "/colleges/checkcollegename/",
+					type: "post", 
+					data: { slug: () => generateCollegeSlug($("#name").val()) },
+					beforeSend: () => $("#name").addClass('checkingTextbox'),
+					complete: () => $("#name").removeClass('checkingTextbox')
+				},
+				rangelength: [3, 15]
+			},
+			domain: {
+				remote: {
+					url: "/colleges/checkdomainavailable/",
+					type: "post",
+					data: { slug: () => $("#slug").val() },
+					beforeSend: () => $("#domain").addClass('checkingTextbox'),
+					complete: () => $("#domain").removeClass('checkingTextbox')
+				},
+				// regex: '((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z0-9\&\.\/\?\:@\-_=#])*'
+			},
+			long_name: { rangelength: [5, 25] },
+			short_name: { rangelength: [5, 15] },
+			establishment_year: { min: 1900, max: () => new Date().getFullYear() } 
+		}, messages: {
+			name: { required: "College name required.", rangelength: "Min 2 & Max 15 charecters.", remote: "College already exist." },
+			slug: { required: "Something wrong with slug." },
+			domain: { regex: "Enter valid URL", remote: "Domain already taken." },
+			long_name: { required: "College fullname required.", rangelength: "5 to 25 charcters allowed." },
+			short_name: { required: "College short name required.", rangelength: "5 to 15 charcters allowed." },
+			establishment_year: { required: "Establish year required.", min: "Should be 1900 or greater.", max: "Can't be greater than currect year." },
+		}
+	});	
+	$.validator.addMethod("regex", function (value, element, regexp) {
+		// console.log('regexp',regexp,' | value ',value);
+		var re = new RegExp(regexp, 'g');
+		return !re.test(value);
+	}, "Please check your input."
+	);
+}
+
+// #####################################################
+// ################# College Edit page #################
+// #####################################################
+
+/* SMART WIZARD EDIT */
+function init_SmartWizard_edit() {
+	console.log('init_SmartWizard_edit');
+	if (typeof ($.fn.smartWizard) === 'undefined') {
+		return;
+	}
+
+	$('#wizard_college_edit').smartWizard({
+		transitionEffect: 'slide',
+		// buttonOrder: ['next','prev','finish'],
+		labelFinish: 'Save',
+		enableFinishButton: true,
+
+	});
+
+	$('.buttonNext').addClass('btn btn-success');
+	$('.buttonPrevious').addClass('btn btn-primary');
+	$('.buttonFinish').addClass('btn btn-default save-college');
+
+};
+
+if ($("#pagecode_college-edit").exists()) {
+
+	// --- Format date to show --- //
+	$('#registered_date').val(dateFormater($('#registered_date').attr('savedvalue')));
+	$('#last_updated').val(dateFormater($('#last_updated').attr('savedvalue')));
+
+	$("#collegeeditform").validate({
+		errorClass: "alert",
+		errorElement: "div",
+		errorPlacement: ($error, $element) => $error.appendTo($element.closest(".form-group")),
+		highlight: (e) => $(e).parent().closest('.form-group').addClass('bad'),
+		unhighlight: (e) => $(e).parent().closest('.form-group').removeClass('bad'),
+		rules: {
+			domain: {
+				remote: {
+					url: "/colleges/checkdomainavailable/",
+					type: "post",
+					data: { slug: () => $("#slug").val() },
+					beforeSend: () => $("#domain").addClass('checkingTextbox'),
+					complete: () => $("#domain").removeClass('checkingTextbox')
+				},
+				// regex: '((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z0-9\&\.\/\?\:@\-_=#])*'
+			},
+			long_name: { rangelength: [5, 25] },
+			short_name: { rangelength: [5, 15] },
+			establishment_year: { min: 1900, max: () => new Date().getFullYear() }
+		}, messages: {
+			domain: { regex: "Enter valid URL", remote: "Domain already taken." },
+			long_name: { required: "College fullname required.", rangelength: "5 to 25 charcters allowed." },
+			short_name: { required: "College short name required.", rangelength: "5 to 15 charcters allowed." },
+			establishment_year: { required: "Establish year required.", min: "Should be 1900 or greater.", max: "Can't be greater than currect year." },
+		}
+	});
+	$.validator.addMethod("regex", function (value, element, regexp) {
+		// console.log('regexp',regexp,' | value ',value);
+		var re = new RegExp(regexp, 'g');
+		return !re.test(value);
+	}, "Please check your input."
+	);
+}
+
+// #####################################################
+// ############### College Detail page #################
+// #####################################################
+
+
+/* ### This is old validator and needs to be romved ### */
+/* --- VALIDATOR --- */
+function init_validator() {
+
+	if (typeof (validator) === 'undefined') {
+		// return;
+	}
+	console.log('init_validator');
+
+	// initialize the validator
+	var validator = new FormValidator(),
+		$form = $('form');
+
+	document.forms[0].addEventListener('blur', function (e) {
+		validator.checkField.call(validator, e.target)
+	}, true);
+
+	document.forms[0].addEventListener('input', function (e) {
+		validator.checkField.call(validator, e.target);
+	}, true);
+
+	document.forms[0].addEventListener('change', function (e) {
+		validator.checkField.call(validator, e.target)
+	}, true);
+
+	document.forms[0].onsubmit = function (e) {
+		var submit = true,
+			validatorResult = validator.checkAll(this);
+
+		console.log(validatorResult);
+		return !!validatorResult.valid;
+	};
+
+};
+/* ### This is old validator and needs to be romved ### */
+
+
+// #####################################################
+// ############### Companies Pagination js #############
+// #####################################################
+
+async function init_companiesTablePagination(time = 1, page_no = 1) {
+	let callagain = true;
+	setTimeout(async function () {
+
+		if (page_no == 1) {
+			time = 2000;
+			// if (alphabet != '') alphabet = '/' + alphabet;
+		}
+		let data = await companiesTablePagination(page_no);
+		// console.log('data ',data);		
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{
+			// console.log('1st');			
+			$("#data-container").append(companyListTemplating(data));
+			if (data.searched_total <= data.pageSize * page_no) {
+				// console.log('2nd');				
+				$("#msgbar").html('That\'s all.');
+				callagain = false;
+			} else if (page_no == 10) {
+				$("#msgbar").html("Didn\'t find what you are looking? Please try searching.");
+				callagain = false;
+			}else{
+				// console.log('3rd');				
+			}
+		} else if (data.total == 0 || (data.rows.length == 0 && page_no == 1)) {
+			// console.log('4th');
+			$("#msgbar").html('No data found.');
+			callagain = false;
+		} else {
+			// console.log('5th');
+			$("#msgbar").html('That\'s all.');
+			callagain = false;
+		}
+		page_no++;
+		if (page_no <= 10 && callagain)	// change this to 10 page
+			init_companiesTablePagination(time, page_no);
+	}, time);
+
+};
+
+/* function init_companiesTablePagination() {
 	var refreshIntervalId = null;
 	let page_no = 1;
 	companiesTablePagination(page_no, refreshIntervalId);
@@ -6703,9 +6817,37 @@ function init_companiesTablePagination() {
 		}, 1000);
 	}
 
+} */
+
+function companiesTablePagination(page_no) {
+	// let dataRow = null;
+	return $.ajax({
+		url: "/companies/page/" + page_no,
+		type: "GET",
+		beforeSend: function () {
+			if (page_no == 1)
+				$("#collegeTableBody").html('');
+			$("#msgbar").html("Loading page no- " + page_no);
+			$("#msgbar").show();
+		},
+		success: function (data) {
+			// $("#msgbar").hide();
+			if (page_no == 1) {
+				$("#network_total").html(' - Total ' + data.total);
+				$("#search_total").html('Showing ' + data.searched_total);
+			}
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
+		},
+		error: function () {
+			$("#msgbar").html("Something went wrong.");
+		}
+	})
+		.then(data => data);
+	// .catch(error=>error);
 }
 
-function companiesTablePagination(page_no, refreshIntervalId) {
+/* function companiesTablePagination(page_no, refreshIntervalId) {
 	console.log('refreshIntervalId 1', refreshIntervalId);
 	if (refreshIntervalId === null || refreshIntervalId != false)
 		$.ajax({
@@ -6736,123 +6878,71 @@ function companiesTablePagination(page_no, refreshIntervalId) {
 				clearInterval(refreshIntervalId);
 			}
 		});
-}
+} */
 
-function eachCompanyRow(data, page_no) {
+function companyListTemplating(data) {
 	var html = '';
-	// console.log('total',data.total);
-	// console.log('row size',data.rows.length);
-	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
-	{
-		//alert("data hei");
-		$.each(data.rows, function (index, item) {
-			//html += '<li>'+index+' - '+ item.email +'</li>';
-			console.log(item);
-			html += '<div class="col-md-55">' +
-				'<div class="thumbnail">' +
-				'<div class="image view view-first">' +
-				'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" src="' + item.image + '" alt="' + item.name + '" />' +
-				'<div class="mask">' +
-				'<p>Total connections - ' + item.connections_total + '</p>' +
-				'<div class="tools tools-bottom">' +
-				'<a href="#" data-popup-edit="' + item._id + '"><i class="fa fa-pencil"></i></a>' +
-				'<a href="#"><i class="fa fa-trash"></i></a>' +
-				'</div></div></div>' +
-				'<div class="caption">' +
-				'<p>' + item.name + '</p>' +
-				'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
-				'</div></div></div>';
-			let key = item._id;
-			pagination_data[key] = item;
-			//   console.log(pagination_data);			  
-		});
-		if (page_no == 10)
-			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
-	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no companies.</td></tr>';
-		console.log('No data found');
-	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
-		console.log('Thats all');
-		clearInterval(refreshIntervalId);
-	}
+
+	$.each(data.rows, function (index, item) {
+		//html += '<li>'+index+' - '+ item.email +'</li>';
+		// console.log(item);
+		html += '<div class="col-md-55">' +
+			'<div class="thumbnail">' +
+			'<div class="image view view-first">' +
+			'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" onerror="this.src=\'/assets/build/images/company.jpg\'" src="' + item.image + '" alt="' + item.name + '" />' +
+			'<div class="mask">' +
+			'<p>Total connections - ' + item.connections_total + '</p>' +
+			'<div class="tools tools-bottom">' +
+			'<a href="#" data-popup-edit="' + item.slug + '"><i class="fa fa-pencil"></i></a>' +
+			'<a href="#" data-popup-delete="' + item.slug + '"><i class="fa fa-trash"></i></a>' +
+			'</div></div></div>' +
+			'<div class="caption">' +
+			'<p>' + item.name + '</p>' +
+			'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
+			'</div></div></div>';
+		let key = item.slug;
+		pagination_data[key] = item;
+		//   console.log('all pages',pagination_data);			  
+	});
 	// html += '</ul>';
 	return html;
 }
 
 if ($("#pagecode_companies").exists()) {
 
-	//----- OPEN popup to add
-	$(document).on("click", '[data-popup-open]', function (e) {
-		$('[data-popup="popup_companies_add"]').fadeIn(350);
-		e.preventDefault();
-	});
-	//----- Open popup to edit
-	$(document).on("click", '[data-popup-edit]', function (e) {
-		let targeted_val = jQuery(this).attr('data-popup-edit');
-		$(this).parent().closest('.col-md-55').addClass('beingedit');
-		$('[data-popup="popup_companies_add"] form #company_id').val(pagination_data[targeted_val]._id);
-		$('[data-popup="popup_companies_add"] form #name').val(pagination_data[targeted_val].name);
-		$('[data-popup="popup_companies_add"] form #slug').val(pagination_data[targeted_val].slug);
-		$('[data-popup="popup_companies_add"] form #description').val(pagination_data[targeted_val].description);
-		$('[data-popup="popup_companies_add"] #company_status').prop("checked", pagination_data[targeted_val].status);
-		$('[data-popup="popup_companies_add"] #company_status').attr("checked");
-
-		$('[data-popup="popup_companies_add"]').fadeIn(350);
-		e.preventDefault();
-	});
-
-	//----- CLOSE popup
-	$(document).on("click", '[data-popup-close]', function (e) {
-		$('[data-popup="popup_companies_add"]').fadeOut(350);
-		$('.col-md-55').removeClass('beingedit');
-		$('[data-popup="popup_companies_add"] form')[0].reset();
-		$('#company_status').prop("checked", true);
-		e.preventDefault();
-	});
-
-	// check for duplicate
-	$("#name")
-		.keyup(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
-			$('#company-submit').prop('disabled', true);
-		})
-		.blur(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
-			// $('[data-popup="popup_companies_add"] buttton[type=submit]').addClass('disabled');
-			$.ajax({
-				url: "/companies/checkcompanyname/", // + convertToSlug(this.value),
-				type: "POST",
-				data: {
-					'name': this.value.trim(),
-					'slug': convertToSlug(this.value),
-					'_id': $("#company_id").val()
+	//--- Validate form and call Submit function ---//
+	$("#companyeditform").validate({
+		errorClass: "alert",
+		errorElement: "div",
+		errorPlacement: ($error, $element) => $error.appendTo($element.closest(".form-group")),
+		highlight: (e) => $(e).parent().closest('.form-group').addClass('bad'),
+		unhighlight: (e) => $(e).parent().closest('.form-group').removeClass('bad'),
+		rules: {
+			name: {
+				remote: {
+					url: "/companies/checkcompanyname/",
+					type: "post",
+					data: { slug: () => $("#companyeditform #slug").val() },
+					beforeSend: () => $("#name").addClass('checkingTextbox'),
+					complete: () => $("#name").removeClass('checkingTextbox')
 				},
-				beforeSend: function () {
-					// show loading
-					$("#name").addClass('checkingTextbox');
-					$('#company-submit').prop('disabled', true);
-				},
-				success: function (data) {
-					// check data and show msg
-					$("#name").removeClass('checkingTextbox');
-					if (data.name > 0 || data.slug > 0) {
-						$("#slug").val('');
-						$('#name').parents('div.form-group').addClass('bad');
-						$('#name').parents('div.form-group').append('<div class="alert">Company exists.</div>');
-					}
-					$('#company-submit').prop('disabled', false);
-				},
-				error: function () {
-					// plz try later
-				}
-			});
-		});
+				rangelength: [3, 25]
+			}
+		}, messages: {
+			name: { required: "Company name required.", rangelength: "Range from 3 to 25 Char." }
+		},
+		submitHandler: function (form) {
+			// console.log('Submitted');
+			return companySubmit (form);
+			// $(form).ajaxSubmit();
+		}
+	});	
 
-	// ----- Submit
-	$(document).on("click", '#company-submit', function (err) {
+	// --- Submit function for Add & Edit ---//
+	function companySubmit(form) {
 		// collecting data from form
-		let form = $('[data-popup="popup_companies_add"] form')[0];
+		// let form = $('[data-popup="popup_companies_add"] form')[0];
+		console.log('form is ', form);
 		let status = $('#company_status').is(":checked");
 		let url = "/companies/addnew";
 		let data = {
@@ -6863,11 +6953,11 @@ if ($("#pagecode_companies").exists()) {
 			'status': status
 		};
 		// If ID exists post it for Edit.
-		if (form.company_id.value) {
-			data._id = form.company_id.value;
+		if (form.slug.value) {
+			data.slug = form.slug.value;
 			url = "/companies/savecompany"
 		}
-		// console.log('ajax', data);
+		console.log('ajax data', data, 'url', url);
 
 		$.ajax({
 			url: url,
@@ -6875,21 +6965,25 @@ if ($("#pagecode_companies").exists()) {
 			data: data,
 			beforeSend: function () {
 				// show loading on button
+				$('#company-submit i').addClass( 'fa fa-spinner fa-spin' );
 			},
 			success: function (data) {
 				// hide loading 
-				// console.log('data after save', pagination_data);
-				// console.log('data after id', data.data._id);
-				$('[data-popup="popup_companies_add"] form')[0].reset();
-				$('[data-popup="popup_companies_add"]').fadeOut(350, function () {
+				console.log('pagination data', pagination_data);
+				console.log('data after save', data);
+				$('#companyeditform')[0].reset();
+				$('#company-submit i').removeClass('fa fa-spinner fa-spin');
+				$('.company-modal-form').modal('toggle');
+
 					// $('#data-container > div:nth-child(1)').after("<div>great things</div>");
-					// to save
-					if (!form.company_id.value) {
+					
+					// --- to Add
+					if (!form.slug.value) {
 						// --- add value to master array
 						// pagination_data[data.data._id]._id = data.data._id;
-						let key = data.data._id
+						let key = data.data.slug
 						pagination_data[key] = data.data;
-				
+
 						// pagination_data[data.data._id].slug = data.data.slug;
 						// pagination_data[data.data._id].description = data.data.description;
 						// pagination_data[data.data._id].status = data.data.status;
@@ -6904,7 +6998,7 @@ if ($("#pagecode_companies").exists()) {
 							'<p>Total connections - ' + data.data.connections_total + '</p>' +
 							'<div class="tools tools-bottom">' +
 							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
 							'</div></div></div>' +
 							'<div class="caption">' +
 							'<p>' + data.data.name + '</p>' +
@@ -6912,15 +7006,15 @@ if ($("#pagecode_companies").exists()) {
 							'</div></div></div>');
 						$('#data-container').children(':eq(1)').show("puff");
 					} else {
-						// ---- to edit
+						// --- to edit
 						// --- update value to master array
 						// pagination_data[data.data._id]._id = data.data._id;
-						pagination_data[data.data._id].name = data.data.name;
-						pagination_data[data.data._id].slug = data.data.slug;
-						pagination_data[data.data._id].description = data.data.description;
-						pagination_data[data.data._id].status = data.data.status;
-						pagination_data[data.data._id].image = data.data.image;
-						
+						pagination_data[data.data.slug].name = data.data.name;
+						// pagination_data[data.data.slug].slug = data.data.slug;
+						pagination_data[data.data.slug].description = data.data.description;
+						pagination_data[data.data.slug].status = data.data.status;
+						pagination_data[data.data.slug].image = data.data.image;
+
 						$('.beingedit').html('' +
 							'<div class="thumbnail">' +
 							'<div class="image view view-first">' +
@@ -6928,8 +7022,8 @@ if ($("#pagecode_companies").exists()) {
 							'<div class="mask">' +
 							'<p>Total connections - ' + data.data.connections_total + '</p>' +
 							'<div class="tools tools-bottom">' +
-							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#"><i class="fa fa-trash"></i></a>' +
+							'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
+							'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
 							'</div></div></div>' +
 							'<div class="caption">' +
 							'<p>' + data.data.name + '</p>' +
@@ -6938,20 +7032,102 @@ if ($("#pagecode_companies").exists()) {
 						// $('.beingedit').prop('style','display:none');
 						// $('.beingedit').show("highlight");
 						$('.beingedit .thumbnail')
-						.animate({backgroundColor: "rgb( 20, 20, 20 )"},()=>{
-							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
-						});
+							.animate({ backgroundColor: "rgb( 20, 20, 20 )" }, () => {
+								// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
+							});
 						$('.col-md-55').removeClass('beingedit');
 					}
-				});
 			},
 			error: function () {
-				$("#dummyrow").html('Unable to save.');
-				err.preventDefault();
+				// $("#dummyrow").html('Unable to save.');
+				// err.preventDefault();
 			}
 		});
 
-		err.preventDefault();
+		// err.preventDefault();
+		return false;
+	}
+
+	//--- OPEN popup to add and reset form ---//
+	$(document).on("click", '[data-popup-add]', function (e) {
+		$('.company-modal-form').modal('toggle');		
+		$('#companyeditform')[0].reset();
+		e.preventDefault();
+	}); 
+	
+	//--- Open popup to edit and set values ---//
+	$(document).on("click", '[data-popup-edit]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-edit');
+		$(this).parent().closest('.col-md-55').addClass('beingedit');
+		// $('[data-popup="popup_companies_add"] form #company_id').val(pagination_data[targeted_val]._id);
+		$('.company-modal-form form #name').val(pagination_data[targeted_val].name);
+		$('.company-modal-form form #slug').val(pagination_data[targeted_val].slug);
+		$('.company-modal-form form #description').val(pagination_data[targeted_val].description);
+		$('.company-modal-form #company_status').prop("checked", pagination_data[targeted_val].status);
+		$('.company-modal-form #company_status').attr("checked");
+
+		$('.company-modal-form').modal('toggle');		
+		// $('[data-popup="popup_companies_add"]').fadeIn(350);
+		e.preventDefault();
+	});
+
+	//--- show confirmation to delete ---//
+	$(document).on("click", '[data-popup-delete]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-delete');
+		$(this).parent().closest('.col-md-55').addClass('beingdelete');	
+		// console.log('targeted_val',targeted_val);
+		(new PNotify({
+			title: 'Confirmation Needed',
+			text: 'Are you sure want to delete \'' + pagination_data[targeted_val].name+'\' ?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			deleteItemAndNotification(targeted_val, '/companies/deletecompany', (result)=>{
+				// console.log(result);
+				if( result ){
+					$('.beingdelete').hide("puff");
+					$('.beingdelete').remove();
+				}
+			});
+		}).on('pnotify.cancel', function () {
+			// $(this).parent().closest('.col-md-55').removeClass('beingdelete');	
+			$('.col-md-55').removeClass('beingdelete');	
+			// alert('Oh ok. Chicken, I see.');
+		});
+		e.preventDefault();
+	});
+
+}
+
+function deleteItemAndNotification(slug, url, callback) {
+	let notice = new PNotify({ text: "Please Wait", type: 'info', icon: 'fa fa-spinner fa-spin', hide: false, shadow: false, width: "170px" });
+	let options = null;
+	$.ajax({
+		url: url,
+		data: {slug:slug},
+		type: "POST",
+		beforeSend: ()=>{},
+		success: (data)=>{
+			if( data.success)
+				options = { title: "Success!",text: data.msg,type: "success",hide: true,buttons: { closer: true, sticker: true },icon: 'fa fa-check',shadow: true,width: PNotify.prototype.options.width}
+			else
+				options = { title: "Error!", text: data.msg, type: "error", hide: true, buttons: { closer: true, sticker: true }, icon: 'fa fa-exclamation-triangle',shadow: true,width: PNotify.prototype.options.width}
+			notice.update(options);
+			callback(data.success);
+		},
+		error: ()=>{
+			options = { title: "Error!", text: data.msg, type: "error", hide: true, buttons: { closer: true, sticker: true }, icon: 'fa fa-exclamation-triangle', shadow: true, width: PNotify.prototype.options.width }
+			notice.update(options);
+			// return false;
+			callback(false);
+		}
 	});
 }
 

@@ -51,10 +51,15 @@ router.post('/checkcollegename', function(req, res, next) {
 	// console.log("data for slug");
 	colleges.checkCollegeNameExists(req, res, next);
 });
+
+router.post('/checkdomainavailable', function(req, res, next) {
+	// console.log("data for slug");
+	colleges.checkDomainAvailable(req, res, next);
+});
 // ############################ College detail ######################################
 
 // --- College detail page --- //
-router.get('/:collegename/', function(req, res) {
+router.get('/details/:collegename/', function(req, res) {
 	//network.profileData(req, res);
 	// console.log("data for slug = "+JSON.stringify(data));
 	res.render('page', {"page_Code":"college-details","page_Title":"Profile"});
@@ -63,7 +68,7 @@ router.get('/:collegename/', function(req, res) {
 // ############################ College edit ######################################
 
 // --- College edit page --- //
-router.get('/:collegename/edit', function(req, res, next) {
+router.get('/edit/:collegename', function(req, res, next) {
 	colleges.getCollegeData(req, res, next);
 	// res.render('page', {"page_Code":"college-edit","page_Title":"Profile"});
 });

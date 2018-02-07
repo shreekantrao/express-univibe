@@ -31,10 +31,10 @@ module.exports = {
             // console.log('Controller ',data);
 
             if (data.data === null) {
-                console.log('404 page');
+                // console.log('404 page');
                 return res.redirect('404 page');
             }
-            if ( (domain.indexOf(key) > -1) && (data.data.domain !== '') ){
+            if ( (domain.indexOf(key) > -1) && (data.data.domain) && (data.data.domain !== '') ){
                 return res.redirect('http://www.'+data.data.domain+':3000');
             }
             // if( typeof req.cookies['sitecode'] == 'undefined'){
@@ -108,7 +108,7 @@ module.exports = {
                     msg: 'Colleges not found'
                 });
             }
-            data["pageSize"] = pageSize;
+            data["pagesize"] = pageSize;
             res.json(data);
         } catch (e) {
             next(e);
@@ -126,18 +126,21 @@ module.exports = {
                 return res.redirect('/colleges/add');
             }    
 
+            // Delete domain becuase DB unique cant insert empty string ('')
+            if ( req.body.domain === '' ) delete req.body.domain;
+
             let data = await colleges.createNewCollege(req.body)
             console.log('Data from model ',data);
             if (!data.success) {
                 let notify = [];
-                notify.push({ title: "Warning", type: "notice", text: "Unable to create new college." });
+                notify.push({ title: "Error", type: "error", text: "Unable to create new college." });
                 req.session.notify = notify;
                 return res.redirect('/colleges/add');
             }
             let notify = [];
-            notify.push({ title: "Success", type: "notice", text: "New college successfully created." });
+            notify.push({ title: "Success", type: "success", text: "New college successfully created." });
             req.session.notify = notify;
-            res.redirect('/colleges/' + data.slug + '/edit');
+            res.redirect('/colleges/edit/' + data.slug );
         } catch (e) {
             next(e);
         }
@@ -145,6 +148,7 @@ module.exports = {
 
     checkCollegeNameExists: async(req, res, next) => {
         try {
+
             let data = await colleges.checkCollegeNameExists(req.body.name, req.body.slug)
             console.log('Controller - ',data);
             if (!data) {
@@ -155,8 +159,36 @@ module.exports = {
             }
             // let notify = [];
             // notify.push({ title: "Notification", type: "notice", text: "College found." });
-            // req.session.notify = notify;            
-            res.json(data);
+            // req.session.notify = notify;
+            setTimeout(() => {
+                // res.send((check.data) ? '"Already taken."' : true);
+                res.json( data.name ? 'College already exist.' : data.slug ? 'Slug already exist.' : true);
+            }, 2000);
+        } catch (e) {
+            next(e);
+        }
+    },
+
+    checkDomainAvailable: async(req, res, next) => {
+        try {
+            let domain = req.body.domain;
+            // domain = domain.replace('www.', '').replace('http://', '');
+            // console.log('domain- ',domain);
+            let data = await colleges.checkDomainAvailable(domain, req.body.slug)
+            // console.log('Controller (domain) - ',data);
+            if (!data.success) {
+                let notify = [];
+                notify.push({ title: "Notification", type: "notice", text: "Unable to check. Please try later." });
+                req.session.notify = notify;
+                return res.json({ success: false, msg: 'Unable to check. Please try later.' });
+            }
+            // let notify = [];
+            // notify.push({ title: "Notification", type: "notice", text: "College found." });
+            // req.session.notify = notify;
+            setTimeout(() => {
+                // res.send((check.data) ? '"Already taken."' : true);
+                res.json(( !data.count ) ? true : 'Domain already exist.');
+            }, 2000);
         } catch (e) {
             next(e);
         }

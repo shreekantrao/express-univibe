@@ -11,12 +11,7 @@ mongoose.plugin(slug);
 
 // User Schema
 const UserSchema = mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    index: true
-  },
+  email: { type: String, required: true, unique: true, index: true },
   is_email_verified: {
     type: Boolean,
     default: false
@@ -428,9 +423,9 @@ module.exports.getProfileData = function (slug = '', db_slug = '') {
     .catch(err => ({ success: false, msg: "something went wrong" }));
 }
 
-module.exports.getUserList = (pageSize, skip, sortby, orderby, query, db_slug = '') => {
+module.exports.getUserList = (pageSize, skip, sortby, orderby, query, db_slug) => {
 
-  if (db_slug === '') return false;
+  if (!db_slug) return false;
 
   let db_name = db_slug + '-' + collection;
   let User = createModelForName(db_name); // Create the db model.

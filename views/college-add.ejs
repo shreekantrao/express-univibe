@@ -67,7 +67,7 @@
               </ul>
 
 
-              <form class="form-horizontal form-label-left addCollegeForm" method="post" action="/colleges/addnew" novalidate>
+              <form class="form-horizontal form-label-left" id="collegeaddform" method="post" action="/colleges/addnew" novalidate>
                 <div class="stepContainer" style="height: 528px;">
                   <div id="step-11" class="content" style="display: block;">
                     <h2 class="StepTitle">Step 1</h2>
@@ -75,15 +75,17 @@
 
                     <span class="section">Basic details</span>
 
+                    <!-- College name -->
                     <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3" for="name">College Name
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input type="text" id="name" name="name" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe college" data-validate-length-range="3,15">
+                        <input type="text" id="name" name="name" class="form-control col-md-7 col-xs-12" placeholder="Univibe college" required="required">
                       </div>
                     </div>
 
+                    <!-- Slug -->
                     <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3" for="slug">Default URL</label>
                       <div class="col-md-3 col-sm-3">
@@ -92,55 +94,57 @@
                       <label class="control-label col-md-2 col-sm-2" style="text-align: left;">.univibe.com</label>
                     </div>
 
+                    <!-- Domain -->
                     <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3" for="domain">Domain</label>
                       <div class="col-md-5 col-sm-5">
-                        <input type="url" id="domain" name="domain" class="form-control col-md-7 col-xs-12" placeholder="univibealumni.com" data-validation="url">
+                        <input type="text" id="domain" name="domain" class="form-control col-md-7 col-xs-12" placeholder="univibealumni.com" >
                       </div>
                     </div>
 
+                    <!-- Long name -->
                     <div class="form-group field">
                       <label for="middle-name" class="control-label col-md-3 col-sm-3" for="long_name">College Long Name
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input id="long_name" name="long_name" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni Assosiation"
-                          type="text" data-validate-length-range="5,25" data-validate-words="2">
+                        <input id="long_name" name="long_name" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni Assosiation" type="text"  required="required">
                       </div>
                     </div>
 
+                    <!-- Short name -->
                     <div class="form-group field">
                       <label for="middle-name" class="control-label col-md-3 col-sm-3" for="short_name">College Short Name
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input id="short_name" name="short_name" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni"
-                          type="text" data-validate-length-range="5,15">
+                        <input id="short_name" name="short_name" required="required" class="form-control col-md-7 col-xs-12" placeholder="Univibe Alumni" type="text">
                       </div>
                     </div>
 
+                    <!-- Establishment year -->
                     <div class="form-group field">
                       <label for="middle-name" class="control-label col-md-3 col-sm-3" for="establishment_year">Establishment Year
                         <span class="required">*</span>
                       </label>
                       <div class="col-md-5 col-sm-5">
-                        <input id="establishment_year" required="required" class="form-control col-md-7 col-xs-12" type="number" data-validate-minmax="1900,2020">
+                        <input id="establishment_year" name="establishment_year" value="1900" required="required" class="form-control col-md-7 col-xs-12" type="number" >
                       </div>
                     </div>
 
-                    <div class="form-group field">
+                    <!-- <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3">Created date</label>
                       <div class="col-md-5 col-sm-5">
                         <input readonly="readonly" class="form-control col-md-7 col-xs-12" type="text">
                       </div>
-                    </div>
+                    </div> -->
 
-                    <div class="form-group field">
+                    <!-- <div class="form-group field">
                       <label class="control-label col-md-3 col-sm-3">Last Edited</label>
                       <div class="col-md-5 col-sm-5">
                         <input readonly="readonly" class="form-control col-md-7 col-xs-12" type="text">
                       </div>
-                    </div>
+                    </div> -->
 
                   </div>
                 </div>
