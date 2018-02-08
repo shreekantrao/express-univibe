@@ -6796,28 +6796,7 @@ async function init_companiesTablePagination(time = 1, page_no = 1) {
 			init_companiesTablePagination(time, page_no);
 	}, time);
 
-};
-
-/* function init_companiesTablePagination() {
-	var refreshIntervalId = null;
-	let page_no = 1;
-	companiesTablePagination(page_no, refreshIntervalId);
-	console.log('out if refreshIntervalId', refreshIntervalId);
-
-	if (refreshIntervalId === null) {
-		console.log('in if refreshIntervalId', refreshIntervalId);
-		refreshIntervalId = setInterval(function () {
-			page_no++;
-			companiesTablePagination(page_no, refreshIntervalId);
-			//$("#overlay").hide();
-			if (page_no >= 10) { // change this to 10 page
-				console.log(page_no);
-				clearInterval(refreshIntervalId);
-			}
-		}, 1000);
-	}
-
-} */
+}
 
 function companiesTablePagination(page_no) {
 	// let dataRow = null;
@@ -6846,39 +6825,6 @@ function companiesTablePagination(page_no) {
 		.then(data => data);
 	// .catch(error=>error);
 }
-
-/* function companiesTablePagination(page_no, refreshIntervalId) {
-	console.log('refreshIntervalId 1', refreshIntervalId);
-	if (refreshIntervalId === null || refreshIntervalId != false)
-		$.ajax({
-			url: "/companies/page/" + page_no,
-			type: "GET",
-			beforeSend: function () {
-				// if (page_no == 1)
-				// 	$("#data-container").remove('profile_details');
-				// $("#overlay").html("Loading more...");
-				// $("#overlay").show();
-			},
-			success: function (data) {
-				// $("#dummyrow").hide();
-				// $("#network_total").html(' - Total '+data.total);
-				// $("#search_total").html('Showing '+data.searched_total);
-				$("#data-container").append(eachCompanyRow(data, page_no));
-
-				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
-					console.log('refreshIntervalId 2', refreshIntervalId);
-					clearInterval(refreshIntervalId);
-					// console.log('refreshIntervalId 3',refreshIntervalId);				
-					refreshIntervalId = false;
-					// console.log('refreshIntervalId 4',refreshIntervalId);				
-				} //else{refreshIntervalId = true;}
-			},
-			error: function () {
-				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
-				clearInterval(refreshIntervalId);
-			}
-		});
-} */
 
 function companyListTemplating(data) {
 	var html = '';
@@ -6940,118 +6886,89 @@ if ($("#pagecode_companies").exists()) {
 
 	// --- Submit function for Add & Edit ---//
 	function companySubmit(form) {
+
 		// collecting data from form
-		// let form = $('[data-popup="popup_companies_add"] form')[0];
-		console.log('form is ', form);
 		let status = $('#company_status').is(":checked");
-		let url = "/companies/addnew";
-		let data = {
-			'name': form.name.value.trim(),
-			'description': form.description.value,
-			'slug': form.slug.value,
-			'image': '',
-			'status': status
-		};
-		// If ID exists post it for Edit.
-		if (form.slug.value) {
-			data.slug = form.slug.value;
-			url = "/companies/savecompany"
-		}
-		console.log('ajax data', data, 'url', url);
+		let url = "/companies/addcompany";
+		let data = { 'name': form.name.value.trim(), 'description': form.description.value, 'slug': form.slug.value, 'image': '', 'status': status };
 
-		$.ajax({
-			url: url,
-			type: "POST",
-			data: data,
-			beforeSend: function () {
-				// show loading on button
-				$('#company-submit i').addClass( 'fa fa-spinner fa-spin' );
-			},
-			success: function (data) {
-				// hide loading 
-				console.log('pagination data', pagination_data);
-				console.log('data after save', data);
-				$('#companyeditform')[0].reset();
+		// console.log('ajax data', data, 'url', url);
+		$('#company-submit i').addClass('fa fa-spinner fa-spin');
+
+		if (!form.slug.value) { // --- to Add
+			ajaxActionAndNotification(data, url, (data) => {
 				$('#company-submit i').removeClass('fa fa-spinner fa-spin');
-				$('.company-modal-form').modal('toggle');
+				if(data.success){
+					$('#companyeditform')[0].reset();
+					$('.company-modal-form').modal('toggle');
 
-					// $('#data-container > div:nth-child(1)').after("<div>great things</div>");
-					
-					// --- to Add
-					if (!form.slug.value) {
-						// --- add value to master array
-						// pagination_data[data.data._id]._id = data.data._id;
-						let key = data.data.slug
-						pagination_data[key] = data.data;
+					let key = data.data.slug
+					pagination_data[key] = data.data;
+					$('#data-container').children(':eq(0)').after('' +
+						'<div class="col-md-55" style="display:none">' +
+						'<div class="thumbnail">' +
+						'<div class="image view view-first">' +
+						'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+						'<div class="mask">' +
+						'<p>Total connections - ' + data.data.connections_total + '</p>' +
+						'<div class="tools tools-bottom">' +
+						'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
+						'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
+						'</div></div></div>' +
+						'<div class="caption">' +
+						'<p>' + data.data.name + '</p>' +
+						'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+						'</div></div></div>');
+					$('#data-container').children(':eq(1)').show("puff");
+				}
+			});
+		} else { // --- to Edit
+			url = "/companies/updatecompany"
+			ajaxActionAndNotification(data, url, (data) => {
+				$('#company-submit i').removeClass('fa fa-spinner fa-spin');
+				if(data.success){
+					$('#companyeditform')[0].reset();
+					$('.company-modal-form').modal('toggle');
 
-						// pagination_data[data.data._id].slug = data.data.slug;
-						// pagination_data[data.data._id].description = data.data.description;
-						// pagination_data[data.data._id].status = data.data.status;
-						// pagination_data[data.data._id].image = data.data.image;
+					pagination_data[data.data.slug].name = data.data.name;
+					pagination_data[data.data.slug].description = data.data.description;
+					pagination_data[data.data.slug].status = data.data.status;
+					pagination_data[data.data.slug].image = data.data.image;
 
-						$('#data-container').children(':eq(0)').after('' +
-							'<div class="col-md-55" style="display:none">' +
-							'<div class="thumbnail">' +
-							'<div class="image view view-first">' +
-							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
-							'<div class="mask">' +
-							'<p>Total connections - ' + data.data.connections_total + '</p>' +
-							'<div class="tools tools-bottom">' +
-							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
-							'</div></div></div>' +
-							'<div class="caption">' +
-							'<p>' + data.data.name + '</p>' +
-							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
-							'</div></div></div>');
-						$('#data-container').children(':eq(1)').show("puff");
-					} else {
-						// --- to edit
-						// --- update value to master array
-						// pagination_data[data.data._id]._id = data.data._id;
-						pagination_data[data.data.slug].name = data.data.name;
-						// pagination_data[data.data.slug].slug = data.data.slug;
-						pagination_data[data.data.slug].description = data.data.description;
-						pagination_data[data.data.slug].status = data.data.status;
-						pagination_data[data.data.slug].image = data.data.image;
+					$('.beingedit').html('' +
+						'<div class="thumbnail">' +
+						'<div class="image view view-first">' +
+						'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+						'<div class="mask">' +
+						'<p>Total connections - ' + data.data.connections_total + '</p>' +
+						'<div class="tools tools-bottom">' +
+						'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
+						'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
+						'</div></div></div>' +
+						'<div class="caption">' +
+						'<p>' + data.data.name + '</p>' +
+						'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+						'</div></div></div>');
 
-						$('.beingedit').html('' +
-							'<div class="thumbnail">' +
-							'<div class="image view view-first">' +
-							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
-							'<div class="mask">' +
-							'<p>Total connections - ' + data.data.connections_total + '</p>' +
-							'<div class="tools tools-bottom">' +
-							'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
-							'</div></div></div>' +
-							'<div class="caption">' +
-							'<p>' + data.data.name + '</p>' +
-							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
-							'</div></div></div>');
-						// $('.beingedit').prop('style','display:none');
-						// $('.beingedit').show("highlight");
-						$('.beingedit .thumbnail')
-							.animate({ backgroundColor: "rgb( 20, 20, 20 )" }, () => {
-								// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
-							});
-						$('.col-md-55').removeClass('beingedit');
-					}
-			},
-			error: function () {
-				// $("#dummyrow").html('Unable to save.');
-				// err.preventDefault();
-			}
-		});
+					$('.beingedit .thumbnail')
+						.animate({ backgroundColor: "rgb( 20, 20, 20 )" }, () => {
+							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
+						});
+					$('.col-md-55').removeClass('beingedit');
+				}
+			});
+		}
 
 		// err.preventDefault();
 		return false;
 	}
-
 	//--- OPEN popup to add and reset form ---//
 	$(document).on("click", '[data-popup-add]', function (e) {
 		$('.company-modal-form').modal('toggle');		
 		$('#companyeditform')[0].reset();
+		// console.log('form slug ',$('#companyeditform')[0].slug.value);
+		$('#companyeditform')[0].slug.value = '';
+		$('#companyeditform')[0].image.value = '';
 		e.preventDefault();
 	}); 
 	
@@ -7089,9 +7006,10 @@ if ($("#pagecode_companies").exists()) {
 			// addclass: 'stack-modal',
 			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
 		})).get().on('pnotify.confirm', function () {
-			deleteItemAndNotification(targeted_val, '/companies/deletecompany', (result)=>{
+			let slug = { slug: targeted_val };
+			ajaxActionAndNotification(slug, '/companies/deletecompany', (result)=>{
 				// console.log(result);
-				if( result ){
+				if (result.success ){
 					$('.beingdelete').hide("puff");
 					$('.beingdelete').remove();
 				}
@@ -7106,12 +7024,12 @@ if ($("#pagecode_companies").exists()) {
 
 }
 
-function deleteItemAndNotification(slug, url, callback) {
+function ajaxActionAndNotification(data, url, callback) {
 	let notice = new PNotify({ text: "Please Wait", type: 'info', icon: 'fa fa-spinner fa-spin', hide: false, shadow: false, width: "170px" });
 	let options = null;
 	$.ajax({
 		url: url,
-		data: {slug:slug},
+		data: data,
 		type: "POST",
 		beforeSend: ()=>{},
 		success: (data)=>{
@@ -7120,13 +7038,13 @@ function deleteItemAndNotification(slug, url, callback) {
 			else
 				options = { title: "Error!", text: data.msg, type: "error", hide: true, buttons: { closer: true, sticker: true }, icon: 'fa fa-exclamation-triangle',shadow: true,width: PNotify.prototype.options.width}
 			notice.update(options);
-			callback(data.success);
+			callback(data);
 		},
 		error: ()=>{
 			options = { title: "Error!", text: data.msg, type: "error", hide: true, buttons: { closer: true, sticker: true }, icon: 'fa fa-exclamation-triangle', shadow: true, width: PNotify.prototype.options.width }
 			notice.update(options);
-			// return false;
-			callback(false);
+			let data = {success:false};
+			callback(data);
 		}
 	});
 }

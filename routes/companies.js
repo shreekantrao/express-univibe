@@ -10,7 +10,6 @@ router.get('/', function(req, res, next) {
 
 // --- Company template call --- //
 router.get('/list', function(req, res, next) {
-	// console.log("alphabet = "+req.params.alphabet);
 	let notify = '';
 	if(req.session.notify){
 		notify = req.session.notify;
@@ -22,24 +21,22 @@ router.get('/list', function(req, res, next) {
 
 // --- Company ajax pages --- //
 router.get('/page/:page_no', function(req, res, next) {
-	// console.log('router userslist');
 	companies.getCompanyList(req, res, next);
 });
 
 // --- Company name check --- //
 router.post('/checkcompanyname', function(req, res, next) {
-	// console.log("data for slug");
 	companies.checkCompanyNameExists(req, res, next);
 });
 
 // --- Company add action--- //
-router.post('/addnew', function (req, res, next) {
+router.post('/addcompany', function (req, res, next) {
 	companies.createNewCompany(req, res, next);
 });
 
 // --- Company edit action --- //
-router.post('/savecompany', function(req, res, next) {
-	companies.savecompany(req, res, next);
+router.post('/updatecompany', function(req, res, next) {
+	companies.updateCompany(req, res, next);
 });
 
 // --- Company delete action --- //

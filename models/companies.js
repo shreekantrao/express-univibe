@@ -109,34 +109,16 @@ module.exports.createNewCompany = function (companyData, db_slug) {
 
   var data = new companies(companyData);
   return data.save()
-    .then(item => ({ success: true, msg: "item saved to database", data: data }))
-    .catch(err => ({ success: false, msg: "unable to save to database", error: err }));
+    .then(item => ({ success: true, msg: "item saved to database", data: item }))
+    .catch(err => ({ success: false, msg: "unable to save to database", data: err }));
 }
 
-module.exports.savecompany = (companyData, db_slug)=>{
+module.exports.updateCompany = (companyData, db_slug)=>{
   if (!db_slug) return false;
   let db_name = db_slug + '-' + collection;
   let companies = createModelForName(db_name); // Create the db model.
 
   // console.log('form data -',companyData);
-    
-/*   return new Promise((resolve, reject) => {
-    companies.findOne({ "slug": companyData.slug }, (err, company)=>{
-      // console.log('on error', err);
-      if(err) return reject(err);
-      if(!company) return reject();
-      
-      // console.log('db data 1', company);
-      company.name = companyData.name;
-      company.description = (companyData.description==='')?'':companyData.description;
-      company.image = (companyData.image==='')?company.image:companyData.image;
-      company.status = companyData.status;
-      // console.log('db data 2', company);
-      return company.save();      
-    })
-  }).then(item => item?({ success: true, msg: "Company updated successfully.", data: item }):({ success: false, msg: "Unable to find."}))
-    .catch(err => ({ success: false, msg: "Unable to save", error: err }));
-  */
 
   let query = { "slug": companyData.slug };
   let data = {
@@ -154,7 +136,7 @@ module.exports.savecompany = (companyData, db_slug)=>{
       return resolve(company);
     })  
   }).then(item => ({ success: true, msg: "Company updated successfully.", data: item }))
-    .catch(err => ({ success: false, msg: "Unable to save", error: err }));
+    .catch(err => ({ success: false, msg: "Unable to update", data: err }));
 
 }
 
@@ -173,5 +155,5 @@ module.exports.deleteCompany = (slug, db_slug)=>{
       return resolve(company);
     })
   }).then(item => ({ success: true, msg: 'Company deleted.' }))
-    .catch(err => ({ success: false, msg: 'Unable to delete.', error: err }));
+    .catch(err => ({ success: false, msg: 'Unable to delete.', data: err }));
 }

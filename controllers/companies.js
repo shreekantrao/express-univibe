@@ -69,34 +69,15 @@ module.exports = {
         }
     },
 
-    // getCompanyData: async(req, res, next) => {
-    //     try {
-    //         let data = await companies.getCompanyData(req.params.companyname)
-    //         // console.log('Company data - ',data);
-    //         // console.log('Company data2 - ',data.data);
-    //         if (!data) {
-    //             // return res.json({success: false, msg: 'Company not found'});
-    //             let notify = [];
-    //             notify.push({ title: "Notification", type: "notice", text: "Company not found." });
-    //             req.session.notify = notify;
-    //             return res.redirect('/companies/list');
-    //             // return res.render('page', {"page_Code":"companies","page_Title":"Company Network", "data":{success: false, msg: 'Company not found'}});
-    //         }
-    //         res.render('page', { "page_Code": "company-edit", "page_Title": "Profile", "data": data.data });
-    //     } catch (e) {
-    //         next(e);
-    //     }
-    // },
-
     createNewCompany: async (req, res, next) => {
         try {
             let db_slug = req.cookies['siteHeader'].db_slug;
             // console.log('check');
             let body = req.body;
             if (body.name === '') {
-                let notify = [];
-                notify.push({ title: "Notification", type: "notice", text: "Your form is not properly filled." });
-                req.session.notify = notify;
+                // let notify = [];
+                // notify.push({ title: "Notification", type: "notice", text: "Your form is not properly filled." });
+                // req.session.notify = notify;
                 console.log('Form not filled.');
                 return res.json({
                     success: false,
@@ -107,44 +88,40 @@ module.exports = {
 
             let data = await companies.createNewCompany(body, db_slug)
             // console.log('data ', data);
-            if (!data.success) {
-                return res.json({
-                    success: false,
-                    msg: 'Company not saved'
-                });
-            }
+            // if (!data.success) {
+            //     return res.json({
+            //         success: false,
+            //         msg: 'Company not saved'
+            //     });
+            // }
             delete data.data._id;
-            res.json({
-                success: true,
-                msg: 'Company saved',
-                data: data.data
-            });
+            setTimeout(() => {
+                res.json({ success: data.success, msg: data.msg, data: data.data });
+            }, 2000);
         } catch (e) {
             next(e);
         }
     },
 
-    savecompany: async(req, res, next) => {
+    updateCompany: async(req, res, next) => {
         try {
             let db_slug = req.cookies['siteHeader'].db_slug;
 
-            let data = await companies.savecompany(req.body, db_slug)
+            let data = await companies.updateCompany(req.body, db_slug)
             // console.log('Company data 1 - ',data);
-            // delete data.data._id;
-            // data.data['_id'] = '';
-            // data.data.set('_id', undefined);
-            // console.log('Company data 2 - ',data);
-            // console.log('Company data2 - ',data.data);
-            if (!data.success) {
-                // return res.json({success: false, msg: 'Company not found'});
-                let notify = [];
-                notify.push({ title: "Update fail", type: "error", text: data.msg });
-                // req.session.notify = notify;
-                // return res.redirect('/companies/list');
-                return res.json(notify);
-                // return res.render('page', {"page_Code":"companies","page_Title":"Company Network", "data":{success: false, msg: 'Company not found'}});
-            }
-            res.json(data);
+
+            // if (!data.success) {
+            //     // return res.json({success: false, msg: 'Company not found'});
+            //     let notify = [];
+            //     notify.push({ title: "Update fail", type: "error", text: data.msg });
+            //     // req.session.notify = notify;
+            //     // return res.redirect('/companies/list');
+            //     return res.json(notify);
+            //     // return res.render('page', {"page_Code":"companies","page_Title":"Company Network", "data":{success: false, msg: 'Company not found'}});
+            // }
+            setTimeout(() => {
+                res.json(data);
+            }, 2000);
         } catch (e) {
             next(e);
         }
@@ -159,9 +136,6 @@ module.exports = {
             let data = await companies.deleteCompany(req.body.slug, db_slug);
             // console.log('data from model', data);
 
-            // if(!data.success){
-            //     return res.json(false);
-            // }
             res.json(data);
         } catch (e) {
             next(e);
