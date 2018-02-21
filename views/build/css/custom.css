@@ -5395,3 +5395,19 @@ div#crop-avatar {
 .upload_i i {
     margin: 64px;
 }
+
+.selectedTag {
+    line-height: 1;
+    background: #1ABB9C;
+    color: #fff;
+    float: left;
+    padding: 5px;
+    margin: 2px 0px 0 20px;
+}
+.selectedTag i {
+    margin-left: 5px;
+}
+.selectedTag span {
+    color: #fff;
+    font-weight: 600;
+}

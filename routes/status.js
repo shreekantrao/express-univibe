@@ -8,26 +8,25 @@ router.get('/', function (req, res, next) {
     res.redirect(301, '/status/list');
 });
 router.get('/list', function (req, res, next) {
-    // console.log("alphabet = "+req.params.alphabet);
-    // status.getStatusSearch(req, res, next);
-    res.render('page', { "page_Code": "status", "page_Title": "College User Status" });
+    let notify = '';
+    if (req.session.notify) {
+        notify = req.session.notify;
+        delete req.session.notify;
+    }
+    res.render('page', { "page_Code": "status", "page_Title": "College User Status", "notify": notify });
 });
 
-// ############################ Status list page ######################################
-
+// --- City ajax pages --- //
 router.get('/page/:page_no', function (req, res, next) {
-    // console.log('router userslist');
     status.getStatusList(req, res, next);
 });
 
-// ############################ Change item status ######################################
-
+// --- City ajax pages --- //
 router.post('/changestate', function (req, res, next) {
     status.changeState(req, res, next);
 });
 
-// ############################ Delete item ######################################
-
+// --- Delete Status --- //
 router.post('/delete', function (req, res, next) {
     status.deleteStatus(req, res, next);
 });

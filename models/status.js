@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 const ObjectId = require('mongodb').ObjectID;
 mongoose.Promise = global.Promise;
-// const bcrypt = require('bcryptjs');
-// const config = require('../config/keys');
+
 const slug = require('mongoose-slug-generator');
 mongoose.plugin(slug);
-// User Schema
+
+// Status Schema
 const StatusSchema = mongoose.Schema({
 
-  title: { type: String, required: true },
+  // title: { type: String, required: true },
   description: { type: String, required: true },
-  slug: { type: String, slug: "posted_by.name", slug_padding_size: 4, unique: true },
+  slug: { type: String, slug: "posted_by.name", slug_padding_size: 4, unique: true, index: true },
   image: { type: String, default: '' },
   posted_on: { type: Date, default: Date.now },
   posted_by: {
@@ -29,70 +29,89 @@ const StatusSchema = mongoose.Schema({
 });
 
 StatusSchema.index({ description: 'text' });
-const status = module.exports = mongoose.model('status', StatusSchema);
+// const status = module.exports = mongoose.model('status', StatusSchema);
 
-// module.exports.getUserById = function(id, callback){
-//   User.findById(id, callback);
-// }
+// To make db name dynamic
+let establishedModels = {};
+function createModelForName(name) {
+  if (!(name in establishedModels)) {
+    // var Any = new Schema({ any: Schema.Types.Mixed });
+    establishedModels[name] = mongoose.model(name, StatusSchema);
+  }
+  return establishedModels[name];
+}
+const collection = 'statuses';
 
-module.exports.createNewStatus = function(statusData){
-  var data = new status(statusData);
-  return data.save()
-    .then(item => ({ success: true, msg: "item saved to database", data: data }))
-    .catch(err => ({ success: false, msg: "unable to save to database" }));
+module.exports.getStatusList = (pageSize, skip, sortby, orderby, query, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let status = createModelForName(db_name); // Create the db model.
+
+  return Promise.all([
+    status.count().then(count => ({ total: count })),
+    status.count(query).then(count => ({ searched_total: count })),
+    status.find(query)
+      .sort([[sortby, orderby]])
+      .skip(skip)
+      .limit(pageSize)
+      .then(data => ({ rows: data }))
+  ]).then(result => result.reduce((acc, curr) =>
+    Object.assign(acc, curr), {})
+  );
 }
 
-module.exports.changeState = (slug, state)=>{
-  return status.update({"slug": slug}, { $set: {"publish": state }})
-      .then(item => ({ success: true, msg: 'Updated successfully' }))
-      .catch(err => ({ success: false, msg: 'Unable to process'}));
+module.exports.changeState = (slug, state, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let status = createModelForName(db_name); // Create the db model.
+  
+  // return status.update({"slug": slug}, { $set: {"publish": state }})
+  return new Promise((resolve, reject) => {
+    status.findOneAndUpdate({ "slug": slug }, { "publish": state }, { new: true }, function (err, statu) {
+      if (err) return reject(err);
+      if (!statu) return reject('Unable to find.');
+
+      return resolve(statu);
+    })
+  }).then(item => ({ success: true, msg: 'Updated successfully' }))
+    .catch(err => ({ success: false, msg: 'Unable to process'}));
 }
 
-module.exports.deleteStatus = (slug)=>{
+module.exports.deleteStatus = (slug, db_slug)=>{
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let status = createModelForName(db_name); // Create the db model.
+
+  // return { success: true, msg: 'Deleted successfully' };
   return status.find({"slug": slug}).remove()
       .then(item => ({ success: true, msg: 'Deleted successfully' }))
       .catch(err => ({ success: false, msg: 'Unable to process'}));
 }
 
-module.exports.savestatus = (statusData)=>{
-    console.log('model -',statusData);
-    // return Promise.all([
-      return status.findById(statusData._id)
-      .then(status => {
-        console.log('in then', status);
-        status.name = statusData.name;
-        status.slug = statusData.slug;
-        status.description = (statusData.description==='')?'':statusData.description;
-        status.image = (statusData.image==='')?status.image:statusData.image;
-        status.status = statusData.status;
+// module.exports.createNewStatus = function (statusData) {
+//   var data = new status(statusData);
+//   return data.save()
+//     .then(item => ({ success: true, msg: "item saved to database", data: data }))
+//     .catch(err => ({ success: false, msg: "unable to save to database" }));
+// }
 
-        return status.save()
-        .then(item => ({ success: true, msg: "Item saved", data: status }))
-        .catch(err => ({ success: false, msg: "Unable to save" }));
+// module.exports.savestatus = (statusData)=>{
+//     console.log('model -',statusData);
+//     // return Promise.all([
+//       return status.findById(statusData._id)
+//       .then(status => {
+//         console.log('in then', status);
+//         status.name = statusData.name;
+//         status.slug = statusData.slug;
+//         status.description = (statusData.description==='')?'':statusData.description;
+//         status.image = (statusData.image==='')?status.image:statusData.image;
+//         status.status = statusData.status;
 
-      }).catch(err => ({ success: false, msg: "Unable to find" }));
-    // ]).then(result => result.reduce((acc,curr) =>
-    //   Object.assign(acc,curr),{})
-    // );
-}
+//         return status.save()
+//         .then(item => ({ success: true, msg: "Item saved", data: status }))
+//         .catch(err => ({ success: false, msg: "Unable to save" }));
 
-module.exports.getStatusList = (pageSize, skip, sortby, orderby, query)=>{
-  
-    // console.log("limit- "+pageSize);
-    // console.log("skip- "+skip);
-    // console.log("sort- "+sortby);
-    // console.log("order- "+orderby);
-    // console.log("query- "+JSON.stringify(query));
+//       }).catch(err => ({ success: false, msg: "Unable to find" }));
+// }
 
-    return Promise.all([
-      status.count().then(count => ({ total: count })),
-      status.count(query).then(count => ({ searched_total: count })),
-      status.find(query)
-        .sort([[sortby, orderby]])
-        .skip(skip)
-        .limit(pageSize)
-        .then( data => ({ rows: data }))
-    ]).then(result => result.reduce((acc,curr) =>
-      Object.assign(acc,curr),{})
-    );    
-}
+

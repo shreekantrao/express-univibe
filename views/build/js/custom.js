@@ -5464,18 +5464,18 @@ $(document).ready(function () {
 		// init_validator();
 	}
 
-	if ($("#pagecode_companies").exists()) {
+	if ($("#pagecode_companies").exists())
 		init_companiesTablePagination();
-		// init_validator();
-	}
-	if ($("#pagecode_industries").exists()) {
+	
+	if ($("#pagecode_industries").exists())
 		init_industriesTablePagination();
-		init_validator();
-	}
-	if ($("#pagecode_cities").exists()) {
+	
+	if ($("#pagecode_cities").exists())
 		init_citiesTablePagination();
-		init_validator();
-	}	
+		
+	if ($("#pagecode_courses").exists())
+		init_coursesTablePagination();
+		
 	if ($("#pagecode_status").exists()) {
 		init_statusTablePagination();
 	}	
@@ -6792,8 +6792,10 @@ async function init_companiesTablePagination(time = 1, page_no = 1) {
 			callagain = false;
 		}
 		page_no++;
-		if (page_no <= 10 && callagain)	// change this to 10 page
+		if (page_no <= 10 && callagain){	// change this to 10 page
+			$("#msgbar").html("Loading page no- " + page_no);
 			init_companiesTablePagination(time, page_no);
+		}
 	}, time);
 
 }
@@ -6812,8 +6814,8 @@ function companiesTablePagination(page_no) {
 		success: function (data) {
 			// $("#msgbar").hide();
 			if (page_no == 1) {
-				$("#network_total").html(' - Total ' + data.total);
-				$("#search_total").html('Showing ' + data.searched_total);
+				$("#network_total").html( data.total);
+				$("#search_total").html( data.searched_total);
 			}
 			// $("#data-container").append(simpleTemplating(data, page_no));
 			return data;
@@ -6901,6 +6903,8 @@ if ($("#pagecode_companies").exists()) {
 				if(data.success){
 					$('#companyeditform')[0].reset();
 					$('.company-modal-form').modal('toggle');
+					$("#network_total").html(1 + parseInt($("#network_total").html()));
+					$("#search_total").html(1 + parseInt($("#search_total").html()));
 
 					let key = data.data.slug
 					pagination_data[key] = data.data;
@@ -7049,652 +7053,931 @@ function ajaxActionAndNotification(data, url, callback) {
 	});
 }
 
-// ############### Industries Pagination js #################
+// #####################################################
+// ############### Industries Pagination js ############
+// #####################################################
 
-function init_industriesTablePagination() {
-	var refreshIntervalId = null;
-	let page_no = 1;
-	industriesTablePagination(page_no, refreshIntervalId);
-	console.log('out if refreshIntervalId', refreshIntervalId);
+async function init_industriesTablePagination(time = 1, page_no = 1) {
+	let callagain = true;
+	setTimeout(async function () {
 
-	if (refreshIntervalId === null) {
-		console.log('in if refreshIntervalId', refreshIntervalId);
-		refreshIntervalId = setInterval(function () {
-			page_no++;
-			industriesTablePagination(page_no, refreshIntervalId);
-			//$("#overlay").hide();
-			if (page_no >= 10) { // change this to 10 page
-				console.log(page_no);
-				clearInterval(refreshIntervalId);
+		if (page_no == 1) {
+			time = 2000;
+			// if (alphabet != '') alphabet = '/' + alphabet;
+		}
+		let data = await industriesTablePagination(page_no);
+		// console.log('data ',data);		
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{
+			// console.log('1st');			
+			$("#data-container").append(industryListTemplating(data));
+			if (data.searched_total <= data.pageSize * page_no) {
+				// console.log('2nd');				
+				$("#msgbar").html('That\'s all.');
+				callagain = false;
+			} else if (page_no == 10) {
+				$("#msgbar").html("Didn\'t find what you are looking? Please try searching.");
+				callagain = false;
+			} else {
+				// console.log('3rd');				
 			}
-		}, 1000);
-	}
+		} else if (data.total == 0 || (data.rows.length == 0 && page_no == 1)) {
+			// console.log('4th');
+			$("#msgbar").html('No data found.');
+			callagain = false;
+		} else {
+			// console.log('5th');
+			$("#msgbar").html('That\'s all.');
+			callagain = false;
+		}
+		page_no++;
+		if (page_no <= 10 && callagain) {	// change this to 10 page
+			$("#msgbar").html("Loading page no- " + page_no);
+			init_industriesTablePagination(time, page_no);
+		}
+	}, time);
 
 }
 
-function industriesTablePagination(page_no, refreshIntervalId) {
-	console.log('refreshIntervalId 1', refreshIntervalId);
-	if (refreshIntervalId === null || refreshIntervalId != false)
-		$.ajax({
-			url: "/industries/page/" + page_no,
-			type: "GET",
-			beforeSend: function () {
-				// if (page_no == 1)
-				// 	$("#data-container").remove('profile_details');
-				// $("#overlay").html("Loading more...");
-				// $("#overlay").show();
-			},
-			success: function (data) {
-				// $("#dummyrow").hide();
-				// $("#network_total").html(' - Total '+data.total);
-				// $("#search_total").html('Showing '+data.searched_total);
-				$("#data-container").append(eachIndustryRow(data, page_no));
-
-				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
-					console.log('refreshIntervalId 2', refreshIntervalId);
-					clearInterval(refreshIntervalId);
-					// console.log('refreshIntervalId 3',refreshIntervalId);				
-					refreshIntervalId = false;
-					// console.log('refreshIntervalId 4',refreshIntervalId);				
-				} //else{refreshIntervalId = true;}
-			},
-			error: function () {
-				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
-				clearInterval(refreshIntervalId);
+function industriesTablePagination(page_no) {
+	// let dataRow = null;
+	return $.ajax({
+		url: "/industries/page/" + page_no,
+		type: "GET",
+		beforeSend: function () {
+			if (page_no == 1)
+				$("#collegeTableBody").html('');
+			$("#msgbar").html("Loading page no- " + page_no);
+			$("#msgbar").show();
+		},
+		success: function (data) {
+			// $("#msgbar").hide();
+			if (page_no == 1) {
+				$("#network_total").html(data.total);
+				$("#search_total").html(data.searched_total);
 			}
-		});
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
+		},
+		error: function () {
+			$("#msgbar").html("Something went wrong.");
+		}
+	})
+		.then(data => data);
+	// .catch(error=>error);
 }
 
-function eachIndustryRow(data, page_no) {
+function industryListTemplating(data) {
 	var html = '';
-	// console.log('total',data.total);
-	// console.log('row size',data.rows.length);
-	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
-	{
-		//alert("data hei");
-		$.each(data.rows, function (index, item) {
-			//html += '<li>'+index+' - '+ item.email +'</li>';
-			console.log(item);
-			html += '<div class="col-md-55">' +
-				'<div class="thumbnail">' +
-				'<div class="image view view-first">' +
-				'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" src="' + item.image + '" alt="' + item.name + '" />' +
-				'<div class="mask">' +
-				'<p>Total connections - ' + item.connections_total + '</p>' +
-				'<div class="tools tools-bottom">' +
-				'<a href="#" data-popup-edit="' + item._id + '"><i class="fa fa-pencil"></i></a>' +
-				'<a href="#"><i class="fa fa-trash"></i></a>' +
-				'</div></div></div>' +
-				'<div class="caption">' +
-				'<p>' + item.name + '</p>' +
-				'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
-				'</div></div></div>';
-			let key = item._id;
-			pagination_data[key] = item;
-			//   console.log(pagination_data);			  
-		});
-		if (page_no == 10)
-			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
-	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no industries.</td></tr>';
-		console.log('No data found');
-	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
-		console.log('Thats all');
-		clearInterval(refreshIntervalId);
-	}
+
+	$.each(data.rows, function (index, item) {
+		//html += '<li>'+index+' - '+ item.email +'</li>';
+		// console.log(item);
+		html += '<div class="col-md-55">' +
+			'<div class="thumbnail">' +
+			'<div class="image view view-first">' +
+			'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" onerror="this.src=\'/assets/build/images/industry.jpg\'" src="' + item.image + '" alt="' + item.name + '" />' +
+			'<div class="mask">' +
+			'<p>Total connections - ' + item.connections_total + '</p>' +
+			'<div class="tools tools-bottom">' +
+			'<a href="#" data-popup-edit="' + item.slug + '"><i class="fa fa-pencil"></i></a>' +
+			'<a href="#" data-popup-delete="' + item.slug + '"><i class="fa fa-trash"></i></a>' +
+			'</div></div></div>' +
+			'<div class="caption">' +
+			'<p>' + item.name + '</p>' +
+			'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
+			'</div></div></div>';
+		let key = item.slug;
+		pagination_data[key] = item;
+		//   console.log('all pages',pagination_data);			  
+	});
 	// html += '</ul>';
 	return html;
 }
 
 if ($("#pagecode_industries").exists()) {
 
-	//----- OPEN popup to add
-	$(document).on("click", '[data-popup-open]', function (e) {
-		$('[data-popup="popup_industries_add"]').fadeIn(350);
+	//--- Validate form and call Submit function ---//
+	$("#industryeditform").validate({
+		errorClass: "alert",
+		errorElement: "div",
+		errorPlacement: ($error, $element) => $error.appendTo($element.closest(".form-group")),
+		highlight: (e) => $(e).parent().closest('.form-group').addClass('bad'),
+		unhighlight: (e) => $(e).parent().closest('.form-group').removeClass('bad'),
+		rules: {
+			name: {
+				remote: {
+					url: "/industries/checkindustryname/",
+					type: "post",
+					data: { slug: () => $("#industryeditform #slug").val() },
+					beforeSend: () => $("#name").addClass('checkingTextbox'),
+					complete: () => $("#name").removeClass('checkingTextbox')
+				},
+				rangelength: [3, 25]
+			}
+		}, messages: {
+			name: { required: "Industry name required.", rangelength: "Range from 3 to 25 Char." }
+		},
+		submitHandler: function (form) {
+			// console.log('Submitted');
+			return industrySubmit(form);
+			// $(form).ajaxSubmit();
+		}
+	});
+
+	// --- Submit function for Add & Edit ---//
+	function industrySubmit(form) {
+
+		// collecting data from form
+		let status = $('#industry_status').is(":checked");
+		let url = "/industries/addindustry";
+		let data = { 'name': form.name.value.trim(), 'description': form.description.value, 'slug': form.slug.value, 'image': '', 'status': status };
+
+		// console.log('ajax data', data, 'url', url);
+		$('#industry-submit i').addClass('fa fa-spinner fa-spin');
+
+		if (!form.slug.value) { // --- to Add
+			ajaxActionAndNotification(data, url, (data) => {
+				$('#industry-submit i').removeClass('fa fa-spinner fa-spin');
+				if (data.success) {
+					$('#industryeditform')[0].reset();
+					$('.industry-modal-form').modal('toggle');
+					$("#network_total").html(1 + parseInt($("#network_total").html()));
+					$("#search_total").html(1 + parseInt($("#search_total").html()));
+
+					let key = data.data.slug
+					pagination_data[key] = data.data;
+					$('#data-container').children(':eq(0)').after('' +
+						'<div class="col-md-55" style="display:none">' +
+						'<div class="thumbnail">' +
+						'<div class="image view view-first">' +
+						'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+						'<div class="mask">' +
+						'<p>Total connections - ' + data.data.connections_total + '</p>' +
+						'<div class="tools tools-bottom">' +
+						'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
+						'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
+						'</div></div></div>' +
+						'<div class="caption">' +
+						'<p>' + data.data.name + '</p>' +
+						'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+						'</div></div></div>');
+					$('#data-container').children(':eq(1)').show("puff");
+				}
+			});
+		} else { // --- to Edit
+			url = "/industries/updateindustry"
+			ajaxActionAndNotification(data, url, (data) => {
+				$('#industry-submit i').removeClass('fa fa-spinner fa-spin');
+				if (data.success) {
+					$('#industryeditform')[0].reset();
+					$('.industry-modal-form').modal('toggle');
+
+					pagination_data[data.data.slug].name = data.data.name;
+					pagination_data[data.data.slug].description = data.data.description;
+					pagination_data[data.data.slug].status = data.data.status;
+					pagination_data[data.data.slug].image = data.data.image;
+
+					$('.beingedit').html('' +
+						'<div class="thumbnail">' +
+						'<div class="image view view-first">' +
+						'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+						'<div class="mask">' +
+						'<p>Total connections - ' + data.data.connections_total + '</p>' +
+						'<div class="tools tools-bottom">' +
+						'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
+						'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
+						'</div></div></div>' +
+						'<div class="caption">' +
+						'<p>' + data.data.name + '</p>' +
+						'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+						'</div></div></div>');
+
+					$('.beingedit .thumbnail')
+						.animate({ backgroundColor: "rgb( 20, 20, 20 )" }, () => {
+							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
+						});
+					$('.col-md-55').removeClass('beingedit');
+				}
+			});
+		}
+
+		// err.preventDefault();
+		return false;
+	}
+
+	//--- OPEN popup to add and reset form ---//
+	$(document).on("click", '[data-popup-add]', function (e) {
+		$('.industry-modal-form').modal('toggle');
+		$('#industryeditform')[0].reset();
+		// console.log('form slug ',$('#industryeditform')[0].slug.value);
+		$('#industryeditform')[0].slug.value = '';
+		$('#industryeditform')[0].image.value = '';
 		e.preventDefault();
 	});
-	//----- Open popup to edit
+
+	//--- Open popup to edit and set values ---//
 	$(document).on("click", '[data-popup-edit]', function (e) {
 		let targeted_val = jQuery(this).attr('data-popup-edit');
 		$(this).parent().closest('.col-md-55').addClass('beingedit');
-		$('[data-popup="popup_industries_add"] form #industry_id').val(pagination_data[targeted_val]._id);
-		$('[data-popup="popup_industries_add"] form #name').val(pagination_data[targeted_val].name);
-		$('[data-popup="popup_industries_add"] form #slug').val(pagination_data[targeted_val].slug);
-		$('[data-popup="popup_industries_add"] form #description').val(pagination_data[targeted_val].description);
-		$('[data-popup="popup_industries_add"] #industry_status').prop("checked", pagination_data[targeted_val].status);
-		$('[data-popup="popup_industries_add"] #industry_status').attr("checked");
+		// $('[data-popup="popup_industries_add"] form #industry_id').val(pagination_data[targeted_val]._id);
+		$('.industry-modal-form form #name').val(pagination_data[targeted_val].name);
+		$('.industry-modal-form form #slug').val(pagination_data[targeted_val].slug);
+		$('.industry-modal-form form #description').val(pagination_data[targeted_val].description);
+		$('.industry-modal-form #industry_status').prop("checked", pagination_data[targeted_val].status);
+		$('.industry-modal-form #industry_status').attr("checked");
 
-		$('[data-popup="popup_industries_add"]').fadeIn(350);
+		$('.industry-modal-form').modal('toggle');
+		// $('[data-popup="popup_industries_add"]').fadeIn(350);
 		e.preventDefault();
 	});
 
-	//----- CLOSE popup
-	$(document).on("click", '[data-popup-close]', function (e) {
-		$('[data-popup="popup_industries_add"]').fadeOut(350);
-		$('.col-md-55').removeClass('beingedit');
-		$('[data-popup="popup_industries_add"] form')[0].reset();
-		$('#industry_status').prop("checked", true);
-		e.preventDefault();
-	});
-
-	// check for duplicate
-	$("#name")
-		.keyup(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
-			$('#industry-submit').prop('disabled', true);
-		})
-		.blur(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
-			// $('[data-popup="popup_industries_add"] buttton[type=submit]').addClass('disabled');
-			$.ajax({
-				url: "/industries/checkindustryname/", // + convertToSlug(this.value),
-				type: "POST",
-				data: {
-					'name': this.value.trim(),
-					'slug': convertToSlug(this.value),
-					'_id': $("#industry_id").val()
-				},
-				beforeSend: function () {
-					// show loading
-					$("#name").addClass('checkingTextbox');
-					$('#industry-submit').prop('disabled', true);
-				},
-				success: function (data) {
-					// check data and show msg
-					$("#name").removeClass('checkingTextbox');
-					if (data.name > 0 || data.slug > 0) {
-						$("#slug").val('');
-						$('#name').parents('div.form-group').addClass('bad');
-						$('#name').parents('div.form-group').append('<div class="alert">Industry exists.</div>');
-					}
-					$('#industry-submit').prop('disabled', false);
-				},
-				error: function () {
-					// plz try later
+	//--- show confirmation to delete ---//
+	$(document).on("click", '[data-popup-delete]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-delete');
+		$(this).parent().closest('.col-md-55').addClass('beingdelete');
+		// console.log('targeted_val',targeted_val);
+		(new PNotify({
+			title: 'Confirmation Needed',
+			text: 'Are you sure want to delete \'' + pagination_data[targeted_val].name + '\' ?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let slug = { slug: targeted_val };
+			ajaxActionAndNotification(slug, '/industries/deleteindustry', (result) => {
+				// console.log(result);
+				if (result.success) {
+					$('.beingdelete').hide("puff");
+					$('.beingdelete').remove();
 				}
 			});
+		}).on('pnotify.cancel', function () {
+			// $(this).parent().closest('.col-md-55').removeClass('beingdelete');	
+			$('.col-md-55').removeClass('beingdelete');
+			// alert('Oh ok. Chicken, I see.');
 		});
-
-	// ----- Submit
-	$(document).on("click", '#industry-submit', function (err) {
-		// collecting data from form
-		let form = $('[data-popup="popup_industries_add"] form')[0];
-		let status = $('#industry_status').is(":checked");
-		let url = "/industries/addnew";
-		let data = {
-			'name': form.name.value.trim(),
-			'description': form.description.value,
-			'slug': form.slug.value,
-			'image': '',
-			'status': status
-		};
-		// If ID exists post it for Edit.
-		if (form.industry_id.value) {
-			data._id = form.industry_id.value;
-			url = "/industries/saveindustry"
-		}
-		// console.log('ajax', data);
-
-		$.ajax({
-			url: url,
-			type: "POST",
-			data: data,
-			beforeSend: function () {
-				// show loading on button
-			},
-			success: function (data) {
-				// hide loading 
-				// console.log('data after save', pagination_data);
-				// console.log('data after id', data.data._id);
-				$('[data-popup="popup_industries_add"] form')[0].reset();
-				$('[data-popup="popup_industries_add"]').fadeOut(350, function () {
-					// $('#data-container > div:nth-child(1)').after("<div>great things</div>");
-					// to save
-					if (!form.industry_id.value) {
-						// --- add value to master array
-						// pagination_data[data.data._id]._id = data.data._id;
-						let key = data.data._id
-						pagination_data[key] = data.data;
-				
-						// pagination_data[data.data._id].slug = data.data.slug;
-						// pagination_data[data.data._id].description = data.data.description;
-						// pagination_data[data.data._id].status = data.data.status;
-						// pagination_data[data.data._id].image = data.data.image;
-
-						$('#data-container').children(':eq(0)').after('' +
-							'<div class="col-md-55" style="display:none">' +
-							'<div class="thumbnail">' +
-							'<div class="image view view-first">' +
-							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
-							'<div class="mask">' +
-							'<p>Total connections - ' + data.data.connections_total + '</p>' +
-							'<div class="tools tools-bottom">' +
-							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#"><i class="fa fa-trash"></i></a>' +
-							'</div></div></div>' +
-							'<div class="caption">' +
-							'<p>' + data.data.name + '</p>' +
-							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
-							'</div></div></div>');
-						$('#data-container').children(':eq(1)').show("puff");
-					} else {
-						// ---- to edit
-						// --- update value to master array
-						// pagination_data[data.data._id]._id = data.data._id;
-						pagination_data[data.data._id].name = data.data.name;
-						pagination_data[data.data._id].slug = data.data.slug;
-						pagination_data[data.data._id].description = data.data.description;
-						pagination_data[data.data._id].status = data.data.status;
-						pagination_data[data.data._id].image = data.data.image;
-						
-						$('.beingedit').html('' +
-							'<div class="thumbnail">' +
-							'<div class="image view view-first">' +
-							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
-							'<div class="mask">' +
-							'<p>Total connections - ' + data.data.connections_total + '</p>' +
-							'<div class="tools tools-bottom">' +
-							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#"><i class="fa fa-trash"></i></a>' +
-							'</div></div></div>' +
-							'<div class="caption">' +
-							'<p>' + data.data.name + '</p>' +
-							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
-							'</div></div></div>');
-						// $('.beingedit').prop('style','display:none');
-						// $('.beingedit').show("highlight");
-						$('.beingedit .thumbnail')
-						.animate({backgroundColor: "rgb( 20, 20, 20 )"},()=>{
-							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
-						});
-						$('.col-md-55').removeClass('beingedit');
-					}
-				});
-			},
-			error: function () {
-				$("#dummyrow").html('Unable to save.');
-				err.preventDefault();
-			}
-		});
-
-		err.preventDefault();
+		e.preventDefault();
 	});
 }
 
-// ############### Cities Pagination js #################
+// #####################################################
+// #################### Cities Page js #################
+// #####################################################
 
-function init_citiesTablePagination() {
-	var refreshIntervalId = null;
-	let page_no = 1;
-	citiesTablePagination(page_no, refreshIntervalId);
-	console.log('out if refreshIntervalId', refreshIntervalId);
+async function init_citiesTablePagination(time = 1, page_no = 1) {
+	let callagain = true;
+	setTimeout(async function () {
 
-	if (refreshIntervalId === null) {
-		console.log('in if refreshIntervalId', refreshIntervalId);
-		refreshIntervalId = setInterval(function () {
-			page_no++;
-			citiesTablePagination(page_no, refreshIntervalId);
-			//$("#overlay").hide();
-			if (page_no >= 10) { // change this to 10 page
-				console.log(page_no);
-				clearInterval(refreshIntervalId);
+		if (page_no == 1) {
+			time = 2000;
+			// if (alphabet != '') alphabet = '/' + alphabet;
+		}
+		let data = await citiesTablePagination(page_no);
+		// console.log('data ',data);		
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{
+			// console.log('1st');			
+			$("#data-container").append(cityListTemplating(data));
+			if (data.searched_total <= data.pageSize * page_no) {
+				// console.log('2nd');				
+				$("#msgbar").html('That\'s all.');
+				callagain = false;
+			} else if (page_no == 10) {
+				$("#msgbar").html("Didn\'t find what you are looking? Please try searching.");
+				callagain = false;
+			} else {
+				// console.log('3rd');				
 			}
-		}, 1000);
-	}
+		} else if (data.total == 0 || (data.rows.length == 0 && page_no == 1)) {
+			// console.log('4th');
+			$("#msgbar").html('No data found.');
+			callagain = false;
+		} else {
+			// console.log('5th');
+			$("#msgbar").html('That\'s all.');
+			callagain = false;
+		}
+		page_no++;
+		if (page_no <= 10 && callagain) {	// change this to 10 page
+			$("#msgbar").html("Loading page no- " + page_no);
+			init_citiesTablePagination(time, page_no);
+		}
+	}, time);
 
 }
 
-function citiesTablePagination(page_no, refreshIntervalId) {
-	console.log('refreshIntervalId 1', refreshIntervalId);
-	if (refreshIntervalId === null || refreshIntervalId != false)
-		$.ajax({
-			url: "/cities/page/" + page_no,
-			type: "GET",
-			beforeSend: function () {
-				// if (page_no == 1)
-				// 	$("#data-container").remove('profile_details');
-				// $("#overlay").html("Loading more...");
-				// $("#overlay").show();
-			},
-			success: function (data) {
-				// $("#dummyrow").hide();
-				// $("#network_total").html(' - Total '+data.total);
-				// $("#search_total").html('Showing '+data.searched_total);
-				$("#data-container").append(eachCityRow(data, page_no));
-
-				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
-					console.log('refreshIntervalId 2', refreshIntervalId);
-					clearInterval(refreshIntervalId);
-					// console.log('refreshIntervalId 3',refreshIntervalId);				
-					refreshIntervalId = false;
-					// console.log('refreshIntervalId 4',refreshIntervalId);				
-				} //else{refreshIntervalId = true;}
-			},
-			error: function () {
-				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
-				clearInterval(refreshIntervalId);
+function citiesTablePagination(page_no) {
+	// let dataRow = null;
+	return $.ajax({
+		url: "/cities/page/" + page_no,
+		type: "GET",
+		beforeSend: function () {
+			if (page_no == 1)
+				$("#collegeTableBody").html('');
+			$("#msgbar").html("Loading page no- " + page_no);
+			$("#msgbar").show();
+		},
+		success: function (data) {
+			// $("#msgbar").hide();
+			if (page_no == 1) {
+				$("#network_total").html(data.total);
+				$("#search_total").html(data.searched_total);
 			}
-		});
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
+		},
+		error: function () {
+			$("#msgbar").html("Something went wrong.");
+		}
+	})
+		.then(data => data);
+	// .catch(error=>error);
 }
 
-function eachCityRow(data, page_no) {
+function cityListTemplating(data) {
 	var html = '';
-	// console.log('total',data.total);
-	// console.log('row size',data.rows.length);
-	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
-	{
-		//alert("data hei");
-		$.each(data.rows, function (index, item) {
-			//html += '<li>'+index+' - '+ item.email +'</li>';
-			console.log(item);
-			html += '<div class="col-md-55">' +
-				'<div class="thumbnail">' +
-				'<div class="image view view-first">' +
-				'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" src="' + item.image + '" alt="' + item.name + '" />' +
-				'<div class="mask">' +
-				'<p>Total connections - ' + item.connections_total + '</p>' +
-				'<div class="tools tools-bottom">' +
-				'<a href="#" data-popup-edit="' + item._id + '"><i class="fa fa-pencil"></i></a>' +
-				'<a href="#"><i class="fa fa-trash"></i></a>' +
-				'</div></div></div>' +
-				'<div class="caption">' +
-				'<p>' + item.name + '</p>' +
-				'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
-				'</div></div></div>';
-			let key = item._id;
-			pagination_data[key] = item;
-			//   console.log(pagination_data);			  
-		});
-		if (page_no == 10)
-			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
-	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no cities.</td></tr>';
-		console.log('No data found');
-	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
-		console.log('Thats all');
-		clearInterval(refreshIntervalId);
-	}
+
+	$.each(data.rows, function (index, item) {
+		//html += '<li>'+index+' - '+ item.email +'</li>';
+		// console.log(item);
+		html += '<div class="col-md-55">' +
+			'<div class="thumbnail">' +
+			'<div class="image view view-first">' +
+			'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" onerror="this.src=\'/assets/build/images/city.jpg\'" src="' + item.image + '" alt="' + item.name + '" />' +
+			'<div class="mask">' +
+			'<p>Total connections - ' + item.connections_total + '</p>' +
+			'<div class="tools tools-bottom">' +
+			'<a href="#" data-popup-edit="' + item.slug + '"><i class="fa fa-pencil"></i></a>' +
+			'<a href="#" data-popup-delete="' + item.slug + '"><i class="fa fa-trash"></i></a>' +
+			'</div></div></div>' +
+			'<div class="caption">' +
+			'<p>' + item.name + '</p>' +
+			'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
+			'</div></div></div>';
+		let key = item.slug;
+		pagination_data[key] = item;
+		//   console.log('all pages',pagination_data);			  
+	});
 	// html += '</ul>';
 	return html;
 }
 
 if ($("#pagecode_cities").exists()) {
 
-	//----- OPEN popup to add
-	$(document).on("click", '[data-popup-open]', function (e) {
-		$('[data-popup="popup_cities_add"]').fadeIn(350);
+	//--- Validate form and call Submit function ---//
+	$("#cityeditform").validate({
+		errorClass: "alert",
+		errorElement: "div",
+		errorPlacement: ($error, $element) => $error.appendTo($element.closest(".form-group")),
+		highlight: (e) => $(e).parent().closest('.form-group').addClass('bad'),
+		unhighlight: (e) => $(e).parent().closest('.form-group').removeClass('bad'),
+		rules: {
+			name: {
+				remote: {
+					url: "/cities/checkcityname/",
+					type: "post",
+					data: { slug: () => $("#cityeditform #slug").val() },
+					beforeSend: () => $("#name").addClass('checkingTextbox'),
+					complete: () => $("#name").removeClass('checkingTextbox')
+				},
+				rangelength: [3, 25]
+			}
+		}, messages: {
+			name: { required: "City name required.", rangelength: "Range from 3 to 25 Char." }
+		},
+		submitHandler: function (form) {
+			// console.log('Submitted');
+			return citySubmit(form);
+			// $(form).ajaxSubmit();
+		}
+	});
+
+	// --- Submit function for Add & Edit ---//
+	function citySubmit(form) {
+
+		// collecting data from form
+		let status = $('#city_status').is(":checked");
+		let url = "/cities/addcity";
+		let data = { 'name': form.name.value.trim(), 'description': form.description.value, 'slug': form.slug.value, 'image': '', 'status': status };
+
+		// console.log('ajax data', data, 'url', url);
+		$('#city-submit i').addClass('fa fa-spinner fa-spin');
+
+		if (!form.slug.value) { // --- to Add
+			ajaxActionAndNotification(data, url, (data) => {
+				$('#city-submit i').removeClass('fa fa-spinner fa-spin');
+				if (data.success) {
+					$('#cityeditform')[0].reset();
+					$('.city-modal-form').modal('toggle');
+					$("#network_total").html(1 + parseInt($("#network_total").html()));
+					$("#search_total").html(1 + parseInt($("#search_total").html()));
+
+					let key = data.data.slug
+					pagination_data[key] = data.data;
+					$('#data-container').children(':eq(0)').after('' +
+						'<div class="col-md-55" style="display:none">' +
+						'<div class="thumbnail">' +
+						'<div class="image view view-first">' +
+						'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+						'<div class="mask">' +
+						'<p>Total connections - ' + data.data.connections_total + '</p>' +
+						'<div class="tools tools-bottom">' +
+						'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
+						'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
+						'</div></div></div>' +
+						'<div class="caption">' +
+						'<p>' + data.data.name + '</p>' +
+						'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+						'</div></div></div>');
+					$('#data-container').children(':eq(1)').show("puff");
+				}
+			});
+		} else { // --- to Edit
+			url = "/cities/updatecity"
+			ajaxActionAndNotification(data, url, (data) => {
+				$('#city-submit i').removeClass('fa fa-spinner fa-spin');
+				if (data.success) {
+					$('#cityeditform')[0].reset();
+					$('.city-modal-form').modal('toggle');
+
+					pagination_data[data.data.slug].name = data.data.name;
+					pagination_data[data.data.slug].description = data.data.description;
+					pagination_data[data.data.slug].status = data.data.status;
+					pagination_data[data.data.slug].image = data.data.image;
+
+					$('.beingedit').html('' +
+						'<div class="thumbnail">' +
+						'<div class="image view view-first">' +
+						'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+						'<div class="mask">' +
+						'<p>Total connections - ' + data.data.connections_total + '</p>' +
+						'<div class="tools tools-bottom">' +
+						'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
+						'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
+						'</div></div></div>' +
+						'<div class="caption">' +
+						'<p>' + data.data.name + '</p>' +
+						'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+						'</div></div></div>');
+
+					$('.beingedit .thumbnail')
+						.animate({ backgroundColor: "rgb( 20, 20, 20 )" }, () => {
+							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
+						});
+					$('.col-md-55').removeClass('beingedit');
+				}
+			});
+		}
+
+		// err.preventDefault();
+		return false;
+	}
+
+	//--- OPEN popup to add and reset form ---//
+	$(document).on("click", '[data-popup-add]', function (e) {
+		$('.city-modal-form').modal('toggle');
+		$('#cityeditform')[0].reset();
+		// console.log('form slug ',$('#cityeditform')[0].slug.value);
+		$('#cityeditform')[0].slug.value = '';
+		$('#cityeditform')[0].image.value = '';
 		e.preventDefault();
 	});
-	//----- Open popup to edit
+
+	//--- Open popup to edit and set values ---//
 	$(document).on("click", '[data-popup-edit]', function (e) {
 		let targeted_val = jQuery(this).attr('data-popup-edit');
 		$(this).parent().closest('.col-md-55').addClass('beingedit');
-		$('[data-popup="popup_cities_add"] form #city_id').val(pagination_data[targeted_val]._id);
-		$('[data-popup="popup_cities_add"] form #name').val(pagination_data[targeted_val].name);
-		$('[data-popup="popup_cities_add"] form #slug').val(pagination_data[targeted_val].slug);
-		$('[data-popup="popup_cities_add"] form #description').val(pagination_data[targeted_val].description);
-		$('[data-popup="popup_cities_add"] #city_status').prop("checked", pagination_data[targeted_val].status);
-		$('[data-popup="popup_cities_add"] #city_status').attr("checked");
+		// $('[data-popup="popup_cities_add"] form #city_id').val(pagination_data[targeted_val]._id);
+		$('.city-modal-form form #name').val(pagination_data[targeted_val].name);
+		$('.city-modal-form form #slug').val(pagination_data[targeted_val].slug);
+		$('.city-modal-form form #description').val(pagination_data[targeted_val].description);
+		$('.city-modal-form #city_status').prop("checked", pagination_data[targeted_val].status);
+		$('.city-modal-form #city_status').attr("checked");
 
-		$('[data-popup="popup_cities_add"]').fadeIn(350);
+		$('.city-modal-form').modal('toggle');
+		// $('[data-popup="popup_cities_add"]').fadeIn(350);
 		e.preventDefault();
 	});
 
-	//----- CLOSE popup
-	$(document).on("click", '[data-popup-close]', function (e) {
-		$('[data-popup="popup_cities_add"]').fadeOut(350);
-		$('.col-md-55').removeClass('beingedit');
-		$('[data-popup="popup_cities_add"] form')[0].reset();
-		$('#city_status').prop("checked", true);
-		e.preventDefault();
-	});
-
-	// check for duplicate
-	$("#name")
-		.keyup(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
-			$('#city-submit').prop('disabled', true);
-		})
-		.blur(function () {
-			$("#slug").val(convertToSlug(this.value)); //+'.univibe.com');
-			// $('[data-popup="popup_cities_add"] buttton[type=submit]').addClass('disabled');
-			$.ajax({
-				url: "/cities/checkcityname/", // + convertToSlug(this.value),
-				type: "POST",
-				data: {
-					'name': this.value.trim(),
-					'slug': convertToSlug(this.value),
-					'_id': $("#city_id").val()
-				},
-				beforeSend: function () {
-					// show loading
-					$("#name").addClass('checkingTextbox');
-					$('#city-submit').prop('disabled', true);
-				},
-				success: function (data) {
-					// check data and show msg
-					$("#name").removeClass('checkingTextbox');
-					if (data.name > 0 || data.slug > 0) {
-						$("#slug").val('');
-						$('#name').parents('div.form-group').addClass('bad');
-						$('#name').parents('div.form-group').append('<div class="alert">City exists.</div>');
-					}
-					$('#city-submit').prop('disabled', false);
-				},
-				error: function () {
-					// plz try later
+	//--- show confirmation to delete ---//
+	$(document).on("click", '[data-popup-delete]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-delete');
+		$(this).parent().closest('.col-md-55').addClass('beingdelete');
+		// console.log('targeted_val',targeted_val);
+		(new PNotify({
+			title: 'Confirmation Needed',
+			text: 'Are you sure want to delete \'' + pagination_data[targeted_val].name + '\' ?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let slug = { slug: targeted_val };
+			ajaxActionAndNotification(slug, '/cities/deletecity', (result) => {
+				// console.log(result);
+				if (result.success) {
+					$('.beingdelete').hide("puff");
+					$('.beingdelete').remove();
 				}
 			});
+		}).on('pnotify.cancel', function () {
+			// $(this).parent().closest('.col-md-55').removeClass('beingdelete');	
+			$('.col-md-55').removeClass('beingdelete');
+			// alert('Oh ok. Chicken, I see.');
 		});
+		e.preventDefault();
+	});
 
-	// ----- Submit
-	$(document).on("click", '#city-submit', function (err) {
-		// collecting data from form
-		let form = $('[data-popup="popup_cities_add"] form')[0];
-		let status = $('#city_status').is(":checked");
-		let url = "/cities/addnew";
-		let data = {
-			'name': form.name.value.trim(),
-			'description': form.description.value,
-			'slug': form.slug.value,
-			'image': '',
-			'status': status
-		};
-		// If ID exists post it for Edit.
-		if (form.city_id.value) {
-			data._id = form.city_id.value;
-			url = "/cities/savecity"
+}
+
+// #####################################################
+// #################### Courses Page js ################
+// #####################################################
+
+async function init_coursesTablePagination(time = 1, page_no = 1) {
+	let callagain = true;
+	setTimeout(async function () {
+
+		if (page_no == 1) {
+			time = 2000;
+			// if (alphabet != '') alphabet = '/' + alphabet;
 		}
-		// console.log('ajax', data);
+		let data = await coursesTablePagination(page_no);
+		// console.log('data ',data);		
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{
+			// console.log('1st');			
+			$("#data-container").append(courseListTemplating(data));
+			if (data.searched_total <= data.pageSize * page_no) {
+				// console.log('2nd');				
+				$("#msgbar").html('That\'s all.');
+				callagain = false;
+			} else if (page_no == 10) {
+				$("#msgbar").html("Didn\'t find what you are looking? Please try searching.");
+				callagain = false;
+			} else {
+				// console.log('3rd');				
+			}
+		} else if (data.total == 0 || (data.rows.length == 0 && page_no == 1)) {
+			// console.log('4th');
+			$("#msgbar").html('No data found.');
+			callagain = false;
+		} else {
+			// console.log('5th');
+			$("#msgbar").html('That\'s all.');
+			callagain = false;
+		}
+		page_no++;
+		if (page_no <= 10 && callagain) {	// change this to 10 page
+			$("#msgbar").html("Loading page no- " + page_no);
+			init_coursesTablePagination(time, page_no);
+		}
+	}, time);
 
-		$.ajax({
-			url: url,
-			type: "POST",
-			data: data,
-			beforeSend: function () {
-				// show loading on button
-			},
-			success: function (data) {
-				// hide loading 
-				// console.log('data after save', pagination_data);
-				// console.log('data after id', data.data._id);
-				$('[data-popup="popup_cities_add"] form')[0].reset();
-				$('[data-popup="popup_cities_add"]').fadeOut(350, function () {
-					// $('#data-container > div:nth-child(1)').after("<div>great things</div>");
-					// to save
-					if (!form.city_id.value) {
-						// --- add value to master array
-						// pagination_data[data.data._id]._id = data.data._id;
-						let key = data.data._id
-						pagination_data[key] = data.data;
-				
-						// pagination_data[data.data._id].slug = data.data.slug;
-						// pagination_data[data.data._id].description = data.data.description;
-						// pagination_data[data.data._id].status = data.data.status;
-						// pagination_data[data.data._id].image = data.data.image;
+}
 
-						$('#data-container').children(':eq(0)').after('' +
-							'<div class="col-md-55" style="display:none">' +
-							'<div class="thumbnail">' +
-							'<div class="image view view-first">' +
-							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
-							'<div class="mask">' +
-							'<p>Total connections - ' + data.data.connections_total + '</p>' +
-							'<div class="tools tools-bottom">' +
-							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#"><i class="fa fa-trash"></i></a>' +
-							'</div></div></div>' +
-							'<div class="caption">' +
-							'<p>' + data.data.name + '</p>' +
-							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
-							'</div></div></div>');
-						$('#data-container').children(':eq(1)').show("puff");
-					} else {
-						// ---- to edit
-						// --- update value to master array
-						// pagination_data[data.data._id]._id = data.data._id;
-						pagination_data[data.data._id].name = data.data.name;
-						pagination_data[data.data._id].slug = data.data.slug;
-						pagination_data[data.data._id].description = data.data.description;
-						pagination_data[data.data._id].status = data.data.status;
-						pagination_data[data.data._id].image = data.data.image;
-						
-						$('.beingedit').html('' +
-							'<div class="thumbnail">' +
-							'<div class="image view view-first">' +
-							'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
-							'<div class="mask">' +
-							'<p>Total connections - ' + data.data.connections_total + '</p>' +
-							'<div class="tools tools-bottom">' +
-							'<a href="#" data-popup-edit="' + data.data._id + '"><i class="fa fa-pencil"></i></a>' +
-							'<a href="#"><i class="fa fa-trash"></i></a>' +
-							'</div></div></div>' +
-							'<div class="caption">' +
-							'<p>' + data.data.name + '</p>' +
-							'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
-							'</div></div></div>');
-						// $('.beingedit').prop('style','display:none');
-						// $('.beingedit').show("highlight");
-						$('.beingedit .thumbnail')
-						.animate({backgroundColor: "rgb( 20, 20, 20 )"},()=>{
+function coursesTablePagination(page_no) {
+	// let dataRow = null;
+	return $.ajax({
+		url: "/courses/page/" + page_no,
+		type: "GET",
+		beforeSend: function () {
+			if (page_no == 1)
+				$("#collegeTableBody").html('');
+			$("#msgbar").html("Loading page no- " + page_no);
+			$("#msgbar").show();
+		},
+		success: function (data) {
+			// $("#msgbar").hide();
+			if (page_no == 1) {
+				$("#network_total").html(data.total);
+				$("#search_total").html(data.searched_total);
+			}
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
+		},
+		error: function () {
+			$("#msgbar").html("Something went wrong.");
+		}
+	})
+		.then(data => data);
+	// .catch(error=>error);
+}
+
+function courseListTemplating(data) {
+	var html = '';
+
+	$.each(data.rows, function (index, item) {
+		//html += '<li>'+index+' - '+ item.email +'</li>';
+		// console.log(item);
+		html += '<div class="col-md-55">' +
+			'<div class="thumbnail">' +
+			'<div class="image view view-first">' +
+			'<img class="' + (item.status ? '' : 'unpublished') + '" style="width: 100%; display: block;" onerror="this.src=\'/assets/build/images/course.jpg\'" src="' + item.image + '" alt="' + item.name + '" />' +
+			'<div class="mask">' +
+			'<p>Total connections - ' + item.connections_total + '</p>' +
+			'<div class="tools tools-bottom">' +
+			'<a href="#" data-popup-edit="' + item.slug + '"><i class="fa fa-pencil"></i></a>' +
+			'<a href="#" data-popup-delete="' + item.slug + '"><i class="fa fa-trash"></i></a>' +
+			'</div></div></div>' +
+			'<div class="caption">' +
+			'<p>' + item.name + '</p>' +
+			'<small title="' + item.description + '">' + item.description.substring(0, 30) + '</small>' +
+			'</div></div></div>';
+		let key = item.slug;
+		pagination_data[key] = item;
+		//   console.log('all pages',pagination_data);			  
+	});
+	// html += '</ul>';
+	return html;
+}
+
+if ($("#pagecode_courses").exists()) {
+
+	//--- Validate form and call Submit function ---//
+	$("#courseeditform").validate({
+		errorClass: "alert",
+		errorElement: "div",
+		errorPlacement: ($error, $element) => $error.appendTo($element.closest(".form-group")),
+		highlight: (e) => $(e).parent().closest('.form-group').addClass('bad'),
+		unhighlight: (e) => $(e).parent().closest('.form-group').removeClass('bad'),
+		rules: {
+			name: {
+				remote: {
+					url: "/courses/checkcoursename/",
+					type: "post",
+					data: { slug: () => $("#courseeditform #slug").val() },
+					beforeSend: () => $("#name").addClass('checkingTextbox'),
+					complete: () => $("#name").removeClass('checkingTextbox')
+				},
+				rangelength: [3, 25]
+			}
+		}, messages: {
+			name: { required: "Course name required.", rangelength: "Range from 3 to 25 Char." }
+		},
+		submitHandler: function (form) {
+			// console.log('Submitted');
+			return courseSubmit(form);
+			// $(form).ajaxSubmit();
+		}
+	});
+
+	// --- Submit function for Add & Edit ---//
+	function courseSubmit(form) {
+
+		// collecting data from form
+		let status = $('#course_status').is(":checked");
+		let url = "/courses/addcourse";
+		let data = { 'name': form.name.value.trim(), 'description': form.description.value, 'slug': form.slug.value, 'image': '', 'status': status };
+
+		// console.log('ajax data', data, 'url', url);
+		$('#course-submit i').addClass('fa fa-spinner fa-spin');
+
+		if (!form.slug.value) { // --- to Add
+			ajaxActionAndNotification(data, url, (data) => {
+				$('#course-submit i').removeClass('fa fa-spinner fa-spin');
+				if (data.success) {
+					$('#courseeditform')[0].reset();
+					$('.course-modal-form').modal('toggle');
+					$("#network_total").html(1 + parseInt($("#network_total").html()));
+					$("#search_total").html(1 + parseInt($("#search_total").html()));
+
+					let key = data.data.slug
+					pagination_data[key] = data.data;
+					$('#data-container').children(':eq(0)').after('' +
+						'<div class="col-md-55" style="display:none">' +
+						'<div class="thumbnail">' +
+						'<div class="image view view-first">' +
+						'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+						'<div class="mask">' +
+						'<p>Total connections - ' + data.data.connections_total + '</p>' +
+						'<div class="tools tools-bottom">' +
+						'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
+						'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
+						'</div></div></div>' +
+						'<div class="caption">' +
+						'<p>' + data.data.name + '</p>' +
+						'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+						'</div></div></div>');
+					$('#data-container').children(':eq(1)').show("puff");
+				}
+			});
+		} else { // --- to Edit
+			url = "/courses/updatecourse"
+			ajaxActionAndNotification(data, url, (data) => {
+				$('#course-submit i').removeClass('fa fa-spinner fa-spin');
+				if (data.success) {
+					$('#courseeditform')[0].reset();
+					$('.course-modal-form').modal('toggle');
+
+					pagination_data[data.data.slug].name = data.data.name;
+					pagination_data[data.data.slug].description = data.data.description;
+					pagination_data[data.data.slug].status = data.data.status;
+					pagination_data[data.data.slug].image = data.data.image;
+
+					$('.beingedit').html('' +
+						'<div class="thumbnail">' +
+						'<div class="image view view-first">' +
+						'<img style="width: 100%; display: block;" src="' + data.data.image + '" alt="' + data.data.name + '" />' +
+						'<div class="mask">' +
+						'<p>Total connections - ' + data.data.connections_total + '</p>' +
+						'<div class="tools tools-bottom">' +
+						'<a href="#" data-popup-edit="' + data.data.slug + '"><i class="fa fa-pencil"></i></a>' +
+						'<a href="#" data-popup-delete="' + data.data.slug + '"><i class="fa fa-trash"></i></a>' +
+						'</div></div></div>' +
+						'<div class="caption">' +
+						'<p>' + data.data.name + '</p>' +
+						'<small title="' + data.data.description + '">' + data.data.description.substring(0, 30) + '</small>' +
+						'</div></div></div>');
+
+					$('.beingedit .thumbnail')
+						.animate({ backgroundColor: "rgb( 20, 20, 20 )" }, () => {
 							// $('.beingedit .thumbnail').animate({backgroundColor: "#fff"})
 						});
-						$('.col-md-55').removeClass('beingedit');
-					}
-				});
-			},
-			error: function () {
-				$("#dummyrow").html('Unable to save.');
-				err.preventDefault();
-			}
-		});
+					$('.col-md-55').removeClass('beingedit');
+				}
+			});
+		}
 
-		err.preventDefault();
+		// err.preventDefault();
+		return false;
+	}
+
+	//--- OPEN popup to add and reset form ---//
+	$(document).on("click", '[data-popup-add]', function (e) {
+		$('.course-modal-form').modal('toggle');
+		$('#courseeditform')[0].reset();
+		// console.log('form slug ',$('#courseeditform')[0].slug.value);
+		$('#courseeditform')[0].slug.value = '';
+		$('#courseeditform')[0].image.value = '';
+		e.preventDefault();
 	});
-}
 
-// ############### Courses Pagination js #################
-			// function to be copied
+	//--- Open popup to edit and set values ---//
+	$(document).on("click", '[data-popup-edit]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-edit');
+		$(this).parent().closest('.col-md-55').addClass('beingedit');
+		// $('[data-popup="popup_courses_add"] form #course_id').val(pagination_data[targeted_val]._id);
+		$('.course-modal-form form #name').val(pagination_data[targeted_val].name);
+		$('.course-modal-form form #slug').val(pagination_data[targeted_val].slug);
+		$('.course-modal-form form #description').val(pagination_data[targeted_val].description);
+		$('.course-modal-form #course_status').prop("checked", pagination_data[targeted_val].status);
+		$('.course-modal-form #course_status').attr("checked");
 
-// ############### Status Pagination js #################
+		$('.course-modal-form').modal('toggle');
+		// $('[data-popup="popup_courses_add"]').fadeIn(350);
+		e.preventDefault();
+	});
 
-function init_statusTablePagination() {
-	let refreshIntervalId = null;
-	let page_no = 1;
-	statusTablePagination(page_no, refreshIntervalId);
-	console.log('out if refreshIntervalId', refreshIntervalId);
-
-	if (refreshIntervalId === null) {
-		console.log('in if refreshIntervalId', refreshIntervalId);
-		refreshIntervalId = setInterval(function () {
-			page_no++;
-			statusTablePagination(page_no, refreshIntervalId);
-			//$("#overlay").hide();
-			if (page_no >= 10) { // change this to 10 page
-				console.log(page_no);
-				clearInterval(refreshIntervalId);
-			}
-		}, 1000);
-	}
-
-}
-
-function statusTablePagination(page_no, refreshIntervalId) {
-	console.log('refreshIntervalId 1', refreshIntervalId);
-	if (refreshIntervalId === null || refreshIntervalId != false)
-		// let url = "/status/page/" + page_no;
-	// window.location.search
-		$.ajax({
-			url: "/status/page/" + page_no + window.location.search,
-			type: "GET",
-			beforeSend: function () {
-				// if (page_no == 1)
-				// 	$("#data-container").remove('profile_details');
-				// $("#overlay").html("Loading more...");
-				// $("#overlay").show();
-			},
-			success: function (data) {
-				// $("#dummyrow").hide();
-				// $("#network_total").html(' - Total '+data.total);
-				// $("#search_total").html('Showing '+data.searched_total);
-				$("#data-container").append(eachStatusRow(data, page_no));
-
-				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
-					console.log('refreshIntervalId 2', refreshIntervalId);
-					clearInterval(refreshIntervalId);
-					// console.log('refreshIntervalId 3',refreshIntervalId);				
-					refreshIntervalId = false;
-					// console.log('refreshIntervalId 4',refreshIntervalId);				
-				} //else{refreshIntervalId = true;}
-			},
-			error: function () {
-				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
-				clearInterval(refreshIntervalId);
-			}
+	//--- show confirmation to delete ---//
+	$(document).on("click", '[data-popup-delete]', function (e) {
+		let targeted_val = jQuery(this).attr('data-popup-delete');
+		$(this).parent().closest('.col-md-55').addClass('beingdelete');
+		// console.log('targeted_val',targeted_val);
+		(new PNotify({
+			title: 'Confirmation Needed',
+			text: 'Are you sure want to delete \'' + pagination_data[targeted_val].name + '\' ?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let slug = { slug: targeted_val };
+			ajaxActionAndNotification(slug, '/courses/deletecourse', (result) => {
+				// console.log(result);
+				if (result.success) {
+					$('.beingdelete').hide("puff");
+					$('.beingdelete').remove();
+				}
+			});
+		}).on('pnotify.cancel', function () {
+			// $(this).parent().closest('.col-md-55').removeClass('beingdelete');	
+			$('.col-md-55').removeClass('beingdelete');
+			// alert('Oh ok. Chicken, I see.');
 		});
+		e.preventDefault();
+	});
+
 }
 
-function eachStatusRow(data, page_no) {
+// #####################################################
+// #################### Status Page js #################
+// #####################################################
+
+async function init_statusTablePagination(time = 1, page_no = 1) {
+	let callagain = true;
+	setTimeout(async function () {
+
+		if (page_no == 1) {
+			time = 2000;
+			// if (alphabet != '') alphabet = '/' + alphabet;
+		}
+		let data = await statusTablePagination(page_no);
+		// console.log('data ',data);		
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{
+			// console.log('1st');			
+			$("#data-container").append(statusListTemplating(data));
+			if (data.searched_total <= data.pageSize * page_no) {
+				// console.log('2nd');				
+				$("#msgbar").html('That\'s all.');
+				callagain = false;
+			} else if (page_no == 10) {
+				$("#msgbar").html("Didn\'t find what you are looking? Please try searching.");
+				callagain = false;
+			} else {
+				// console.log('3rd');				
+			}
+		} else if (data.total == 0 || (data.rows.length == 0 && page_no == 1)) {
+			// console.log('4th');
+			$("#msgbar").html('No data found.');
+			callagain = false;
+		} else {
+			// console.log('5th');
+			$("#msgbar").html('That\'s all.');
+			callagain = false;
+		}
+		page_no++;
+		if (page_no <= 10 && callagain) {	// change this to 10 page
+			$("#msgbar").html("Loading page no- " + page_no);
+			init_statusTablePagination(time, page_no);
+		}
+	}, time);
+
+}
+
+function statusTablePagination(page_no) {
+	// let dataRow = null;
+	return $.ajax({
+		url: "/status/page/" + page_no,
+		type: "GET",
+		beforeSend: function () {
+			if (page_no == 1)
+				$("#collegeTableBody").html('');
+			$("#msgbar").html("Loading page no- " + page_no);
+			$("#msgbar").show();
+		},
+		success: function (data) {
+			// $("#msgbar").hide();
+			if (page_no == 1) {
+				$("#network_total").html(data.total);
+				$("#search_total").html(data.searched_total);
+			}
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
+		},
+		error: function () {
+			$("#msgbar").html("Something went wrong.");
+		}
+	})
+		.then(data => data);
+	// .catch(error=>error);
+}
+
+function statusListTemplating(data) {
 	var html = '';
-	// console.log('total',data.total);
-	// console.log('row size',data.rows.length);
-	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
-	{
-		//alert("data hei");
-		$.each(data.rows, function (index, item) {
-			//html += '<li>'+index+' - '+ item.email +'</li>';
-			// console.log(item);
-			html += '<div class="col-md-6 col-sm-6 col-xs-12 item-' + item.slug + '">' +
-					'<div class="x_panel">' +
-					'<div class="x_title">' +
-					'<h2><i class="fa fa-bars"></i> ' + item.posted_by.name + '<small title="' + dateFormater(item.posted_on) + '">' + date2DisplayString(item.posted_on) + '</small></h2>' +
-					'<ul class="nav navbar-right panel_toolbox">' +
-					'<!--<li><a class="close-link" title="Edit" data-toggle="modal" data-target=".bs-example-modal-edit" item-slug="' + item.slug + '"><i class="fa fa-pencil"></i></a></li>-->' +
-					'<li><a class="close-link" title="Un-publish" id="status-publish" item-slug="' + item.slug + '" item-state="' + item.publish + '"><i class="fa fa-flag ' + ((item.publish === true) ? '' :'faicon-cross') +'"></i></a></li>' +
-					'<li><a class="close-link" title="Delete" data-toggle="modal" data-target=".bs-example-modal-delete" item-slug="' + item.slug + '"><i class="fa fa-trash"></i></a></li></ul>' +
-					'<div class="clearfix"></div>' +
-					'</div>' +
-					'<div class="x_content">';
-			html += (item.image === '') ? '' :'<div class="posts-img"><img src="' + item.image + '" ></div>';
-			html += (item.description === '') ? '' :'<div  class="posts-body"><p>' + item.description + '</p></div>';
-			html +=	'</div></div></div>';
-			
-			let key = item.slug;
-			pagination_data[key] = item;
-			  console.log(pagination_data);			  
-		});
-		if (page_no == 10)
-			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
-	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no status.</td></tr>';
-		console.log('No data found');
-	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
-		console.log('Thats all');
-		clearInterval(refreshIntervalId);
-	}
+	// console.log('total',data);
+
+	$.each(data.rows, function (index, item) {
+		//html += '<li>'+index+' - '+ item.email +'</li>';
+		// console.log(item);
+		html += '<div class="col-md-6 col-sm-6 col-xs-12 item">' +
+				'<div class="x_panel">' +
+				'<div class="x_title">' +
+				'<h2><i class="fa fa-bars"></i> ' + item.posted_by.name + '<small title="' + dateFormater(item.posted_on) + '">' + date2DisplayString(item.posted_on) + '</small></h2>' +
+				'<ul class="nav navbar-right panel_toolbox">' +
+				'<!--<li><a class="close-link" title="Edit" data-toggle="modal" data-target=".bs-example-modal-edit" item-slug="' + item.slug + '"><i class="fa fa-pencil"></i></a></li>-->' +
+				'<li><a class="close-link statusChange" title="' + (item.publish ?'Click to Un-publish.':'Click to publish.') +'" item-slug="' + item.slug + '" item-state="' + item.publish + '"><i class="fa fa-flag ' + ((item.publish === true) ? '' : 'faicon-cross') + '"></i></a></li>' +
+				'<li><a class="close-link deleteItem" title="Delete" item-slug="' + item.slug + '"><i class="fa fa-trash"></i></a></li></ul>' +
+				'<div class="clearfix"></div>' +
+				'</div>' +
+				'<div class="x_content">';
+		html += (item.image === '') ? '' :'<div class="posts-img"><img src="' + item.image + '" ></div>';
+		html += (item.description === '') ? '' :'<div  class="posts-body"><p>' + item.description + '</p></div>';
+		html +=	'</div></div></div>';
+		
+		let key = item.slug;
+		pagination_data[key] = item;
+			console.log(pagination_data);			  
+	});
+
 	// html += '</ul>';
 	return html;
 }
@@ -7702,188 +7985,187 @@ function eachStatusRow(data, page_no) {
 if ($("#pagecode_status").exists()) {
 
 	//----- Unpublish status
-	$(document).on("click", '#status-publish', function (e) {
+	$(document).on("click", '.statusChange', function (e) {
 		let _this = this;
+		$(_this).attr('id','publishItem');
 		let targeted_item = $(_this).attr('item-slug');
 		let targeted_status = $(_this).attr('item-state');
 		targeted_status = (targeted_status === 'true')?'false':'true';
-		console.log(targeted_item);
-		$.ajax({
-			url: '/status/changestate',
-			type: 'POST',
-			data: {
-				'slug': targeted_item,
-				'state': targeted_status
-			},
-			beforeSend: function () {
-				$(_this).children("i").css({ fontSize: '0.7em' });
-			},
-			success: function () {
-				// console.log(_this);
-				$(_this).children("i").stop().animate({ fontSize: '1.0em' });
-				$(_this).attr('item-state',targeted_status);
-				if (targeted_status === 'false'){
-					$(_this).children("i").addClass('faicon-cross'); 
-				}else{
-					$(_this).children("i").removeClass('faicon-cross'); 
+		// console.log(targeted_item);
+		// $(_this).children("i").css({ fontSize: '0.7em' });	
+
+		(new PNotify({
+			title: 'Confirmation Needed',
+			// text: 'Are you sure want to delete \'' + pagination_data[targeted_val].name + '\' ?',
+			text: 'Are you sure want to ' + (targeted_status?'unpublish':'publish') + '?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let data = { 'slug': targeted_item, 'state': targeted_status };		
+			ajaxActionAndNotification(data, '/status/changestate', (result) => {
+				// $('#publishItem').children("i").stop().animate({ fontSize: '1.0em' });
+				if (result.success) {
+					$('#publishItem').attr('item-state', targeted_status);
+					if (targeted_status === 'false') $('#publishItem').children("i").addClass('faicon-cross');
+					else $('#publishItem').children("i").removeClass('faicon-cross');
 				}
-			},
-			error: function () {
-				$(_this).children("i").css({ fontSize: '1.0em' });
-			}
-
-		})
-		e.preventDefault();
-	});
-
-	// $("#myModal").on("show.bs.modal", function (e) {
-		// $(this).modal('hide');
-		// var link = $(e.relatedTarget);
-		// $(this).find(".modal-body").load(link.attr("href"));
-	// })
-
-	//----- Open popup to delete
-	$(document).on("click", '[data-target=".bs-example-modal-delete"]', function (e) {
-		let targeted_val = jQuery(this).attr('item-slug');
-		console.log(pagination_data[targeted_val]);
-		$('#modelheadtext').text('Status by ' + pagination_data[targeted_val].posted_by.name.split(' ')[0]);
-		$('#modelbodytext').html('' + 
-			((pagination_data[targeted_val].image === '') ? '' : '<div class="posts-img"><img src="' + pagination_data[targeted_val].image + '" ></div>') +
-			((pagination_data[targeted_val].description === '') ? '' : '<div class="posts-body"><p>' + pagination_data[targeted_val].description.substring(0,200) + '</p></div>'));
-		$('#confirmdelete').attr('item-slug', targeted_val);
-		e.preventDefault();
-	});
-
-	//----- Delete item and close popup
-	$(document).on("click", '#confirmdelete', function (e) {
-		let targeted_item = jQuery(this).attr('item-slug');
-		$.ajax({
-			url: '/status/delete',
-			type: 'POST',
-			data: {
-				'slug': targeted_item
-			},
-			beforeSend: function () {
-				$('#confirmdelete').children("i").removeClass('fa-trash');
-				$('#confirmdelete').children("i").addClass('fa-spinner fa-spin');
-			},
-			success: function () {
-				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
-				$('#confirmdelete').children("i").addClass('fa-check');
-				setTimeout(function () {
-					$("#modal-delete").modal('hide');
-				}, 1000);
-				$('.item-' + targeted_item).fadeOut(300, function () { $(this).remove(); });
-			},
-			error: function () {
-				console.log('error');
-				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
-				$('#confirmdelete').children("i").addClass('fa-times');
-			}
-
-		})		
-		e.preventDefault();
-	});
-
-}
-
-// ############### Blogs Pagination js #################
-
-function init_blogsTablePagination() {
-	let refreshIntervalId = null;
-	let page_no = 1;
-	blogsTablePagination(page_no, refreshIntervalId);
-	console.log('out if refreshIntervalId', refreshIntervalId);
-
-	if (refreshIntervalId === null) {
-		console.log('in if refreshIntervalId', refreshIntervalId);
-		refreshIntervalId = setInterval(function () {
-			page_no++;
-			blogsTablePagination(page_no, refreshIntervalId);
-			//$("#overlay").hide();
-			if (page_no >= 10) { // change this to 10 page
-				console.log(page_no);
-				clearInterval(refreshIntervalId);
-			}
-		}, 1000);
-	}
-
-}
-
-function blogsTablePagination(page_no, refreshIntervalId) {
-	console.log('refreshIntervalId 1', refreshIntervalId);
-	if (refreshIntervalId === null || refreshIntervalId != false)
-		// let url = "/blogs/page/" + page_no;
-		// window.location.search
-		$.ajax({
-			url: "/blogs/page/" + page_no + window.location.search,
-			type: "GET",
-			beforeSend: function () {
-				// if (page_no == 1)
-				// 	$("#data-container").remove('profile_details');
-				// $("#overlay").html("Loading more...");
-				// $("#overlay").show();
-			},
-			success: function (data) {
-				// $("#dummyrow").hide();
-				// $("#network_total").html(' - Total '+data.total);
-				// $("#search_total").html('Showing '+data.searched_total);
-				$("#data-container").append(eachBlogsRow(data, page_no));
-
-				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
-					console.log('refreshIntervalId 2', refreshIntervalId);
-					clearInterval(refreshIntervalId);
-					// console.log('refreshIntervalId 3',refreshIntervalId);				
-					refreshIntervalId = false;
-					// console.log('refreshIntervalId 4',refreshIntervalId);				
-				} //else{refreshIntervalId = true;}
-			},
-			error: function () {
-				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
-				clearInterval(refreshIntervalId);
-			}
+				$('.statusChange').removeAttr('id');
+			});
+		}).on('pnotify.cancel', function () {
+			// $(this).parent().closest('.col-md-55').removeClass('beingdelete');	
+			// $(_this).children("i").stop().animate({ fontSize: '1.0em' });			
+			$(_this).removeAttr('id');
 		});
+
+		e.preventDefault();
+	});
+
+	//----- Delete status
+	$(document).on("click", '.deleteItem', function (e) {
+		let _this = this;
+		$(_this).parent().closest('.item').attr('id', 'deleteItem');
+		let targeted_item = $(_this).attr('item-slug');	
+
+		(new PNotify({
+			title: 'Confirmation Needed',
+			text: 'Are you sure want to delete?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let data = { 'slug': targeted_item, };
+			ajaxActionAndNotification(data, '/status/delete', (result) => {
+				if (result.success)
+					$('#deleteItem').fadeOut(300, function () { $(this).remove(); });
+				else
+					// $('#deleteItem').children("i").removeClass('faicon-cross');
+				$('.item').removeAttr('id');
+			});
+		}).on('pnotify.cancel', function () {			
+			$('.item').removeAttr('id');
+		});
+
+		e.preventDefault();
+	});
+
 }
 
-function eachBlogsRow(data, page_no) {
+// #####################################################
+// ############### Blogs Pagination js #################
+// #####################################################
+
+async function init_blogsTablePagination(time = 1, page_no = 1) {
+	let callagain = true;
+	setTimeout(async function () {
+
+		if (page_no == 1) {
+			time = 2000;
+			// if (alphabet != '') alphabet = '/' + alphabet;
+		}
+		let data = await blogsTablePagination(page_no);
+		// console.log('data ',data);		
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{
+			// console.log('1st');			
+			$("#data-container").append(blogListTemplating(data));
+			if (data.searched_total <= data.pageSize * page_no) {
+				// console.log('2nd');				
+				$("#msgbar").html('That\'s all.');
+				callagain = false;
+			} else if (page_no == 10) {
+				$("#msgbar").html("Didn\'t find what you are looking? Please try searching.");
+				callagain = false;
+			} else {
+				// console.log('3rd');				
+			}
+		} else if (data.total == 0 || (data.rows.length == 0 && page_no == 1)) {
+			// console.log('4th');
+			$("#msgbar").html('No data found.');
+			callagain = false;
+		} else {
+			// console.log('5th');
+			$("#msgbar").html('That\'s all.');
+			callagain = false;
+		}
+		page_no++;
+		if (page_no <= 10 && callagain) {	// change this to 10 page
+			$("#msgbar").html("Loading page no- " + page_no);
+			init_blogsTablePagination(time, page_no);
+		}
+	}, time);
+
+}
+
+function blogsTablePagination(page_no) {
+	// let dataRow = null;
+	return $.ajax({
+		url: "/blogs/page/" + page_no,
+		type: "GET",
+		beforeSend: function () {
+			if (page_no == 1)
+				$("#collegeTableBody").html('');
+			$("#msgbar").html("Loading page no- " + page_no);
+			$("#msgbar").show();
+		},
+		success: function (data) {
+			// $("#msgbar").hide();
+			if (page_no == 1) {
+				$("#network_total").html(data.total);
+				$("#search_total").html(data.searched_total);
+			}
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
+		},
+		error: function () {
+			$("#msgbar").html("Something went wrong.");
+		}
+	})
+	.then(data => data);
+	// .catch(error=>error);
+}
+
+function blogListTemplating(data) {
 	var html = '';
 	// console.log('total',data.total);
 	// console.log('row size',data.rows.length);
-	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
-	{
-		//alert("data hei");
-		$.each(data.rows, function (index, item) {
-			//html += '<li>'+index+' - '+ item.email +'</li>';
-			// console.log(item);
-			html += '<div class="col-md-6 col-sm-6 col-xs-12 item-' + item.slug + '">' +
-				'<div class="x_panel">' +
-				'<div class="x_title">' +
-				'<h2><i class="fa fa-bars"></i> ' + item.posted_by.name + '<small title="' + dateFormater(item.posted_on) + '">' + date2DisplayString(item.posted_on) + '</small></h2>' +
-				'<ul class="nav navbar-right panel_toolbox">' +
-				'<!--<li><a class="close-link" title="Edit" data-toggle="modal" data-target=".bs-example-modal-edit" item-slug="' + item.slug + '"><i class="fa fa-pencil"></i></a></li>-->' +
-				'<li><a class="close-link" title="Un-publish" id="blogs-publish" item-slug="' + item.slug + '" item-state="' + item.publish + '"><i class="fa fa-flag ' + ((item.publish === true) ? '' : 'faicon-cross') + '"></i></a></li>' +
-				'<li><a class="close-link" title="Delete" data-toggle="modal" data-target=".bs-example-modal-delete" item-slug="' + item.slug + '"><i class="fa fa-trash"></i></a></li></ul>' +
-				'<div class="clearfix"></div>' +
-				'</div>' +
-				'<div class="x_content">';
-			html += (item.image === '') ? '' : '<div class="posts-img"><img src="' + item.image + '" ></div>';
-			html += '<div class="posts-body"><strong>' + item.title + '</strong><p>' + item.description + '</p></div>';
-			html += '</div></div></div>';
 
-			let key = item.slug;
-			pagination_data[key] = item;
-			console.log(pagination_data);
-		});
-		if (page_no == 10)
-			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
-	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no blogs.</td></tr>';
-		console.log('No data found');
-	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
-		console.log('Thats all');
-		clearInterval(refreshIntervalId);
-	}
+	//alert("data hei");
+	$.each(data.rows, function (index, item) {
+		//html += '<li>'+index+' - '+ item.email +'</li>';
+		// console.log(item);
+		html += '<div class="col-md-6 col-sm-6 col-xs-12 item">' +
+			'<div class="x_panel">' +
+			'<div class="x_title">' +
+			'<h2><i class="fa fa-bars"></i> ' + item.posted_by.name + '<small title="' + dateFormater(item.posted_on) + '">' + date2DisplayString(item.posted_on) + '</small></h2>' +
+			'<ul class="nav navbar-right panel_toolbox">' +
+			'<!--<li><a class="close-link" title="Edit" data-toggle="modal" data-target=".bs-example-modal-edit" item-slug="' + item.slug + '"><i class="fa fa-pencil"></i></a></li>-->' +
+			'<li><a class="close-link statusChange" title="' + (item.publish ?'Click to Un-publish.':'Click to publish.') +'" item-slug="' + item.slug + '" item-state="' + item.publish + '"><i class="fa fa-flag ' + ((item.publish === true) ? '' : 'faicon-cross') + '"></i></a></li>' +
+			'<li><a class="close-link deleteItem" title="Click to delete." item-slug="' + item.slug + '"><i class="fa fa-trash"></i></a></li></ul>' +
+			'<div class="clearfix"></div>' +
+			'</div>' +
+			'<div class="x_content">';
+		html += (item.image === '') ? '' : '<div class="posts-img"><img src="' + item.image + '" onerror="this.src=\'/static/images/dummy.jpg\'" ></div>';
+		html += '<div class="posts-body"><strong>' + item.title + '</strong><p>' + item.description + '</p></div>';
+		html += '</div></div></div>';
+
+		let key = item.slug;
+		pagination_data[key] = item;
+		console.log(pagination_data);
+	});
+
 	// html += '</ul>';
 	return html;
 }
@@ -7891,296 +8173,296 @@ function eachBlogsRow(data, page_no) {
 if ($("#pagecode_blogs").exists()) {
 
 	//----- Unpublish blogs
-	$(document).on("click", '#blogs-publish', function (e) {
+	$(document).on("click", '.statusChange', function (e) {
 		let _this = this;
+		$(_this).attr('id', 'publishItem');
 		let targeted_item = $(_this).attr('item-slug');
-		let targeted_blogs = $(_this).attr('item-state');
-		targeted_blogs = (targeted_blogs === 'true') ? 'false' : 'true';
-		console.log(targeted_item);
-		$.ajax({
-			url: '/blogs/changestate',
-			type: 'POST',
-			data: {
-				'slug': targeted_item,
-				'state': targeted_blogs
-			},
-			beforeSend: function () {
-				$(_this).children("i").css({ fontSize: '0.7em' });
-			},
-			success: function () {
-				// console.log(_this);
-				$(_this).children("i").stop().animate({ fontSize: '1.0em' });
-				$(_this).attr('item-state', targeted_blogs);
-				if (targeted_blogs === 'false') {
-					$(_this).children("i").addClass('faicon-cross');
-				} else {
-					$(_this).children("i").removeClass('faicon-cross');
+		let targeted_status = $(_this).attr('item-state');
+		targeted_status = (targeted_status === 'true') ? 'false' : 'true';
+		// console.log(targeted_item);
+		// $(_this).children("i").css({ fontSize: '0.7em' });	
+
+		(new PNotify({
+			title: 'Confirmation Needed',
+			// text: 'Are you sure want to delete \'' + pagination_data[targeted_val].name + '\' ?',
+			text: 'Are you sure want to ' + (targeted_status ? 'unpublish' : 'publish') + '?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let data = { 'slug': targeted_item, 'state': targeted_status };
+			ajaxActionAndNotification(data, '/blogs/changestate', (result) => {
+				// $('#publishItem').children("i").stop().animate({ fontSize: '1.0em' });
+				if(result.success){
+					$('#publishItem').attr('item-state', targeted_status);
+					if (targeted_status === 'false') $('#publishItem').children("i").addClass('faicon-cross');
+					else $('#publishItem').children("i").removeClass('faicon-cross');
 				}
-			},
-			error: function () {
-				$(_this).children("i").css({ fontSize: '1.0em' });
-			}
-
-		})
-		e.preventDefault();
-	});
-
-	//----- Open popup to delete
-	$(document).on("click", '[data-target=".bs-example-modal-delete"]', function (e) {
-		let targeted_val = jQuery(this).attr('item-slug');
-		console.log(pagination_data[targeted_val]);
-		$('#modelheadtext').text('Blogs by ' + pagination_data[targeted_val].posted_by.name.split(' ')[0]);
-		$('#modelbodytext').html('' +
-			//((pagination_data[targeted_val].image === '') ? '' : '<div class="posts-img"><img src="' + pagination_data[targeted_val].image + '" ></div>') +
-			'<div class="posts-body"><strong>' + pagination_data[targeted_val].title + '</strong><p>' + pagination_data[targeted_val].description.substring(0,200) + '</p></div>');
-		$('#confirmdelete').attr('item-slug', targeted_val);
-		e.preventDefault();
-	});
-
-	//----- Delete item and close popup
-	$(document).on("click", '#confirmdelete', function (e) {
-		let targeted_item = jQuery(this).attr('item-slug');
-		$.ajax({
-			url: '/blogs/delete',
-			type: 'POST',
-			data: {
-				'slug': targeted_item
-			},
-			beforeSend: function () {
-				$('#confirmdelete').children("i").removeClass('fa-trash');
-				$('#confirmdelete').children("i").addClass('fa-spinner fa-spin');
-			},
-			success: function () {
-				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
-				$('#confirmdelete').children("i").addClass('fa-check');
-				setTimeout(function () {
-					$("#modal-delete").modal('hide');
-				}, 1000);
-				$('.item-' + targeted_item).fadeOut(300, function () { $(this).remove(); });
-			},
-			error: function () {
-				console.log('error');
-				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
-				$('#confirmdelete').children("i").addClass('fa-times');
-			}
-
-		})
-		e.preventDefault();
-	});
-
-}
-
-// ############### Opportunity Pagination js #################
-
-function init_opportunityTablePagination() {
-	let refreshIntervalId = null;
-	let page_no = 1;
-	opportunityTablePagination(page_no, refreshIntervalId);
-	console.log('out if refreshIntervalId', refreshIntervalId);
-
-	if (refreshIntervalId === null) {
-		console.log('in if refreshIntervalId', refreshIntervalId);
-		refreshIntervalId = setInterval(function () {
-			page_no++;
-			opportunityTablePagination(page_no, refreshIntervalId);
-			//$("#overlay").hide();
-			if (page_no >= 10) { // change this to 10 page
-				console.log(page_no);
-				clearInterval(refreshIntervalId);
-			}
-		}, 1000);
-	}
-
-}
-
-function opportunityTablePagination(page_no, refreshIntervalId) {
-	console.log('refreshIntervalId 1', refreshIntervalId);
-	if (refreshIntervalId === null || refreshIntervalId != false)
-		// let url = "/opportunity/page/" + page_no;
-		// window.location.search
-		$.ajax({
-			url: "/opportunity/page/" + page_no + window.location.search,
-			type: "GET",
-			beforeSend: function () {
-				// if (page_no == 1)
-				// 	$("#data-container").remove('profile_details');
-				// $("#overlay").html("Loading more...");
-				// $("#overlay").show();
-			},
-			success: function (data) {
-				// $("#dummyrow").hide();
-				// $("#network_total").html(' - Total '+data.total);
-				// $("#search_total").html('Showing '+data.searched_total);
-				$("#data-container").append(eachOpportunityRow(data, page_no));
-
-				if (data.total <= data.pageSize || data.rows.length < data.pageSize) {
-					console.log('refreshIntervalId 2', refreshIntervalId);
-					clearInterval(refreshIntervalId);
-					// console.log('refreshIntervalId 3',refreshIntervalId);				
-					refreshIntervalId = false;
-					// console.log('refreshIntervalId 4',refreshIntervalId);				
-				} //else{refreshIntervalId = true;}
-			},
-			error: function () {
-				$("#dummyrow").html('<td colspan="6" style="text-align: center; padding: 20px;">Unable to load rows.</td>');
-				clearInterval(refreshIntervalId);
-			}
+				$('.statusChange').removeAttr('id');
+			});
+		}).on('pnotify.cancel', function () {
+			// $(this).parent().closest('.col-md-55').removeClass('beingdelete');	
+			// $(_this).children("i").stop().animate({ fontSize: '1.0em' });			
+			$(_this).removeAttr('id');
 		});
+
+		e.preventDefault();
+	});
+
+	//----- Delete status
+	$(document).on("click", '.deleteItem', function (e) {
+		let _this = this;
+		$(_this).parent().closest('.item').attr('id', 'deleteItem');
+		let targeted_item = $(_this).attr('item-slug');
+
+		(new PNotify({
+			title: 'Confirmation Needed',
+			text: 'Are you sure want to delete?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let data = { 'slug': targeted_item, };
+			ajaxActionAndNotification(data, '/blogs/delete', (result) => {
+				if (result.success) $('#deleteItem').fadeOut(300, function () { $(this).remove(); });
+				$('.item').removeAttr('id');
+			});
+		}).on('pnotify.cancel', function () {
+			$('.item').removeAttr('id');
+		});
+
+		e.preventDefault();
+	});
+
 }
 
-function eachOpportunityRow(data, page_no) {
+// #####################################################
+// ############# Opportunity Pagination js #############
+// #####################################################
+
+async function init_opportunityTablePagination(time = 1, page_no = 1) {
+	let callagain = true;
+	setTimeout(async function () {
+
+		if (page_no == 1) {
+			time = 2000;
+			// if (alphabet != '') alphabet = '/' + alphabet;
+		}
+		let data = await opportunityTablePagination(page_no);
+		// console.log('data ',data);		
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{
+			// console.log('1st');			
+			$("#data-container").append(opportunityListTemplating(data));
+			if (data.searched_total <= data.pageSize * page_no) {
+				// console.log('2nd');				
+				$("#msgbar").html('That\'s all.');
+				callagain = false;
+			} else if (page_no == 10) {
+				$("#msgbar").html("Didn\'t find what you are looking? Please try searching.");
+				callagain = false;
+			} else {
+				// console.log('3rd');				
+			}
+		} else if (data.total == 0 || (data.rows.length == 0 && page_no == 1)) {
+			// console.log('4th');
+			$("#msgbar").html('No data found.');
+			callagain = false;
+		} else {
+			// console.log('5th');
+			$("#msgbar").html('That\'s all.');
+			callagain = false;
+		}
+		page_no++;
+		if (page_no <= 10 && callagain) {	// change this to 10 page
+			$("#msgbar").html("Loading page no- " + page_no);
+			init_opportunityTablePagination(time, page_no);
+		}
+	}, time);
+
+}
+
+function opportunityTablePagination(page_no) {
+	// let dataRow = null;
+	return $.ajax({
+		url: "/opportunity/page/" + page_no,
+		type: "GET",
+		beforeSend: function () {
+			if (page_no == 1)
+				$("#collegeTableBody").html('');
+			$("#msgbar").html("Loading page no- " + page_no);
+			$("#msgbar").show();
+		},
+		success: function (data) {
+			// $("#msgbar").hide();
+			if (page_no == 1) {
+				$("#network_total").html(data.total);
+				$("#search_total").html(data.searched_total);
+			}
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
+		},
+		error: function () {
+			$("#msgbar").html("Something went wrong.");
+		}
+	})
+		.then(data => data);
+	// .catch(error=>error);
+}
+
+function opportunityListTemplating(data) {
 	var html = '';
-	// console.log('total',data.total);
-	// console.log('row size',data.rows.length);
-	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
-	{
-		//alert("data hei");
-		$.each(data.rows, function (index, item) {
-			// console.log(item);
-			html += '<div class="col-md-6 col-sm-6 col-xs-12 item-' + item.slug + ' tag-' + item.category + '">' +
-				'<div class="x_panel">' +
-				'<div class="x_title">' +
-				'<h2><i class="fa fa-bars"></i> ' + item.posted_by.name + '<small title="' + dateFormater(item.posted_on) + '">' + date2DisplayString(item.posted_on) + '</small></h2>' +
-				'<ul class="nav navbar-right panel_toolbox">' +
-				'<!--<li><a class="close-link" title="Edit" data-toggle="modal" data-target=".bs-example-modal-edit" item-slug="' + item.slug + '"><i class="fa fa-pencil"></i></a></li>-->' +
-				'<li><a class="close-link" title="Un-publish" id="opportunity-publish" item-slug="' + item.slug + '" item-state="' + item.publish + '"><i class="fa fa-flag ' + ((item.publish === true) ? '' : 'faicon-cross') + '"></i></a></li>' +
-				'<li><a class="close-link" title="Delete" data-toggle="modal" data-target=".bs-example-modal-delete" item-slug="' + item.slug + '"><i class="fa fa-trash"></i></a></li></ul>' +
-				'<div class="clearfix"></div>' +
-				'</div>' +
-				'<div class="x_content">';
-			// html += '<a href="/opportunity/list/' + ['jobs', 'leads', 'interns'][item.category - 1] +'" tagcategory="'+ item.category +'" class="tag"><span>' + ['JOBS', 'LEADS', 'INTERNS'][item.category-1]+'</span></a>';
-			html += '<a href="" tagcategory="'+ item.category +'" class="tag"><span>' + ['JOBS', 'LEADS', 'INTERNS'][item.category-1]+'</span></a>';
-			html += '<p class="lead">' + item.title + '</p><p>' + item.description + '</p><div>';
-			html += (item.company === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Company</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.company + '</p>';
-			html += (item.industry === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Industry</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.industry + '</p>';
-			html += (item.skills.length === 0) ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Skills</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.skills + '</p>';
-			html += (item.ref_link === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Reference</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.ref_link + '</p>';
-			html += (item.contact_email === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Email</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.contact_email + '</p>';
-			html += (item.contact_phone === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Phone</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.contact_phone + '</p>';
-			html += (item.location === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Location</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.location + '</p>';
-			html += (item.last_date_to_apply === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Last date</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.last_date_to_apply,'date') + '</p>';
-			html += (item.salary.min !== null && item.salary.max !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Salary</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.salary.min + '-' + item.salary.max + ' Rs</p>'
-					: (item.salary.min !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Salary</label><p class="col-md-9 col-sm-9 col-xs-12">Min ' + item.salary.min + ' Rs</p>'
-					:(item.salary.max !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Salary</label><p class="col-md-9 col-sm-9 col-xs-12">Max ' + item.salary.max + ' Rs</p>': '';
-			html += (item.experience.min !== null && item.experience.max !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Experience</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.experience.min + '-' + item.experience.max + ' years</p>'
-					: (item.experience.min !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Experience</label><p class="col-md-9 col-sm-9 col-xs-12">Min ' + item.experience.min + ' years</p>'
-					:(item.experience.max !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Experience</label><p class="col-md-9 col-sm-9 col-xs-12">Max ' + item.experience.max + ' years</p>': '';
-			html += (item.positions === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Position</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.positions + '</p></div></div>';
-			html += (item.skills.length === 0) ? '' : '<div class="post_footer"><div class="col-md-10 col-sm-10 col-xs-12">' +
-				'<h5> Project files</h5><ul class="list-unstyled project_files">' +
-				'<li><a href=""><i class="fa fa-file-word-o"></i> Functional-requirements.docx</a></li>' +
-				'<li><a href=""><i class="fa fa-file-pdf-o"></i> UAT.pdf</a></li>' +
-				'<li><a href=""><i class="fa fa-picture-o"></i> Logo.png</a></li>' +
-				'<li><a href=""><i class="fa fa-file-word-o"></i> Contract-10_12_2014.docx</a></li></ul>' +
-				'</div > <div class="col-md-2 col-sm-2 col-xs-12"><h5> Stats</h5><ul class="list-unstyled project_files">' +
-				'<li><a href="" title="40 People attending"><i class="fa fa-check-square"></i> 40</a></li>' +
-				'<li><a href="" title="20 People liked"><i class="fa fa-thumbs-up"></i> 20</a></li>' +
-				'<li><a href="" title="23 People commented"><i class="fa fa-comment"></i> 23</a></li></ul></div></div >';
-			html += '</div></div>';
 
-			let key = item.slug;
-			pagination_data[key] = item;
-			console.log(pagination_data);
-		});
-		if (page_no == 10)
-			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
-	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no opportunity.</td></tr>';
-		console.log('No data found');
-	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
-		console.log('Thats all');
-		clearInterval(refreshIntervalId);
-	}
-	// html += '</ul>';
+	$.each(data.rows, function (index, item) {
+		// console.log(item);
+		html += '<div class="col-md-6 col-sm-6 col-xs-12 item tag-' + item.category + '">' +
+			'<div class="x_panel">' +
+			'<div class="x_title">' +
+			'<h2><i class="fa fa-bars"></i> ' + item.posted_by.name + '<small title="' + dateFormater(item.posted_on) + '">' + date2DisplayString(item.posted_on) + '</small></h2>' +
+			'<ul class="nav navbar-right panel_toolbox">' +
+			'<!--<li><a class="close-link" title="Edit" data-toggle="modal" data-target=".bs-example-modal-edit" item-slug="' + item.slug + '"><i class="fa fa-pencil"></i></a></li>-->' +
+			'<li><a class="close-link statusChange" title="' + (item.publish ? 'Click to Un-publish.' : 'Click to publish.') +'" item-slug="' + item.slug + '" item-state="' + item.publish + '"><i class="fa fa-flag ' + ((item.publish === true) ? '' : 'faicon-cross') + '"></i></a></li>' +
+			'<li><a class="close-link deleteItem" title="Click to delete." item-slug="' + item.slug + '"><i class="fa fa-trash"></i></a></li></ul>' +
+			'<div class="clearfix"></div>' +
+			'</div>' +
+			'<div class="x_content">';
+		// html += '<a href="/opportunity/list/' + ['jobs', 'leads', 'interns'][item.category - 1] +'" tagcategory="'+ item.category +'" class="tag"><span>' + ['JOBS', 'LEADS', 'INTERNS'][item.category-1]+'</span></a>';
+		html += '<a href="" title="Filter similar items" tagcategory="'+ item.category +'" class="tag"><span>' + ['JOBS', 'LEADS', 'INTERNS'][item.category-1]+'</span></a>';
+		html += '<p class="lead">' + item.title + '</p><p>' + item.description + '</p><div>';
+		html += (item.company === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Company</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.company + '</p>';
+		html += (item.industry === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Industry</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.industry + '</p>';
+		html += (item.skills.length === 0) ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Skills</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.skills + '</p>';
+		html += (item.ref_link === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Reference</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.ref_link + '</p>';
+		html += (item.contact_email === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Email</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.contact_email + '</p>';
+		html += (item.contact_phone === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Phone</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.contact_phone + '</p>';
+		html += (item.location === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Location</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.location + '</p>';
+		html += (item.last_date_to_apply === '') ? '' :'<label class="control-label col-md-3 col-sm-3 col-xs-12">Last date</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.last_date_to_apply,'date') + '</p>';
+		html += (item.salary.min !== null && item.salary.max !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Salary</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.salary.min + '-' + item.salary.max + ' Rs</p>'
+				: (item.salary.min !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Salary</label><p class="col-md-9 col-sm-9 col-xs-12">Min ' + item.salary.min + ' Rs</p>'
+				:(item.salary.max !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Salary</label><p class="col-md-9 col-sm-9 col-xs-12">Max ' + item.salary.max + ' Rs</p>': '';
+		html += (item.experience.min !== null && item.experience.max !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Experience</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.experience.min + '-' + item.experience.max + ' years</p>'
+				: (item.experience.min !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Experience</label><p class="col-md-9 col-sm-9 col-xs-12">Min ' + item.experience.min + ' years</p>'
+				:(item.experience.max !== null) ? '<label class="control-label col-md-3 col-sm-3 col-xs-12">Experience</label><p class="col-md-9 col-sm-9 col-xs-12">Max ' + item.experience.max + ' years</p>': '';
+		html += (item.positions === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Position</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.positions + '</p></div></div>';
+		html += (item.skills.length === 0) ? '' : '<div class="post_footer"><div class="col-md-10 col-sm-10 col-xs-12">' +
+			'<h5> Project files</h5><ul class="list-unstyled project_files">' +
+			'<li><a href=""><i class="fa fa-file-word-o"></i> Functional-requirements.docx</a></li>' +
+			'<li><a href=""><i class="fa fa-file-pdf-o"></i> UAT.pdf</a></li>' +
+			'<li><a href=""><i class="fa fa-picture-o"></i> Logo.png</a></li>' +
+			'<li><a href=""><i class="fa fa-file-word-o"></i> Contract-10_12_2014.docx</a></li></ul>' +
+			'</div > <div class="col-md-2 col-sm-2 col-xs-12"><h5> Stats</h5><ul class="list-unstyled project_files">' +
+			'<li><a href="" title="40 People attending"><i class="fa fa-check-square"></i> 40</a></li>' +
+			'<li><a href="" title="20 People liked"><i class="fa fa-thumbs-up"></i> 20</a></li>' +
+			'<li><a href="" title="23 People commented"><i class="fa fa-comment"></i> 23</a></li></ul></div></div >';
+		html += '</div></div>';
+
+		let key = item.slug;
+		pagination_data[key] = item;
+		// console.log(pagination_data);
+	});
+
 	return html;
 }
 
 if ($("#pagecode_opportunity").exists()) {
 
-	//----- Unpublish opportunity
-	$(document).on("click", '#opportunity-publish', function (e) {
+	// --- Unpublish opportunity --- //
+	$(document).on("click", '.statusChange', function (e) {
 		let _this = this;
+		$(_this).attr('id', 'publishItem');
 		let targeted_item = $(_this).attr('item-slug');
-		let targeted_opportunity = $(_this).attr('item-state');
-		targeted_opportunity = (targeted_opportunity === 'true') ? 'false' : 'true';
-		console.log(targeted_item);
-		$.ajax({
-			url: '/opportunity/changestate',
-			type: 'POST',
-			data: {
-				'slug': targeted_item,
-				'state': targeted_opportunity
-			},
-			beforeSend: function () {
-				$(_this).children("i").css({ fontSize: '0.7em' });
-			},
-			success: function () {
-				// console.log(_this);
-				$(_this).children("i").stop().animate({ fontSize: '1.0em' });
-				$(_this).attr('item-state', targeted_opportunity);
-				if (targeted_opportunity === 'false') {
-					$(_this).children("i").addClass('faicon-cross');
-				} else {
-					$(_this).children("i").removeClass('faicon-cross');
+		let targeted_status = $(_this).attr('item-state');
+		targeted_status = (targeted_status === 'true') ? 'false' : 'true';
+		// console.log(targeted_item);
+		// $(_this).children("i").css({ fontSize: '0.7em' });	
+
+		(new PNotify({
+			title: 'Confirmation Needed',
+			// text: 'Are you sure want to delete \'' + pagination_data[targeted_val].name + '\' ?',
+			text: 'Are you sure want to ' + (targeted_status ? 'unpublish' : 'publish') + '?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let data = { 'slug': targeted_item, 'state': targeted_status };
+			ajaxActionAndNotification(data, '/opportunity/changestate', (result) => {
+				// $('#publishItem').children("i").stop().animate({ fontSize: '1.0em' });
+				if (result.success) {
+					$('#publishItem').attr('item-state', targeted_status);
+					if (targeted_status === 'false') $('#publishItem').children("i").addClass('faicon-cross');
+					else $('#publishItem').children("i").removeClass('faicon-cross');
 				}
-			},
-			error: function () {
-				$(_this).children("i").css({ fontSize: '1.0em' });
-			}
+				$('.statusChange').removeAttr('id');
+			});
+		}).on('pnotify.cancel', function () {
+			// $(this).parent().closest('.col-md-55').removeClass('beingdelete');	
+			// $(_this).children("i").stop().animate({ fontSize: '1.0em' });			
+			$(_this).removeAttr('id');
+		});
 
-		})
 		e.preventDefault();
 	});
 
-	//----- Open popup to delete
-	$(document).on("click", '[data-target=".bs-example-modal-delete"]', function (e) {
-		let targeted_val = jQuery(this).attr('item-slug');
-		console.log(pagination_data[targeted_val]);
-		$('#modelheadtext').text('Opportunity by ' + pagination_data[targeted_val].posted_by.name.split(' ')[0]);
-		$('#modelbodytext').html('' +
-			'<div class="posts-body"><strong>' + pagination_data[targeted_val].title + '</strong><p>' + pagination_data[targeted_val].description.substring(0, 200) + '</p></div>');
-		$('#confirmdelete').attr('item-slug', targeted_val);
+	// --- Delete opportunity --- //
+	$(document).on("click", '.deleteItem', function (e) {
+		let _this = this;
+		$(_this).parent().closest('.item').attr('id', 'deleteItem');
+		let targeted_item = $(_this).attr('item-slug');
+
+		(new PNotify({
+			title: 'Confirmation Needed',
+			text: 'Are you sure want to delete?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let data = { 'slug': targeted_item, };
+			ajaxActionAndNotification(data, '/opportunity/delete', (result) => {
+				if (result.success) $('#deleteItem').fadeOut(300, function () { $(this).remove(); });
+				$('.item').removeAttr('id');
+			});
+		}).on('pnotify.cancel', function () {
+			$('.item').removeAttr('id');
+		});
+
 		e.preventDefault();
 	});
-
-	//----- Delete item and close popup
-	$(document).on("click", '#confirmdelete', function (e) {
-		let targeted_item = jQuery(this).attr('item-slug');
-		$.ajax({
-			url: '/opportunity/delete',
-			type: 'POST',
-			data: {
-				'slug': targeted_item
-			},
-			beforeSend: function () {
-				$('#confirmdelete').children("i").removeClass('fa-trash');
-				$('#confirmdelete').children("i").addClass('fa-spinner fa-spin');
-			},
-			success: function () {
-				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
-				$('#confirmdelete').children("i").addClass('fa-check');
-				setTimeout(function () {
-					$("#modal-delete").modal('hide');
-				}, 1000);
-				$('.item-' + targeted_item).fadeOut(300, function () { $(this).remove(); });
-			},
-			error: function () {
-				console.log('error');
-				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
-				$('#confirmdelete').children("i").addClass('fa-times');
-			}
-
-		})
-		e.preventDefault();
-	});
-
+	
+	// --- Tab filter --- //
 	$(document).on("click", '[tagcategory]', function (e) {
 		e.preventDefault();		
 		let clicked_cat = $(this).attr("tagcategory");
 		let tag = ["1", "2", "3"];
+		// let tagName = ["JOBS", "LEADS", "INTERNS"];
+		let tags = { 1: 'JOBS', 2: 'LEADS', 3: 'INTERNS' };
 		tag.splice(tag.indexOf(clicked_cat), 1);
-		
+
+		$('#selectedFilters').append('<a href="" title="Clear this filter." selectedTag="' + clicked_cat + '" class="selectedTag"><span>' + tags[clicked_cat] + '</span><i class="fa fa-close"></i></a>');
+
 		$.each(tag, function (index, item) {
 			$('.tag-' + item).fadeOut(0);
 		});
@@ -8191,11 +8473,27 @@ if ($("#pagecode_opportunity").exists()) {
 
 		// $('.tag-1').slideDown("slow");
 	});
+
+	// --- Clear tag filter --- //
+	$(document).on("click", '.selectedTag', function (e) {
+		e.preventDefault();
+		let selectedTag = $(this).attr("selectedTag");
+		let tag = ["1", "2", "3"];
+		tag.splice(tag.indexOf(selectedTag), 1);
+
+		$.each(tag, function (index, item) {
+			$('.tag-' + item).fadeIn(0);
+		});
+		
+		$(this).remove();
+	});
 }
 
+// #####################################################
 // ############### Event Pagination js #################
+// #####################################################
 
-function init_eventTablePagination() {
+function init_eventTablePagination_() {
 	let refreshIntervalId = null;
 	let page_no = 1;
 	eventTablePagination(page_no, refreshIntervalId);
@@ -8215,8 +8513,49 @@ function init_eventTablePagination() {
 	}
 
 }
+async function init_eventTablePagination(time = 1, page_no = 1) {
+	let callagain = true;
+	setTimeout(async function () {
 
-function eventTablePagination(page_no, refreshIntervalId) {
+		if (page_no == 1) {
+			time = 2000;
+			// if (alphabet != '') alphabet = '/' + alphabet;
+		}
+		let data = await eventTablePagination(page_no);
+		// console.log('data ',data);		
+		if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
+		{
+			// console.log('1st');			
+			$("#data-container").append(eventListTemplating(data));
+			if (data.searched_total <= data.pageSize * page_no) {
+				// console.log('2nd');				
+				$("#msgbar").html('That\'s all.');
+				callagain = false;
+			} else if (page_no == 10) {
+				$("#msgbar").html("Didn\'t find what you are looking? Please try searching.");
+				callagain = false;
+			} else {
+				// console.log('3rd');				
+			}
+		} else if (data.total == 0 || (data.rows.length == 0 && page_no == 1)) {
+			// console.log('4th');
+			$("#msgbar").html('No data found.');
+			callagain = false;
+		} else {
+			// console.log('5th');
+			$("#msgbar").html('That\'s all.');
+			callagain = false;
+		}
+		page_no++;
+		if (page_no <= 10 && callagain) {	// change this to 10 page
+			$("#msgbar").html("Loading page no- " + page_no);
+			init_eventTablePagination(time, page_no);
+		}
+	}, time);
+
+}
+
+function eventTablePagination_(page_no, refreshIntervalId) {
 	console.log('refreshIntervalId 1', refreshIntervalId);
 	if (refreshIntervalId === null || refreshIntervalId != false)
 		// let url = "/event/page/" + page_no;
@@ -8250,157 +8589,171 @@ function eventTablePagination(page_no, refreshIntervalId) {
 			}
 		});
 }
-
-function eachEventRow(data, page_no) {
+function eventTablePagination(page_no) {
+	// let dataRow = null;
+	return $.ajax({
+		url: "/event/page/" + page_no,
+		type: "GET",
+		beforeSend: function () {
+			if (page_no == 1)
+				$("#collegeTableBody").html('');
+			$("#msgbar").html("Loading page no- " + page_no);
+			$("#msgbar").show();
+		},
+		success: function (data) {
+			// $("#msgbar").hide();
+			if (page_no == 1) {
+				$("#network_total").html(data.total);
+				$("#search_total").html(data.searched_total);
+			}
+			// $("#data-container").append(simpleTemplating(data, page_no));
+			return data;
+		},
+		error: function () {
+			$("#msgbar").html("Something went wrong.");
+		}
+	})
+		.then(data => data);
+	// .catch(error=>error);
+}
+function eventListTemplating(data) {
 	var html = '';
-	// console.log('total',data.total);
-	// console.log('row size',data.rows.length);
-	if (data.total > 0 && data.rows.length > 0 && page_no <= 10) // change this to 10 page
-	{
-		//alert("data hei");
-		$.each(data.rows, function (index, item) {
-			// console.log(item);
-			console.log(dateFormater(item.start_date));
-			console.log(dateFormater(item.start_time));
-			console.log(dateFormater(item.end_date));
-			let abc = item.end_time;
-			console.log(abc);
-			html += '<div class="col-md-6 col-sm-6 col-xs-12 item-' + item.slug + ' tag-' + item.category + '">' +
-				'<div class="x_panel">' +
-				'<div class="x_title">' +
-				'<h2><i class="fa fa-bars"></i> ' + item.posted_by.name + '<small title="' + dateFormater(item.posted_on) + '">' + date2DisplayString(item.posted_on) + '</small></h2>' +
-				'<ul class="nav navbar-right panel_toolbox">' +
-				'<!--<li><a class="close-link" title="Edit" data-toggle="modal" data-target=".bs-example-modal-edit" item-slug="' + item.slug + '"><i class="fa fa-pencil"></i></a></li>-->' +
-				'<li><a class="close-link" title="Un-publish" id="event-publish" item-slug="' + item.slug + '" item-state="' + item.publish + '"><i class="fa fa-flag ' + ((item.publish === true) ? '' : 'faicon-cross') + '"></i></a></li>' +
-				'<li><a class="close-link" title="Delete" data-toggle="modal" data-target=".bs-example-modal-delete" item-slug="' + item.slug + '"><i class="fa fa-trash"></i></a></li></ul>' +
-				'<div class="clearfix"></div>' +
-				'</div>' +
-				'<div class="x_content">';
-			// html += '<a href="/event/list/' + ['jobs', 'leads', 'interns'][item.category - 1] +'" tagcategory="'+ item.category +'" class="tag"><span>' + ['JOBS', 'LEADS', 'INTERNS'][item.category-1]+'</span></a>';
-			html += '<a href="" tagcategory="' + item.category + '" class="tag"><span>' + ['Simple', 'Institute', 'Alumni Meet'][item.category] + '</span></a>';
-			html += '<p class="lead">' + item.title + '</p><p>' + item.description + '</p><div>';
-			html += (item.tag_line === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Tag Line</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.tag_line + '</p>';
-			html += (item.positions === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Position</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.positions + '</p>';
-			html += (item.fees === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Fees</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.fees + '</p>';
-			html += (item.start_date === null) ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Start date</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.start_date, 'date') + ((item.start_time === null) ? '' : ' '+dateFormater(item.start_time, 'time')) + '</p>';
-			// html += (item.start_time === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Start time</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.start_time, 'time') + '</p>';
-			html += (item.end_date === null) ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">End time</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.end_date, 'date') + ((item.end_time === null) ? '' : ' ' + dateFormater(item.end_time, 'time')) + '</p>';
-			// html += (item.end_time === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">End time</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.end_datetime) + '</p>';
-			html += (item.location === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Location</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.location + '</p></div></div>';
-			html += (item.images.length === 0) ? '' : '<div class="post_footer"><div class="col-md-10 col-sm-10 col-xs-12">' +
-				'<h5> Project files</h5><ul class="list-unstyled project_files">' +
-				'<li><a href=""><i class="fa fa-file-word-o"></i> Functional-requirements.docx</a></li>' +
-				'<li><a href=""><i class="fa fa-file-pdf-o"></i> UAT.pdf</a></li>' +
-				'<li><a href=""><i class="fa fa-picture-o"></i> Logo.png</a></li>' +
-				'<li><a href=""><i class="fa fa-file-word-o"></i> Contract-10_12_2014.docx</a></li></ul>' +
-				'</div > <div class="col-md-2 col-sm-2 col-xs-12"><h5> Stats</h5><ul class="list-unstyled project_files">' +
-				'<li><a href="" title="40 People attending"><i class="fa fa-check-square"></i> 40</a></li>' +
-				'<li><a href="" title="20 People liked"><i class="fa fa-thumbs-up"></i> 20</a></li>' +
-				'<li><a href="" title="23 People commented"><i class="fa fa-comment"></i> 23</a></li></ul></div></div >';
-			html += '</div></div>';
 
-			let key = item.slug;
-			pagination_data[key] = item;
-			console.log(pagination_data);
-		});
-		if (page_no == 10)
-			html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">Didn\'t find what you are looking? Please try searching.</td></tr>';
-	} else if (data.total == 0 || data.rows.length == 0 && page_no == 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;">There are no event.</td></tr>';
-		console.log('No data found');
-	} else if (data.total == 0 || data.rows.length == 0 && page_no > 1) {
-		html += '<tr id="dummyrow"><td colspan="6" style="text-align: center; padding: 20px;"> - That\'s all - </td></tr>';
-		console.log('Thats all');
-		clearInterval(refreshIntervalId);
-	}
-	// html += '</ul>';
+	$.each(data.rows, function (index, item) {
+		// console.log(item);
+		// console.log(dateFormater(item.start_date));
+		// console.log(dateFormater(item.start_time));
+		// console.log(dateFormater(item.end_date));
+		let abc = item.end_time;
+		// console.log(abc);
+		html += '<div class="col-md-6 col-sm-6 col-xs-12 item tag-' + item.category + '">' +
+			'<div class="x_panel">' +
+			'<div class="x_title">' +
+			'<h2><i class="fa fa-bars"></i> ' + item.posted_by.name + '<small title="' + dateFormater(item.posted_on) + '">' + date2DisplayString(item.posted_on) + '</small></h2>' +
+			'<ul class="nav navbar-right panel_toolbox">' +
+			'<!--<li><a class="close-link" title="Edit" data-toggle="modal" data-target=".bs-example-modal-edit" item-slug="' + item.slug + '"><i class="fa fa-pencil"></i></a></li>-->' +
+			'<li><a class="close-link statusChange" title="' + (item.publish ? 'Click to Un-publish.' : 'Click to publish.') +'" item-slug="' + item.slug + '" item-state="' + item.publish + '"><i class="fa fa-flag ' + ((item.publish === true) ? '' : 'faicon-cross') + '"></i></a></li>' +
+			'<li><a class="close-link deleteItem" title="Click to delete." item-slug="' + item.slug + '"><i class="fa fa-trash"></i></a></li></ul>' +
+			'<div class="clearfix"></div>' +
+			'</div>' +
+			'<div class="x_content">';
+		// html += '<a href="/event/list/' + ['jobs', 'leads', 'interns'][item.category - 1] +'" tagcategory="'+ item.category +'" class="tag"><span>' + ['JOBS', 'LEADS', 'INTERNS'][item.category-1]+'</span></a>';
+		html += '<a href="" title="Filter similar items" tagcategory="' + item.category + '" class="tag"><span>' + ['Simple', 'Institute', 'Alumni Meet'][item.category] + '</span></a>';
+		html += '<p class="lead">' + item.title + '</p><p>' + item.description + '</p><div>';
+		html += (item.tag_line === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Tag Line</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.tag_line + '</p>';
+		html += (item.positions === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Position</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.positions + '</p>';
+		html += (item.fees === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Fees</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.fees + '</p>';
+		html += (item.start_date === null) ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Start date</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.start_date, 'date') + ((item.start_time === null) ? '' : ' '+dateFormater(item.start_time, 'time')) + '</p>';
+		// html += (item.start_time === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Start time</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.start_time, 'time') + '</p>';
+		html += (item.end_date === null) ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">End time</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.end_date, 'date') + ((item.end_time === null) ? '' : ' ' + dateFormater(item.end_time, 'time')) + '</p>';
+		// html += (item.end_time === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">End time</label><p class="col-md-9 col-sm-9 col-xs-12">' + dateFormater(item.end_datetime) + '</p>';
+		html += (item.location === '') ? '' : '<label class="control-label col-md-3 col-sm-3 col-xs-12">Location</label><p class="col-md-9 col-sm-9 col-xs-12">' + item.location + '</p></div></div>';
+		html += (item.images.length === 0) ? '' : '<div class="post_footer"><div class="col-md-10 col-sm-10 col-xs-12">' +
+			'<h5> Project files</h5><ul class="list-unstyled project_files">' +
+			'<li><a href=""><i class="fa fa-file-word-o"></i> Functional-requirements.docx</a></li>' +
+			'<li><a href=""><i class="fa fa-file-pdf-o"></i> UAT.pdf</a></li>' +
+			'<li><a href=""><i class="fa fa-picture-o"></i> Logo.png</a></li>' +
+			'<li><a href=""><i class="fa fa-file-word-o"></i> Contract-10_12_2014.docx</a></li></ul>' +
+			'</div > <div class="col-md-2 col-sm-2 col-xs-12"><h5> Stats</h5><ul class="list-unstyled project_files">' +
+			'<li><a href="" title="40 People attending"><i class="fa fa-check-square"></i> 40</a></li>' +
+			'<li><a href="" title="20 People liked"><i class="fa fa-thumbs-up"></i> 20</a></li>' +
+			'<li><a href="" title="23 People commented"><i class="fa fa-comment"></i> 23</a></li></ul></div></div >';
+		html += '</div></div>';
+
+		let key = item.slug;
+		pagination_data[key] = item;
+		// console.log(pagination_data);
+	});
+
 	return html;
 }
 
 if ($("#pagecode_event").exists()) {
 
-	//----- Unpublish event
-	$(document).on("click", '#event-publish', function (e) {
+	// --- Unpublish event --- //
+	$(document).on("click", '.statusChange', function (e) {
 		let _this = this;
+		$(_this).attr('id', 'publishItem');
 		let targeted_item = $(_this).attr('item-slug');
-		let targeted_event = $(_this).attr('item-state');
-		targeted_event = (targeted_event === 'true') ? 'false' : 'true';
-		console.log(targeted_item);
-		$.ajax({
-			url: '/event/changestate',
-			type: 'POST',
-			data: {
-				'slug': targeted_item,
-				'state': targeted_event
-			},
-			beforeSend: function () {
-				$(_this).children("i").css({ fontSize: '0.7em' });
-			},
-			success: function () {
-				// console.log(_this);
-				$(_this).children("i").stop().animate({ fontSize: '1.0em' });
-				$(_this).attr('item-state', targeted_event);
-				if (targeted_event === 'false') {
-					$(_this).children("i").addClass('faicon-cross');
-				} else {
-					$(_this).children("i").removeClass('faicon-cross');
+		let targeted_status = $(_this).attr('item-state');
+		targeted_status = (targeted_status === 'true') ? 'false' : 'true';
+		// console.log(targeted_item);
+		// $(_this).children("i").css({ fontSize: '0.7em' });	
+
+		(new PNotify({
+			title: 'Confirmation Needed',
+			// text: 'Are you sure want to delete \'' + pagination_data[targeted_val].name + '\' ?',
+			text: 'Are you sure want to ' + (targeted_status ? 'unpublish' : 'publish') + '?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let data = { 'slug': targeted_item, 'state': targeted_status };
+			ajaxActionAndNotification(data, '/event/changestate', (result) => {
+				// $('#publishItem').children("i").stop().animate({ fontSize: '1.0em' });
+				if (result.success) {
+					$('#publishItem').attr('item-state', targeted_status);
+					if (targeted_status === 'false') $('#publishItem').children("i").addClass('faicon-cross');
+					else $('#publishItem').children("i").removeClass('faicon-cross');
 				}
-			},
-			error: function () {
-				$(_this).children("i").css({ fontSize: '1.0em' });
-			}
+				$('.statusChange').removeAttr('id');
+			});
+		}).on('pnotify.cancel', function () {
+			// $(this).parent().closest('.col-md-55').removeClass('beingdelete');	
+			// $(_this).children("i").stop().animate({ fontSize: '1.0em' });			
+			$(_this).removeAttr('id');
+		});
 
-		})
 		e.preventDefault();
 	});
 
-	//----- Open popup to delete
-	$(document).on("click", '[data-target=".bs-example-modal-delete"]', function (e) {
-		let targeted_val = jQuery(this).attr('item-slug');
-		console.log(pagination_data[targeted_val]);
-		$('#modelheadtext').text('Event by ' + pagination_data[targeted_val].posted_by.name.split(' ')[0]);
-		$('#modelbodytext').html('' +
-			'<div class="posts-body"><strong>' + pagination_data[targeted_val].title + '</strong><p>' + pagination_data[targeted_val].description.substring(0, 200) + '</p></div>');
-		$('#confirmdelete').attr('item-slug', targeted_val);
+	// --- Delete event --- //
+	$(document).on("click", '.deleteItem', function (e) {
+		let _this = this;
+		$(_this).parent().closest('.item').attr('id', 'deleteItem');
+		let targeted_item = $(_this).attr('item-slug');
+
+		(new PNotify({
+			title: 'Confirmation Needed',
+			text: 'Are you sure want to delete?',
+			icon: 'glyphicon glyphicon-question-sign',
+			hide: false,
+			confirm: { confirm: true },
+			buttons: { closer: false, sticker: false },
+			history: { history: false },
+			// nonblock: { nonblock: true },
+			// buttons: { show_on_nonblock: true },
+			// addclass: 'stack-modal',
+			stack: { 'dir1': 'down', 'dir2': 'right', 'modal': true }
+		})).get().on('pnotify.confirm', function () {
+			let data = { 'slug': targeted_item, };
+			ajaxActionAndNotification(data, '/event/delete', (result) => {
+				if (result.success) $('#deleteItem').fadeOut(300, function () { $(this).remove(); });
+				$('.item').removeAttr('id');
+			});
+		}).on('pnotify.cancel', function () {
+			$('.item').removeAttr('id');
+		});
+
 		e.preventDefault();
 	});
 
-	//----- Delete item and close popup
-	$(document).on("click", '#confirmdelete', function (e) {
-		let targeted_item = jQuery(this).attr('item-slug');
-		$.ajax({
-			url: '/event/delete',
-			type: 'POST',
-			data: {
-				'slug': targeted_item
-			},
-			beforeSend: function () {
-				$('#confirmdelete').children("i").removeClass('fa-trash');
-				$('#confirmdelete').children("i").addClass('fa-spinner fa-spin');
-			},
-			success: function () {
-				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
-				$('#confirmdelete').children("i").addClass('fa-check');
-				setTimeout(function () {
-					$("#modal-delete").modal('hide');
-				}, 1000);
-				$('.item-' + targeted_item).fadeOut(300, function () { $(this).remove(); });
-			},
-			error: function () {
-				console.log('error');
-				$('#confirmdelete').children("i").removeClass('fa-spinner fa-spin');
-				$('#confirmdelete').children("i").addClass('fa-times');
-			}
-
-		})
-		e.preventDefault();
-	});
-
+	// --- Tab filter --- //
 	$(document).on("click", '[tagcategory]', function (e) {
 		e.preventDefault();
 		let clicked_cat = $(this).attr("tagcategory");
 		let tag = ["0", "1", "2"];
+		// let tagName = ["JOBS", "LEADS", "INTERNS"];
+		let tags = { 0: 'Simple', 1: 'Institute', 2: 'Alumni Meet' };
 		tag.splice(tag.indexOf(clicked_cat), 1);
+
+		$('#selectedFilters').append('<a href="" title="Clear this filter." selectedTag="' + clicked_cat + '" class="selectedTag"><span>' + tags[clicked_cat] + '</span><i class="fa fa-close"></i></a>');
 
 		$.each(tag, function (index, item) {
 			$('.tag-' + item).fadeOut(0);
@@ -8411,5 +8764,19 @@ if ($("#pagecode_event").exists()) {
 		$('.tag-1').animate({ top: "0px", }, 300);
 
 		// $('.tag-1').slideDown("slow");
+	});
+
+	// --- Clear tag filter --- //
+	$(document).on("click", '.selectedTag', function (e) {
+		e.preventDefault();
+		let selectedTag = $(this).attr("selectedTag");
+		let tag = ["0", "1", "2"];
+		tag.splice(tag.indexOf(selectedTag), 1);
+
+		$.each(tag, function (index, item) {
+			$('.tag-' + item).fadeIn(0);
+		});
+
+		$(this).remove();
 	});
 }

@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 const ObjectId = require('mongodb').ObjectID;
 mongoose.Promise = global.Promise;
-// const bcrypt = require('bcryptjs');
-// const config = require('../config/keys');
+
 const slug = require('mongoose-slug-generator');
 mongoose.plugin(slug);
-// User Schema
+
+// Events Schema
 const EventSchema = mongoose.Schema({
 
-  title: { type: String, required: true },
+  title: { type: String, required: true, unique: true, index: true },
   description: { type: String, required: true },
-  slug: { type: String, slug: "title", slug_padding_size: 4, unique: true },
+  slug: { type: String, slug: "title", slug_padding_size: 4, unique: true, index: true },
   posted_on: { type: Date, default: Date.now },
   category: { type: Number, default: 0 },       // 0=normal, 1=Institute event, 2=Alumni meet
   tag_line: { type: String, default: '' },
@@ -39,33 +39,87 @@ const EventSchema = mongoose.Schema({
   publish: { type: Boolean, default: true }   // true , false
 });
 
-EventSchema.index({ title: 'text' });
-const event = module.exports = mongoose.model('event', EventSchema);
+// const event = module.exports = mongoose.model('event', EventSchema);
 
-// module.exports.getUserById = function(id, callback){
-//   User.findById(id, callback);
-// }
+// To make db name dynamic
+var establishedModels = {};
+function createModelForName(name) {
+  if (!(name in establishedModels)) {
+    // var Any = new Schema({ any: Schema.Types.Mixed });
+    establishedModels[name] = mongoose.model(name, EventSchema);
+  }
+  return establishedModels[name];
+}
+const collection = 'events';
 
-module.exports.saveEvent = function(eventData){
-  var data = new event(eventData);
+module.exports.getEventList = (pageSize, skip, sortby, orderby, query, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let events = createModelForName(db_name); // Create the db model.
+
+  return Promise.all([
+    events.count().then(count => ({ total: count })),
+    events.count(query).then(count => ({ searched_total: count })),
+    events.find(query)
+      .sort([[sortby, orderby]])
+      .skip(skip)
+      .limit(pageSize)
+      .then(data => ({ rows: data }))
+  ]).then(result => result.reduce((acc, curr) =>
+    Object.assign(acc, curr), {})
+  );
+}
+
+module.exports.changeState = (slug, state, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let events = createModelForName(db_name); // Create the db model.
+
+  // return event.update({ "slug": slug }, { $set: { "publish": state } })
+  return new Promise((resolve, reject) => {
+    events.findOneAndUpdate({ "slug": slug }, { "publish": state }, { new: true }, function (err, event) {
+      if (err) return reject(err);
+      if (!event) return reject('Unable to find.');
+
+      return resolve(event);
+    })
+  }).then(item => ({ success: true, msg: 'Updated successfully' }))
+    .catch(err => ({ success: false, msg: 'Unable to process' }));
+}
+
+module.exports.deleteEvent = (slug, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let events = createModelForName(db_name); // Create the db model.
+
+  // return event.find({ "slug": slug }).remove()
+  return new Promise((resolve, reject) => {
+    events.findOneAndRemove({ "slug": slug }, function (err, event) {
+      if (err) return reject(err);
+      if (!event) return reject('Unable to find.');
+
+      return resolve(event);
+    })
+  }).then(item => ({ success: true, msg: 'Deleted successfully' }))
+    .catch(err => ({ success: false, msg: 'Unable to process' }));
+}
+
+module.exports.saveEvent = (eventData, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let events = createModelForName(db_name); // Create the db model.
+
+  var data = new events(eventData);
   return data.save()
     .then(item => ({ success: true, msg: "item saved to database", data: data }))
     .catch(err => ({ success: false, msg: "unable to save to database" }));
 }
 
-module.exports.changeState = (slug, state)=>{
-  return event.update({"slug": slug}, { $set: {"publish": state }})
-      .then(item => ({ success: true, msg: 'Updated successfully' }))
-      .catch(err => ({ success: false, msg: 'Unable to process'}));
-}
-
-module.exports.deleteEvent = (slug)=>{
-  return event.find({"slug": slug}).remove()
-      .then(item => ({ success: true, msg: 'Deleted successfully' }))
-      .catch(err => ({ success: false, msg: 'Unable to process'}));
-}
-
-module.exports.editEvent = (eventData)=>{
+module.exports.editEvent = (eventData, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let events = createModelForName(db_name); // Create the db model.
+  
     console.log('model -',eventData);
     // return Promise.all([
       return event.findById(eventData._id)
@@ -85,25 +139,4 @@ module.exports.editEvent = (eventData)=>{
     // ]).then(result => result.reduce((acc,curr) =>
     //   Object.assign(acc,curr),{})
     // );
-}
-
-module.exports.getEventList = (pageSize, skip, sortby, orderby, query)=>{
-  
-    // console.log("limit- "+pageSize);
-    // console.log("skip- "+skip);
-    // console.log("sort- "+sortby);
-    // console.log("order- "+orderby);
-    // console.log("query- "+JSON.stringify(query));
-
-    return Promise.all([
-      event.count().then(count => ({ total: count })),
-      event.count(query).then(count => ({ searched_total: count })),
-      event.find(query)
-        .sort([[sortby, orderby]])
-        .skip(skip)
-        .limit(pageSize)
-        .then( data => ({ rows: data }))
-    ]).then(result => result.reduce((acc,curr) =>
-      Object.assign(acc,curr),{})
-    );    
 }

@@ -1,16 +1,15 @@
 const mongoose = require('mongoose');
 const ObjectId = require('mongodb').ObjectID;
 mongoose.Promise = global.Promise;
-// const bcrypt = require('bcryptjs');
-// const config = require('../config/keys');
+
 const slug = require('mongoose-slug-generator');
 mongoose.plugin(slug);
 
-// User Schema
+// Course Schema
 const CoursesSchema = mongoose.Schema({
 
   name: { type: String, required: true, unique: true, index: true },
-  slug: { type: String, slug: "name", slug_padding_size: 1, unique: true, index: true },
+  slug: { type: String, slug: "name", slug_padding_size: 2, unique: true, index: true },
   description: { type: String, default: '' },
   image: { type: String, default: '/assets/build/images/course.jpg' },
   connections_total: { type: Number, default: 0 },
@@ -28,6 +27,8 @@ const CoursesSchema = mongoose.Schema({
 
 });
 
+// const courses = module.exports = mongoose.model('Courses', CoursesSchema);
+
 // To make db name dynamic
 var establishedModels = {};
 function createModelForName(name) {
@@ -37,83 +38,118 @@ function createModelForName(name) {
   }
   return establishedModels[name];
 }
-// const courses = module.exports = mongoose.model('Courses', CoursesSchema);
-
 const collection = 'courses';
 
-module.exports.createNewCourse = function(courseData, db_slug){
-  // console.log('course model', db_slug);
+module.exports.getCourseList = (pageSize, skip, sortby, orderby, query, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let courses = createModelForName(db_name); // Create the db model.
+
+  // console.log("limit- "+pageSize);
+  // console.log("skip- "+skip);
+  // console.log("sort- "+sortby);
+  // console.log("order- "+orderby);
+  // console.log("query- "+JSON.stringify(query));
+
+  return Promise.all([
+    courses.count().then(count => ({ total: count })),
+    courses.count(query).then(count => ({ searched_total: count })),
+    courses.find(query, { _id: 0 })
+      .sort([[sortby, orderby]])
+      .skip(skip)
+      .limit(pageSize)
+      .then(data => ({ rows: data }))
+  ]).then(result => result.reduce((acc, curr) =>
+    Object.assign(acc, curr), {})
+  );
+}
+
+module.exports.checkCourseNameExists = (name, slug, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let courses = createModelForName(db_name); // Create the db model.
+  // console.log('model -',name);
+  // console.log('model -',slug);
+  // course_id = ObjectId(course_id);
+
+  let query = {};
+  if (name) query['name'] = name;
+  if (slug) query['slug'] = { $ne: slug };
+  // console.log('query', query);
+  return courses.count(query)
+    .then(count => ({ success: true, name: count }))
+    .catch(err => ({ success: false, error: err }));
+
+  // return Promise.all([
+  //   courses.count({"name": name, "_id": {$ne: course_id}}).then(count => ({ name: count })),
+  //   courses.count({"slug": slug, "_id": {$ne: course_id}}).then(count => ({ slug: count }))
+  // ]).then(result => result.reduce((acc,curr) =>
+  //   Object.assign(acc,curr),{})
+  // );
+}
+
+module.exports.createNewCourse = function (courseData, db_slug) {
   if (!db_slug) return false;
   let db_name = db_slug + '-' + collection;
   let courses = createModelForName(db_name); // Create the db model.
 
   var data = new courses(courseData);
   return data.save()
-    .then(item => ({ success: true, msg: "item saved to database", data: data }))
-    .catch(err => ({ success: false, msg: "unable to save to database" }));
+    .then(item => ({ success: true, msg: "item saved to database", data: item }))
+    .catch(err => ({ success: false, msg: "unable to save to database", data: err }));
 }
 
-module.exports.checkCourseNameExists = (name, slug, course_id)=>{
-  // console.log('model -',name);
-  // console.log('model -',slug);
-  course_id = ObjectId(course_id);
-  return Promise.all([
-    courses.count({"name": name, "_id": {$ne: course_id}}).then(count => ({ name: count })),
-    courses.count({"slug": slug, "_id": {$ne: course_id}}).then(count => ({ slug: count }))
-  ]).then(result => result.reduce((acc,curr) =>
-    Object.assign(acc,curr),{})
-  );
+module.exports.updateCourse = (courseData, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let courses = createModelForName(db_name); // Create the db model.
+
+  // console.log('form data -',courseData);
+
+  let query = { "slug": courseData.slug };
+  let data = {
+    name: courseData.name,
+    description: courseData.description,
+    status: courseData.status
+  }
+  return new Promise((resolve, reject) => {
+    courses.findOneAndUpdate(query, data, { new: true }, function (err, course) {
+      // console.log('on error', err);
+      if (err) return reject(err);
+      // console.log('db data 1', course);
+      if (!course) return reject('Unable to find.');
+
+      return resolve(course);
+    })
+  }).then(item => ({ success: true, msg: "Course updated successfully.", data: item }))
+    .catch(err => ({ success: false, msg: "Unable to update", data: err }));
+
 }
 
-module.exports.savecourse = (courseData)=>{
-    console.log('model -',courseData);
-    // return Promise.all([
-      return courses.findById(courseData._id)
-      .then(course => {
-        console.log('in then', course);
-        course.name = courseData.name;
-        course.slug = courseData.slug;
-        course.description = (courseData.description==='')?'':courseData.description;
-        course.image = (courseData.image==='')?course.image:courseData.image;
-        course.status = courseData.status;
+module.exports.deleteCourse = (slug, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let courses = createModelForName(db_name);
 
-        return course.save()
-        .then(item => ({ success: true, msg: "Item saved", data: course }))
-        .catch(err => ({ success: false, msg: "Unable to save" }));
+  return new Promise((resolve, reject) => {
+    courses.findOneAndRemove({ slug: slug }, (err, course) => {
+      // console.log('on error', err);
+      if (err) return reject(err);
+      // console.log('db data 1', course);
+      if (!course) return reject('Unable to find.');
 
-      }).catch(err => ({ success: false, msg: "Unable to find" }));
-    // ]).then(result => result.reduce((acc,curr) =>
-    //   Object.assign(acc,curr),{})
-    // );
-}
-
-module.exports.getCourseList = (pageSize, skip, sortby, orderby, query)=>{
-  
-    // console.log("limit- "+pageSize);
-    // console.log("skip- "+skip);
-    // console.log("sort- "+sortby);
-    // console.log("order- "+orderby);
-    // console.log("query- "+JSON.stringify(query));
-
-    return Promise.all([
-      courses.count().then(count => ({ total: count })),
-      courses.count(query).then(count => ({ searched_total: count })),
-      courses.find(query)
-        .sort([[sortby, orderby]])
-        .skip(skip)
-        .limit(pageSize)
-        .then( data => ({ rows: data }))
-    ]).then(result => result.reduce((acc,curr) =>
-      Object.assign(acc,curr),{})
-    );    
+      return resolve(course);
+    })
+  }).then(item => ({ success: true, msg: 'Course deleted.' }))
+    .catch(err => ({ success: false, msg: 'Unable to delete.', data: err }));
 }
 
 module.exports.getDropDownCourseList = function (db_slug) {
   // console.log('course model', db_slug);
   if (!db_slug) return false;
-
   let db_name = db_slug + '-' + collection;
   let courses = createModelForName(db_name); // Create the db model.
+  
   // var data = new colleges(collegeData);
   return courses.find({"status": true}, { "_id": 0, "name": 1, "slug": 1 })
     .then(courses => ({ success: true, msg: "Success", courses: courses }))

@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
 const ObjectId = require('mongodb').ObjectID;
 mongoose.Promise = global.Promise;
-// const bcrypt = require('bcryptjs');
-// const config = require('../config/keys');
+
 const slug = require('mongoose-slug-generator');
 mongoose.plugin(slug);
 
-// User Schema
+// Companies Schema
 const CompaniesSchema = mongoose.Schema({
 
   name: { type: String, required: true, unique: true, index: true },
@@ -30,15 +29,6 @@ const CompaniesSchema = mongoose.Schema({
 
 // const companies = module.exports = mongoose.model('Companies', CompaniesSchema);
 
-// This will be called only when FIND is fired
-/* CompaniesSchema.post('find', function (doc, next) {
-  delete doc._id;
-
-  console.log( doc ); // true
-  next();
-  // console.log(this instanceof mongoose.Query); // true
-}); */
-
 // To make db name dynamic
 var establishedModels = {};
 function createModelForName(name) {
@@ -50,9 +40,6 @@ function createModelForName(name) {
 }
 const collection = 'companies';
 
-// module.exports.getUserById = function(id, callback){
-//   User.findById(id, callback);
-// }
 
 module.exports.getCompanyList = (pageSize, skip, sortby, orderby, query, db_slug) => {
   if (!db_slug) return false;

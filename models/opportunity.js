@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 const ObjectId = require('mongodb').ObjectID;
 mongoose.Promise = global.Promise;
-// const bcrypt = require('bcryptjs');
-// const config = require('../config/keys');
+
 const slug = require('mongoose-slug-generator');
 mongoose.plugin(slug);
-// User Schema
+
+// Opportunities Schema
 const OpportunitySchema = mongoose.Schema({
 
-  title: { type: String, required: true },
+  title: { type: String, required: true, unique: true, index: true },
   description: { type: String, required: true },
-  slug: { type: String, slug: "title", slug_padding_size: 4, unique: true },
+  slug: { type: String, slug: "title", slug_padding_size: 4, unique: true, index: true },
   posted_on: { type: Date, default: Date.now },
   category: { type: Number, default: 1 },       // 1=Jobs, 2=Leads, 3=Interns
   ref_link: { type: String, default: '' },
@@ -47,30 +47,80 @@ const OpportunitySchema = mongoose.Schema({
   publish: { type: Boolean, default: true }   // true , false
 });
 
-OpportunitySchema.index({ title: 'text' });
-const opportunity = module.exports = mongoose.model('opportunity', OpportunitySchema);
+// const opportunity = module.exports = mongoose.model('opportunity', OpportunitySchema);
 
-// module.exports.getUserById = function(id, callback){
-//   User.findById(id, callback);
-// }
+// To make db name dynamic
+var establishedModels = {};
+function createModelForName(name) {
+  if (!(name in establishedModels)) {
+    // var Any = new Schema({ any: Schema.Types.Mixed });
+    establishedModels[name] = mongoose.model(name, OpportunitySchema);
+  }
+  return establishedModels[name];
+}
+const collection = 'opportunities';
 
-module.exports.saveOpportunity = function(opportunityData){
-  var data = new opportunity(opportunityData);
+module.exports.getOpportunityList = (pageSize, skip, sortby, orderby, query, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let opportunities = createModelForName(db_name); // Create the db model.
+
+  return Promise.all([
+    opportunities.count().then(count => ({ total: count })),
+    opportunities.count(query).then(count => ({ searched_total: count })),
+    opportunities.find(query)
+      .sort([[sortby, orderby]])
+      .skip(skip)
+      .limit(pageSize)
+      .then(data => ({ rows: data }))
+  ]).then(result => result.reduce((acc, curr) =>
+    Object.assign(acc, curr), {})
+  );
+}
+
+module.exports.changeState = (slug, state, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let opportunities = createModelForName(db_name); // Create the db model.
+
+  // return opportunities.update({ "slug": slug }, { $set: { "publish": state } })
+  return new Promise((resolve, reject) => {
+    opportunities.findOneAndUpdate({ "slug": slug }, { "publish": state }, { new: true }, function (err, opportunity) {
+      if (err) return reject(err);
+      if (!opportunity) return reject('Unable to find.');
+
+      return resolve(opportunity);
+    })
+  }).then(item => ({ success: true, msg: 'Updated successfully' }))
+    .catch(err => ({ success: false, msg: 'Unable to process' }));
+}
+
+module.exports.deleteOpportunity = (slug, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let opportunities = createModelForName(db_name); // Create the db model.
+
+  // return opportunities.find({ "slug": slug }).remove()
+  return new Promise((resolve, reject) => {
+    opportunities.findOneAndRemove({ "slug": slug }, function (err, opportunity) {
+      if (err) return reject(err);
+      if (!opportunity) return reject('Unable to find.');
+
+      return resolve(opportunity);
+    })
+  }).then(item => ({ success: true, msg: 'Deleted successfully' }))
+    .catch(err => ({ success: false, msg: 'Unable to process' }));
+}
+
+module.exports.saveOpportunity = (opportunityData, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let opportunities = createModelForName(db_name); // Create the db model.
+
+  let data = new opportunities(opportunityData);
   return data.save()
     .then(item => ({ success: true, msg: "item saved to database", data: data }))
     .catch(err => ({ success: false, msg: "unable to save to database" }));
-}
-
-module.exports.changeState = (slug, state)=>{
-  return opportunity.update({"slug": slug}, { $set: {"publish": state }})
-      .then(item => ({ success: true, msg: 'Updated successfully' }))
-      .catch(err => ({ success: false, msg: 'Unable to process'}));
-}
-
-module.exports.deleteOpportunity = (slug)=>{
-  return opportunity.find({"slug": slug}).remove()
-      .then(item => ({ success: true, msg: 'Deleted successfully' }))
-      .catch(err => ({ success: false, msg: 'Unable to process'}));
 }
 
 module.exports.editOpportunity = (opportunityData)=>{
@@ -95,23 +145,3 @@ module.exports.editOpportunity = (opportunityData)=>{
     // );
 }
 
-module.exports.getOpportunityList = (pageSize, skip, sortby, orderby, query)=>{
-  
-    // console.log("limit- "+pageSize);
-    // console.log("skip- "+skip);
-    // console.log("sort- "+sortby);
-    // console.log("order- "+orderby);
-    // console.log("query- "+JSON.stringify(query));
-
-    return Promise.all([
-      opportunity.count().then(count => ({ total: count })),
-      opportunity.count(query).then(count => ({ searched_total: count })),
-      opportunity.find(query)
-        .sort([[sortby, orderby]])
-        .skip(skip)
-        .limit(pageSize)
-        .then( data => ({ rows: data }))
-    ]).then(result => result.reduce((acc,curr) =>
-      Object.assign(acc,curr),{})
-    );    
-}

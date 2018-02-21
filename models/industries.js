@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 const ObjectId = require('mongodb').ObjectID;
 mongoose.Promise = global.Promise;
-// const bcrypt = require('bcryptjs');
-// const config = require('../config/keys');
 
-// User Schema
+const slug = require('mongoose-slug-generator');
+mongoose.plugin(slug);
+
+// Industries Schema
 const IndustriesSchema = mongoose.Schema({
 
-  name: { type: String, required: true },
-  slug: { type: String, required: true },
+  name: { type: String, required: true, unique: true, index: true },
+  slug: { type: String, slug: "name", slug_padding_size: 2, unique: true, index: true },
   description: { type: String, default: '' },
   image: { type: String, default: '/assets/build/images/industry.jpg' },
   connections_total: { type: Number, default: 0 },
@@ -26,96 +27,113 @@ const IndustriesSchema = mongoose.Schema({
 
 });
 
-const industries = module.exports = mongoose.model('Industries', IndustriesSchema);
+// const industries = module.exports = mongoose.model('Industries', IndustriesSchema);
 
-// module.exports.getUserById = function(id, callback){
-//   User.findById(id, callback);
-// }
-
-module.exports.createNewIndustry = function(industryData){
-  var data = new industries(industryData);
-  return data.save()
-    .then(item => ({ success: true, msg: "item saved to database", data: data }))
-    .catch(err => ({ success: false, msg: "unable to save to database" }));
+// To make db name dynamic
+var establishedModels = {};
+function createModelForName(name) {
+  if (!(name in establishedModels)) {
+    // var Any = new Schema({ any: Schema.Types.Mixed });
+    establishedModels[name] = mongoose.model(name, IndustriesSchema);
+  }
+  return establishedModels[name];
 }
+const collection = 'industries';
 
-module.exports.checkIndustryNameExists = (name, slug, industry_id)=>{
-  // console.log('model -',name);
-  // console.log('model -',slug);
-  industry_id = ObjectId(industry_id);
+
+module.exports.getIndustryList = (pageSize, skip, sortby, orderby, query, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let industries = createModelForName(db_name); // Create the db model.
+
+  // console.log("limit- "+pageSize);
+  // console.log("skip- "+skip);
+  // console.log("sort- "+sortby);
+  // console.log("order- "+orderby);
+  // console.log("query- "+JSON.stringify(query));
+
   return Promise.all([
-    industries.count({"name": name, "_id": {$ne: industry_id}}).then(count => ({ name: count })),
-    industries.count({"slug": slug, "_id": {$ne: industry_id}}).then(count => ({ slug: count }))
-  ]).then(result => result.reduce((acc,curr) =>
-    Object.assign(acc,curr),{})
+    industries.count().then(count => ({ total: count })),
+    industries.count(query).then(count => ({ searched_total: count })),
+    industries.find(query, { _id: 0 })
+      .sort([[sortby, orderby]])
+      .skip(skip)
+      .limit(pageSize)
+      .then(data => ({ rows: data }))
+  ]).then(result => result.reduce((acc, curr) =>
+    Object.assign(acc, curr), {})
   );
 }
 
-module.exports.saveindustry = (industryData)=>{
-    console.log('model -',industryData);
-    // return Promise.all([
-      return industries.findById(industryData._id)
-      .then(industry => {
-        console.log('in then', industry);
-        industry.name = industryData.name;
-        industry.slug = industryData.slug;
-        industry.description = (industryData.description==='')?'':industryData.description;
-        industry.image = (industryData.image==='')?industry.image:industryData.image;
-        industry.status = industryData.status;
+module.exports.checkIndustryNameExists = (name, slug, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let industries = createModelForName(db_name); // Create the db model.
+  // console.log('model -',name);
+  // console.log('model -',slug);
+  // industry_id = ObjectId(industry_id);
 
-        return industry.save()
-        .then(item => ({ success: true, msg: "Item saved", data: industry }))
-        .catch(err => ({ success: false, msg: "Unable to save" }));
-
-      }).catch(err => ({ success: false, msg: "Unable to find" }));
-    // ]).then(result => result.reduce((acc,curr) =>
-    //   Object.assign(acc,curr),{})
-    // );
+  let query = {};
+  if (name) query['name'] = name;
+  if (slug) query['slug'] = { $ne: slug };
+  // console.log('query', query);
+  return industries.count(query)
+    .then(count => ({ success: true, name: count }))
+    .catch(err => ({ success: false, error: err }));
 }
 
-module.exports.getIndustryList = (pageSize, skip, sortby, orderby, query)=>{
-  
-    // console.log("limit- "+pageSize);
-    // console.log("skip- "+skip);
-    // console.log("sort- "+sortby);
-    // console.log("order- "+orderby);
-    // console.log("query- "+JSON.stringify(query));
+module.exports.createNewIndustry = function (industryData, db_slug) {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let industries = createModelForName(db_name); // Create the db model.
 
-    return Promise.all([
-      industries.count().then(count => ({ total: count })),
-      industries.count(query).then(count => ({ searched_total: count })),
-      industries.find(query)
-        .sort([[sortby, orderby]])
-        .skip(skip)
-        .limit(pageSize)
-        .then( data => ({ rows: data }))
-    ]).then(result => result.reduce((acc,curr) =>
-      Object.assign(acc,curr),{})
-    );    
+  var data = new industries(industryData);
+  return data.save()
+    .then(item => ({ success: true, msg: "item saved to database", data: item }))
+    .catch(err => ({ success: false, msg: "unable to save to database", data: err }));
 }
 
-// module.exports.deleteUserById = (req)=>{
-//   id = req.query.userID;
-//   User.findByIdAndRemove(id, function (err, res){
-//     if(err) { throw err; }
-//     if( res.result.n === 0 ) { console.log("Record not found"); }
-//     console.log("Deleted successfully.");
-//   });
-// }
+module.exports.updateIndustry = (industryData, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let industries = createModelForName(db_name); // Create the db model.
 
-// module.exports.addUser = function(newUser, callback){
-//   bcrypt.genSalt(10, (err, salt) => {
-//     bcrypt.hash(newUser.password, salt, (err, hash) => {
-//       if(err) throw err;
-//       newUser.password = hash;
-//       newUser.save(callback);
-//     });
-//   });
-// }
+  // console.log('form data -',industryData);
 
-// module.exports.comparePassword = function(candidatePassword, hash, callback){
-//   bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
-//     if(err) throw err;
-//     callback(null, isMatch);
-//   });
-// }
+  let query = { "slug": industryData.slug };
+  let data = {
+    name: industryData.name,
+    description: industryData.description,
+    status: industryData.status
+  }
+  return new Promise((resolve, reject) => {
+    industries.findOneAndUpdate(query, data, { new: true }, function (err, industry) {
+      // console.log('on error', err);
+      if (err) return reject(err);
+      // console.log('db data 1', industry);
+      if (!industry) return reject('Unable to find.');
+
+      return resolve(industry);
+    })
+  }).then(item => ({ success: true, msg: "Industry updated successfully.", data: item }))
+    .catch(err => ({ success: false, msg: "Unable to update", data: err }));
+
+}
+
+module.exports.deleteIndustry = (slug, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let industries = createModelForName(db_name);
+
+  return new Promise((resolve, reject) => {
+    industries.findOneAndRemove({ slug: slug }, (err, industry) => {
+      // console.log('on error', err);
+      if (err) return reject(err);
+      // console.log('db data 1', industry);
+      if (!industry) return reject('Unable to find.');
+
+      return resolve(industry);
+    })
+  }).then(item => ({ success: true, msg: 'Industry deleted.' }))
+    .catch(err => ({ success: false, msg: 'Unable to delete.', data: err }));
+}

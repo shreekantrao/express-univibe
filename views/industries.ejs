@@ -26,8 +26,10 @@
       <div class="col-md-12">
         <div class="x_panel">
           <div class="x_title">
-            <h2>College Industries
-              <small> master </small>
+            <h2>Showing -
+              <span id="search_total">0</span> /
+              <span id="network_total">0</span>
+              <!-- <small> master </small> -->
             </h2>
             <ul class="nav navbar-right panel_toolbox">
               <li>
@@ -63,83 +65,101 @@
               <div class="col-md-55">
                 <div class="thumbnail">
                   <!-- <div class="image view view-first"> -->
-                  <a data-popup-open="add">
-                    <img style="width: 100%; display: block;" src="/assets/build/images/add-company.png" alt="image" />
+                  <a data-popup-add="new">
+                    <img style="width: 100%; display: block;" src="/assets/build/images/addItem.png" alt="image" />
                   </a>
                 </div>
               </div>
 
             </div>
+            <div id="msgbar" class="pagination-msgbar"></div>
 
-            <!-- start Popup box Create -->
-            <div class="popup" data-popup="popup_industries_add">
-              <div class="popup-inner">
-                <h2>Add new industry.</h2>
-                <p>Donec in volutpat nisi. In quam lectus, aliquet rhoncus cursus a, congue et arcu.</p>
-
-                <div class="col-md-3 col-sm-3 col-xs-12">
-                  <!-- Profile details -->
-                  <div class="profile_img">
-                    <div id="crop-avatar">
-                      <!-- Current avatar -->
-                      <img onerror="this.src='/assets/build/images/industry.jpg'" class="img-responsive avatar-view" src="/assets/build/images/industry.jpg"
-                        alt="Avatar" title="Change the avatar">
-                    </div>
-                  </div>
-                  <div style="padding-top: 15px;">
-                    <label class="control-label col-md-8 col-sm-8 col-xs-12">Publish</label>
-                    <div class="col-md-4 col-sm-4 col-xs-12">
-                      <input id="industry_status" name="industry_status" type="checkbox" checked class="js-switch">
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-9 col-sm-9 col-xs-12">
+            <!-- modals -->
+            <!-- Large modal -->
+            <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">Large modal</button> -->
+            <div class="modal fade industry-modal-form" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
 
                   <!-- User form -->
-                  <div class="x_panel">
-                    <div class="x_content">
-                      <br />
-                      <form class="form-horizontal form-label-left" method="post" action="" novalidate>
+                  <form class="form-horizontal form-label-left" id="industryeditform">
 
-                        <!-- Profile line -->
-                        <div class="form-group field">
-                          <!-- <label class="control-label col-md-2 col-sm-2 col-xs-12">Profile line</label> -->
-                          <div class="col-md-7 col-sm-7 col-xs-12">
-                            <input id="name" value="" type="text" class="form-control" placeholder="Industry name" data-validate-length-range="3,15" required="required">
-                            <input id="industry_id" value="" type="hidden" >
-                            <input id="slug" value="" type="hidden" data-validate-length-range="3,15" required="required">
-                          </div>
-                        </div>
-
-                        <!-- Summary -->
-                        <div class="form-group field">
-                          <!-- <label class="control-label col-md-2 col-sm-2 col-xs-12">Summary</label> -->
-                          <div class="col-md-7 col-sm-7 col-xs-12">
-                            <textarea id="description" value="" class="form-control" rows="3" placeholder="Description"></textarea>
-                          </div>
-                        </div>
-
-                        <div class="ln_solid"></div>
-
-                        <div class="form-group field">
-                          <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-4">
-                            <!-- <button type="button" class="btn btn-primary">Cancel</button> -->
-                            <button type="reset" class="btn btn-primary">Reset</button>
-                            <button id="industry-submit" type="button" class="btn btn-success">Submit</button>
-                          </div>
-                        </div>
-
-                      </form>
+                    <div class="modal-header">
+                      <span class="popup-close" data-dismiss="modal" href="#">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                      </span>
+                      <h4 class="modal-title" id="myModalLabel">Add new industry.</h4>
                     </div>
-                  </div>
-                </div>
+                    <div class="modal-body">
+                      <div class="row">
 
-                <span class="popup-close" data-popup-close="popup" href="#">
-                  <i class="fa fa-times" aria-hidden="true"></i>
-                </span>
+
+                        <div class="col-md-3 col-sm-3 col-xs-12">
+                          <!-- Profile details -->
+                          <div class="profile_img">
+                            <div id="crop-avatar">
+                              <!-- Current avatar -->
+                              <img onerror="this.src='/assets/build/images/industry.jpg'" class="img-responsive avatar-view" src="/assets/build/images/industry.jpg"
+                                alt="Avatar" title="Change the avatar">
+                            </div>
+                          </div>
+                          <!-- <div style="padding-top: 15px;">
+                          <label class="control-label col-md-8 col-sm-8 col-xs-12">Publish</label>
+                          <div class="col-md-4 col-sm-4 col-xs-12">
+                            <input id="industry_status" name="industry_status" type="checkbox" checked class="js-switch">
+                          </div>
+                        </div> -->
+                        </div>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+
+
+
+                          <!-- Profile line -->
+                          <div class="form-group field">
+                            <!-- <label class="control-label col-md-2 col-sm-2 col-xs-12">Profile line</label> -->
+                            <div class="col-md-7 col-sm-7 col-xs-12">
+                              <input id="name" name="name" value="" type="text" class="form-control" placeholder="Industry name" required="required">
+                              <input id="image" name="image" value="" type="hidden">
+                              <input id="slug" name="slug" value="" type="hidden" required="required">
+                            </div>
+                          </div>
+
+                          <!-- Summary -->
+                          <div class="form-group field">
+                            <!-- <label class="control-label col-md-2 col-sm-2 col-xs-12">Summary</label> -->
+                            <div class="col-md-7 col-sm-7 col-xs-12">
+                              <textarea id="description" value="" class="form-control" rows="3" placeholder="Description"></textarea>
+                            </div>
+                          </div>
+
+                          <!-- <div class="ln_solid"></div> -->
+
+                          <div class="form-group field">
+                            <label class="col-md-2 col-sm-2 col-xs-12">Publish</label>
+                            <div class="col-md-5 col-sm-5 col-xs-12">
+                              <input id="industry_status" name="industry_status" type="checkbox" checked class="js-switch">
+
+                              <!-- <button type="button" class="btn btn-primary">Cancel</button> -->
+                              <!-- <button type="reset" class="btn btn-primary">Reset</button>
+                              <button id="industry-submit" type="button" class="btn btn-success">Submit</button> -->
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
+                      <button type="reset" class="btn btn-default">Reset</button>
+                      <button type="submit" class="btn btn-primary" id="industry-submit">Save
+                        <i></i>
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
-            <!-- end Popup box -->
+
+            <!-- /modals -->
           </div>
         </div>
       </div>

@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 const ObjectId = require('mongodb').ObjectID;
 mongoose.Promise = global.Promise;
-// const bcrypt = require('bcryptjs');
-// const config = require('../config/keys');
 
-// User Schema
+const slug = require('mongoose-slug-generator');
+mongoose.plugin(slug);
+
+// Cities Schema
 const CitiesSchema = mongoose.Schema({
 
-  name: { type: String, required: true },
-  slug: { type: String, required: true },
+  name: { type: String, required: true, unique: true, index: true },
+  slug: { type: String, slug: "name", slug_padding_size: 2, unique: true, index: true },
   description: { type: String, default: '' },
   image: { type: String, default: '/assets/build/images/city.jpg' },
   connections_total: { type: Number, default: 0 },
@@ -26,96 +27,120 @@ const CitiesSchema = mongoose.Schema({
 
 });
 
-const cities = module.exports = mongoose.model('Cities', CitiesSchema);
+// const cities = module.exports = mongoose.model('Cities', CitiesSchema);
 
-// module.exports.getUserById = function(id, callback){
-//   User.findById(id, callback);
-// }
-
-module.exports.createNewCity = function(cityData){
-  var data = new cities(cityData);
-  return data.save()
-    .then(item => ({ success: true, msg: "item saved to database", data: data }))
-    .catch(err => ({ success: false, msg: "unable to save to database" }));
+// To make db name dynamic
+var establishedModels = {};
+function createModelForName(name) {
+  if (!(name in establishedModels)) {
+    // var Any = new Schema({ any: Schema.Types.Mixed });
+    establishedModels[name] = mongoose.model(name, CitiesSchema);
+  }
+  return establishedModels[name];
 }
+const collection = 'cities';
 
-module.exports.checkCityNameExists = (name, slug, city_id)=>{
-  // console.log('model -',name);
-  // console.log('model -',slug);
-  city_id = ObjectId(city_id);
+
+module.exports.getCityList = (pageSize, skip, sortby, orderby, query, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let cities = createModelForName(db_name); // Create the db model.
+
+  // console.log("limit- "+pageSize);
+  // console.log("skip- "+skip);
+  // console.log("sort- "+sortby);
+  // console.log("order- "+orderby);
+  // console.log("query- "+JSON.stringify(query));
+
   return Promise.all([
-    cities.count({"name": name, "_id": {$ne: city_id}}).then(count => ({ name: count })),
-    cities.count({"slug": slug, "_id": {$ne: city_id}}).then(count => ({ slug: count }))
-  ]).then(result => result.reduce((acc,curr) =>
-    Object.assign(acc,curr),{})
+    cities.count().then(count => ({ total: count })),
+    cities.count(query).then(count => ({ searched_total: count })),
+    cities.find(query, { _id: 0 })
+      .sort([[sortby, orderby]])
+      .skip(skip)
+      .limit(pageSize)
+      .then(data => ({ rows: data }))
+  ]).then(result => result.reduce((acc, curr) =>
+    Object.assign(acc, curr), {})
   );
 }
 
-module.exports.savecity = (cityData)=>{
-    console.log('model -',cityData);
-    // return Promise.all([
-      return cities.findById(cityData._id)
-      .then(city => {
-        console.log('in then', city);
-        city.name = cityData.name;
-        city.slug = cityData.slug;
-        city.description = (cityData.description==='')?'':cityData.description;
-        city.image = (cityData.image==='')?city.image:cityData.image;
-        city.status = cityData.status;
+module.exports.checkCityNameExists = (name, slug, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let cities = createModelForName(db_name); // Create the db model.
+  // console.log('model -',name);
+  // console.log('model -',slug);
+  // city_id = ObjectId(city_id);
 
-        return city.save()
-        .then(item => ({ success: true, msg: "Item saved", data: city }))
-        .catch(err => ({ success: false, msg: "Unable to save" }));
+  let query = {};
+  if (name) query['name'] = name;
+  if (slug) query['slug'] = { $ne: slug };
+  // console.log('query', query);
+  return cities.count(query)
+    .then(count => ({ success: true, name: count }))
+    .catch(err => ({ success: false, error: err }));
 
-      }).catch(err => ({ success: false, msg: "Unable to find" }));
-    // ]).then(result => result.reduce((acc,curr) =>
-    //   Object.assign(acc,curr),{})
-    // );
+  // return Promise.all([
+  //   cities.count({"name": name, "_id": {$ne: city_id}}).then(count => ({ name: count })),
+  //   cities.count({"slug": slug, "_id": {$ne: city_id}}).then(count => ({ slug: count }))
+  // ]).then(result => result.reduce((acc,curr) =>
+  //   Object.assign(acc,curr),{})
+  // );
 }
 
-module.exports.getCityList = (pageSize, skip, sortby, orderby, query)=>{
-  
-    // console.log("limit- "+pageSize);
-    // console.log("skip- "+skip);
-    // console.log("sort- "+sortby);
-    // console.log("order- "+orderby);
-    // console.log("query- "+JSON.stringify(query));
+module.exports.createNewCity = function (cityData, db_slug) {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let cities = createModelForName(db_name); // Create the db model.
 
-    return Promise.all([
-      cities.count().then(count => ({ total: count })),
-      cities.count(query).then(count => ({ searched_total: count })),
-      cities.find(query)
-        .sort([[sortby, orderby]])
-        .skip(skip)
-        .limit(pageSize)
-        .then( data => ({ rows: data }))
-    ]).then(result => result.reduce((acc,curr) =>
-      Object.assign(acc,curr),{})
-    );    
+  var data = new cities(cityData);
+  return data.save()
+    .then(item => ({ success: true, msg: "item saved to database", data: item }))
+    .catch(err => ({ success: false, msg: "unable to save to database", data: err }));
 }
 
-// module.exports.deleteUserById = (req)=>{
-//   id = req.query.userID;
-//   User.findByIdAndRemove(id, function (err, res){
-//     if(err) { throw err; }
-//     if( res.result.n === 0 ) { console.log("Record not found"); }
-//     console.log("Deleted successfully.");
-//   });
-// }
+module.exports.updateCity = (cityData, db_slug) => {
+  if (!db_slug) return false;
+  let db_name = db_slug + '-' + collection;
+  let cities = createModelForName(db_name); // Create the db model.
 
-// module.exports.addUser = function(newUser, callback){
-//   bcrypt.genSalt(10, (err, salt) => {
-//     bcrypt.hash(newUser.password, salt, (err, hash) => {
-//       if(err) throw err;
-//       newUser.password = hash;
-//       newUser.save(callback);
-//     });
-//   });
-// }
+  // console.log('form data -',cityData);
 
-// module.exports.comparePassword = function(candidatePassword, hash, callback){
-//   bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
-//     if(err) throw err;
-//     callback(null, isMatch);
-//   });
-// }
+  let query = { "slug": cityData.slug };
+  let data = {
+    name: cityData.name,
+    description: cityData.description,
+    status: cityData.status
+  }
+  return new Promise((resolve, reject) => {
+    cities.findOneAndUpdate(query, data, { new: true }, function (err, city) {
+      // console.log('on error', err);
+      if (err) return reject(err);
+      // console.log('db data 1', city);
+      if (!city) return reject('Unable to find.');
+
+      return resolve(city);
+    })
+  }).then(item => ({ success: true, msg: "City updated successfully.", data: item }))
+    .catch(err => ({ success: false, msg: "Unable to update", data: err }));
+
+}
+
+module.exports.deleteCity = (slug, db_slug) => {
+  if (!db_slug) return ({ success: false });
+  let db_name = db_slug + '-' + collection;
+  let cities = createModelForName(db_name);
+
+  return new Promise((resolve, reject) => {
+    cities.findOneAndRemove({ slug: slug }, (err, city) => {
+      // console.log('on error', err);
+      if (err) return reject(err);
+      // console.log('db data 1', city);
+      if (!city) return reject('Unable to find.');
+
+      return resolve(city);
+    })
+  }).then(item => ({ success: true, msg: 'City deleted.' }))
+    .catch(err => ({ success: false, msg: 'Unable to delete.', data: err }));
+}

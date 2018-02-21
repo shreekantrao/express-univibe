@@ -136,7 +136,9 @@ module.exports = {
             let data = await companies.deleteCompany(req.body.slug, db_slug);
             // console.log('data from model', data);
 
-            res.json(data);
+            setTimeout(() => {
+                res.json(data);
+            }, 2000);
         } catch (e) {
             next(e);
         }

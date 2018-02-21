@@ -3,75 +3,45 @@ var router = express.Router();
 
 var cities = require('../controllers/cities');
 
-// ############################ City list page ######################################
-
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-	res.redirect(301,'/cities/list');
+router.get('/', function (req, res, next) {
+	res.redirect(301, '/cities/list');
 });
 
-router.get('/list', function(req, res, next) {
-	// console.log("alphabet = "+req.params.alphabet);
+// --- City template call --- //
+router.get('/list', function (req, res, next) {
 	let notify = '';
-	if(req.session.notify){
+	if (req.session.notify) {
 		notify = req.session.notify;
 		delete req.session.notify;
 	}
 	// res.send(notify);
-	res.render('page', {"page_Code":"cities","page_Title":"City City","notify":notify});
+	res.render('page', { "page_Code": "cities", "page_Title": "City Cities", "notify": notify });
 });
 
-// ############################ City list page ######################################
-
-router.get('/page/:page_no', function(req, res, next) {
-	// console.log('router userslist');
+// --- City ajax pages --- //
+router.get('/page/:page_no', function (req, res, next) {
 	cities.getCityList(req, res, next);
 });
 
-// ############################ City add ######################################
-
-// --- City add page --- //
-// router.get('/add', function(req, res) {
-// 	//network.profileData(req, res);
-// 	let notify = '';
-// 	if(req.session.notify){
-// 		notify = req.session.notify;
-// 		delete req.session.notify;
-// 	}
-// 	res.render('page', {"page_Code":"city-form","page_Title":"Add new City","notify":notify});
-// });
-
-// --- City add acction--- //
-router.post('/addnew', function(req, res, next) {
-	cities.createNewCity(req, res, next);
-	
-	// console.log("data for slug = "+JSON.stringify(data));
-	// res.render('page', {"page_Code":"city-form","page_Title":"Add new City"});
-});
-
-router.post('/checkcityname', function(req, res, next) {
-	// console.log("data for slug");
+// --- City name check --- //
+router.post('/checkcityname', function (req, res, next) {
 	cities.checkCityNameExists(req, res, next);
 });
-// ############################ City detail ######################################
 
-// --- City detail page --- //
-// router.get('/:cityname/', function(req, res) {
-// 	//network.profileData(req, res);
-// 	// console.log("data for slug = "+JSON.stringify(data));
-// 	res.render('page', {"page_Code":"city-details","page_Title":"Profile"});
-// });
-
-// ############################ City edit ######################################
-
-// --- City edit page --- //
-router.post('/savecity', function(req, res, next) {
-	// console.log("data for slug");
-	cities.savecity(req, res, next);
+// --- City add action--- //
+router.post('/addcity', function (req, res, next) {
+	cities.createNewCity(req, res, next);
 });
 
 // --- City edit action --- //
-// router.post('/edit', function(req, res, next) {
-// 	cities.saveCityData(req, res, next);
-// });
+router.post('/updatecity', function (req, res, next) {
+	cities.updateCity(req, res, next);
+});
+
+// --- City delete action --- //
+router.post('/deletecity', function (req, res, next) {
+	cities.deleteCity(req, res, next);
+});
+
 module.exports = router;
